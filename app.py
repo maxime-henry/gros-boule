@@ -2,6 +2,7 @@ import streamlit as st
 from datetime import datetime
 from structure import Personne
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 import boto3
 from boto3.dynamodb.conditions import Attr
@@ -52,7 +53,7 @@ with col2 :
 with col3 :
     st.metric(label="Objectif du jour", value=squats_restant)
 with col4 :
-    pass
+    st.metric(label="Objectif total", value=objectif, delta = "début 12 janvier", delta_color="off")
 from collections import defaultdict
 
 def load_data(name):
@@ -76,6 +77,23 @@ tabs  = st.tabs(participants)
 
 for i, tab in enumerate(tabs):
     with tab :
+        squats_faits =st.number_input(f"Enregistré une session squats", min_value=0, max_value=300, value=10, step=1, key = i+10)
+
+        if st.button(f"🍑 Save 🍑", key= i):
+            with st.spinner("Saving..."):
+                User = load_data(participants[i])
+                User.done += squats_faits
+                st.success("Ton boule chamboule")
+
+                table_squats.put_item(
+                    Item={
+                        'name': participants[i],
+                        # date with time and seconds
+                        "date": datetime.utcnow().isoformat() ,
+                        'squats': squats_faits})
+
+                st.toast("C'est enregistré mon reuf!", icon='🎉')
+        st.write("---")
         
         User = load_data(participants[i])
         
@@ -109,26 +127,19 @@ for i, tab in enumerate(tabs):
 
             # Plotly line chart
             fig = px.bar(User.table, x='Date', y='Squats', title='Nombre de squats')
-
+            fig.update_layout(
+                shapes=[
+                    dict(
+                        type='line',
+                        yref='y',
+                        y0=40,
+                        y1=40,
+                        xref='paper',  # Use 'paper' for x-axis values between 0 and 1
+                        x0=0,
+                        x1=1,
+                        line=dict(color='red', width=2)
+                    )
+                ]
+            )
           
             st.plotly_chart(fig, use_container_width=True)
-
- 
-        squats_faits =st.number_input(f"Squats fait", min_value=0, max_value=40, value=10, step=1, key = i+10)
-
-        if st.button(f"🍑 Save 🍑", key= i):
-            with st.spinner("Saving..."):
-                User = load_data(participants[i])
-                User.done += squats_faits
-                st.success("Ton boule chamboule")
-
-                table_squats.put_item(
-                    Item={
-                        'name': participants[i],
-                        # date with time and seconds
-                        "date": datetime.utcnow().isoformat() ,
-                        'squats': squats_faits})
-
-                st.toast("C'est enregistré mon reuf!", icon='🎉')
-
-
