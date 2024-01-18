@@ -47,7 +47,7 @@ with col1:
 
 with col2 :
     # metric nombre de jour restant
-    st.metric(label="Jours restant", value=days_left)
+    st.metric(label="Jours restants", value=days_left)
 
 with col3 :
     st.metric(label="Objectif du jour", value=squats_restant)
@@ -99,6 +99,9 @@ for i, tab in enumerate(tabs):
             # squat fait aujourd'hui 
             st.metric(label="Squats fait aujourd'hui", value=total_squats_today, delta = int(total_squats_today-40))
             st.metric(label="Objectif squat/jour", value=round(restant_jour,2))
+            # pourcentage de l'objectif rempli
+            prct_objectif_rempli = round(100*User.done/objectif,2)
+            st.metric(label="Pourcentage de l'objectif rempli", value = f"{prct_objectif_rempli}%")
 
         with col2:
 
@@ -125,5 +128,7 @@ for i, tab in enumerate(tabs):
                         # date with time and seconds
                         "date": datetime.utcnow().isoformat() ,
                         'squats': squats_faits})
+
+                st.toast("C'est enregistré mon reuf!", icon='🎉')
 
 
