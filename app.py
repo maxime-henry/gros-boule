@@ -119,14 +119,15 @@ for i, tab in enumerate(tabs):
             st.metric(label="Total squats", value=User.done)
             # squat fait aujourd'hui 
             st.metric(label="Squats fait aujourd'hui", value=total_squats_today, delta = int(total_squats_today-40))
-            st.metric(label="Objectif squat/jour", value=round(restant_jour,2))
+            
             # pourcentage de l'objectif rempli
             prct_objectif_rempli = round(100*User.done/objectif,2)
             st.metric(label="Pourcentage de l'objectif rempli", value = f"{prct_objectif_rempli}%")
             # nombre de squat moyen par jour
 
-            st.metric(label="Squat moyen par jour", value=round(User.table['Squats'].mean(),2))
-
+            mean_squat_per_day = round(User.table['Squats'].mean(),2)
+            st.metric(label="Squat moyen par jour", value=mean_squat_per_day, delta=mean_squat_per_day-40)
+            st.metric(label="Objectif squat/jour", value=round(restant_jour,2))
         with col2:
 
 
