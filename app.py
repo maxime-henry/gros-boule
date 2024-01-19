@@ -1,13 +1,13 @@
+import os
+from collections import defaultdict
+from datetime import datetime, timedelta
+import random
 import streamlit as st
-from datetime import datetime
 import plotly.express as px
-import plotly.graph_objects as go
 import pandas as pd
 import boto3
 from boto3.dynamodb.conditions import Attr
-import os
 from dotenv import load_dotenv
-import random
 from motivation import motivate
 
 load_dotenv()
@@ -41,7 +41,7 @@ st.write(
 )
 
 participants = ("Matix", "Max", "Floflox", "Audrix", "Vio")
-objectif = 14200
+OBJECTIF = 14200
 
 # display the number of day between today and the end of the year
 today = datetime.now()
@@ -63,11 +63,10 @@ with col3:
 with col4:
     st.metric(
         label="Objectif total",
-        value=objectif,
+        value=OBJECTIF,
         delta="début 12 janvier",
         delta_color="off",
     )
-from collections import defaultdict
 
 
 def load_data(name):
@@ -80,7 +79,6 @@ def load_data(name):
 
     # Create a DataFrame
     df = pd.DataFrame(list(squats_by_day.items()), columns=["Date", "Squats"])
-    print(df)
     done = df["Squats"].sum()
 
     return Personne(name, done, df)
@@ -91,13 +89,19 @@ tabs = st.tabs(participants)
 
 for i, tab in enumerate(tabs):
     with tab:
-        squats_faits =st.number_input(f"Enregistrer une session squats", min_value=5, max_value=300, value=10, step=1, key = i+10)
+        squats_faits = st.number_input(
+            f"Enregistrer une session squats",
+            min_value=5,
+            max_value=300,
+            value=10,
+            step=1,
+            key=i + 10,
+        )
 
         if st.button(f"🍑 Save 🍑", key= i):
             with st.spinner("Saving..."):
                 User = load_data(participants[i])
                 User.done += squats_faits
-                
 
                 size = len(motivate)
                 random_motivate = random.randrange(0, size)
@@ -107,7 +111,7 @@ for i, tab in enumerate(tabs):
                     Item={
                         "name": participants[i],
                         # date with time and seconds
-                        "date": datetime.utcnow().isoformat(),
+                        "date": (datetime.utcnow()+timedelta(hours=1)).isoformat(),
                         "squats": squats_faits,
                     }
                 )
@@ -117,7 +121,7 @@ for i, tab in enumerate(tabs):
 
         User = load_data(participants[i])
 
-        restant = objectif - User.done
+        restant = OBJECTIF - User.done
         restant_jour = restant / days_left
 
         # Get today's date in the same format as your 'Date' column
@@ -145,17 +149,16 @@ for i, tab in enumerate(tabs):
             )
 
             # pourcentage de l'objectif rempli
-            prct_objectif_rempli = round(100 * User.done / objectif, 2)
+            prct_objectif_rempli = round(100 * User.done / OBJECTIF, 2)
             st.metric(
                 label="Pourcentage de l'objectif rempli",
                 value=f"{prct_objectif_rempli}%",
             )
             # nombre de squat moyen par jour
-            # nombre de jour depuis le 12 janvier 
-            nb_jour_defi = (today - datetime(today.year, 1, 12)).days +1
-            print(nb_jour_defi)
+            # nombre de jour depuis le 12 janvier
+            nb_jour_defi = (today - datetime(today.year, 1, 12)).days + 1
 
-            mean_squat_per_day = round(User.table["Squats"].sum()/nb_jour_defi, 2)
+            mean_squat_per_day = round(User.table["Squats"].sum() / nb_jour_defi, 2)
             st.metric(
                 label="Squat moyen par jour",
                 value=mean_squat_per_day,
@@ -167,16 +170,16 @@ for i, tab in enumerate(tabs):
             fig = px.bar(User.table, x="Date", y="Squats", title="Nombre de squats")
             fig.update_layout(
                 shapes=[
-                    dict(
-                        type="line",
-                        yref="y",
-                        y0=40,
-                        y1=40,
-                        xref="paper",  # Use 'paper' for x-axis values between 0 and 1
-                        x0=0,
-                        x1=1,
-                        line=dict(color="red", width=2),
-                    )
+                    {
+                        "type":"line",
+                        "yref":"y",
+                        "y0":40,
+                        "y1":40,
+                        "xref":"paper",  # Use 'paper' for x-axis values between 0 and 1
+                        "x0":0,
+                        "x1":1,
+                        "line":{"color":"red", "width":2}
+                    }
                 ]
             )
 
