@@ -80,7 +80,7 @@ tabs  = st.tabs(participants)
 
 for i, tab in enumerate(tabs):
     with tab :
-        squats_faits =st.number_input(f"Enregistré une session squats", min_value=0, max_value=300, value=10, step=1, key = i+10)
+        squats_faits =st.number_input(f"Enregistrer une session squats", min_value=0, max_value=300, value=10, step=1, key = i+10)
 
         if st.button(f"🍑 Save 🍑", key= i):
             with st.spinner("Saving..."):
