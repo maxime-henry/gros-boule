@@ -24,8 +24,7 @@ table_squats = boto3.resource(
     aws_secret_access_key=SECRET_ACCESS_KEY,
 ).Table(
     "squats"
-)  # Replace with your DynamoDB table name
-
+)
 
 class Personne:
     def __init__(self, name, done, somme_squat):
@@ -35,7 +34,7 @@ class Personne:
 
 
 st.title("🍑 Squat app 🍑")
-st.subheader("Une super app pour enregistrer vos squats")
+st.subheader("Une super app pour enregistrer vos squats!")
 st.write(
     "Rappel : seuls les squats sont enregistrés (pas le fentes), minimum 10 squats d'affilés"
 )
@@ -98,7 +97,7 @@ for i, tab in enumerate(tabs):
             key=i + 10,
         )
 
-        if st.button(f"🍑 Save 🍑", key= i):
+        if st.button(f"🍑 Save pour {participants[i]} 🍑", key= i):
             with st.spinner("Saving..."):
                 User = load_data(participants[i])
                 User.done += squats_faits
@@ -132,6 +131,8 @@ for i, tab in enumerate(tabs):
 
         # Calculate the sum of squats for today
         total_squats_today = today_data["Squats"].sum()
+        if total_squats_today >= 40:
+            st.toast(f"Bravo {participants[i]}! Objectif atteint!!! ", icon = "😍")
 
         col1, col2 = st.columns([2, 5])
         with col1:
@@ -187,3 +188,5 @@ for i, tab in enumerate(tabs):
 
         fig = px.box(User.table, x="Squats", title="Distribution des Squats")
         st.plotly_chart(fig, use_container_width=True)
+
+        
