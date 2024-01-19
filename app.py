@@ -151,8 +151,11 @@ for i, tab in enumerate(tabs):
                 value=f"{prct_objectif_rempli}%",
             )
             # nombre de squat moyen par jour
+            # nombre de jour depuis le 12 janvier 
+            nb_jour_defi = (today - datetime(today.year, 1, 12)).days +1
+            print(nb_jour_defi)
 
-            mean_squat_per_day = round(User.table["Squats"].mean(), 2)
+            mean_squat_per_day = round(User.table["Squats"].sum()/nb_jour_defi, 2)
             st.metric(
                 label="Squat moyen par jour",
                 value=mean_squat_per_day,
