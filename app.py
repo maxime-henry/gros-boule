@@ -32,6 +32,11 @@ class Personne:
         self.done = done
         self.table = somme_squat
 
+st.set_page_config(
+    page_title="🍑 Squat app 🍑",
+    page_icon="🍑"
+)
+
 
 st.title("🍑 Squat app 🍑")
 st.subheader("Une super app pour enregistrer vos squats!")
@@ -141,7 +146,7 @@ for i, tab in enumerate(tabs):
                 value=restant,
                 delta=int(squats_restant - restant),
             )
-            st.metric(label="Total squats", value=User.done)
+            st.metric(label="Total squats fait", value=User.done)
             # squat fait aujourd'hui
             st.metric(
                 label="Squats fait aujourd'hui",
