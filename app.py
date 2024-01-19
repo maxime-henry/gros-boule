@@ -31,6 +31,8 @@ class Personne:
 
 
 st.title("🍑 Squat app 🍑")
+st.subheader("Une super app pour enregistrer vos squats")
+st.write("Rappel : seuls les squats sont enregistrés (pas le fentes), minimum 10 squats d'affilés")
 
 participants = ("Matix", "Max", "Floflox", "Audrix", "Vio")
 objectif = 14200
@@ -68,6 +70,7 @@ def load_data(name):
 
     # Create a DataFrame
     df = pd.DataFrame(list(squats_by_day.items()), columns=['Date', 'Squats'])
+    print(df)
     done = df['Squats'].sum()
 
     return Personne(name, done, df)
@@ -120,6 +123,9 @@ for i, tab in enumerate(tabs):
             # pourcentage de l'objectif rempli
             prct_objectif_rempli = round(100*User.done/objectif,2)
             st.metric(label="Pourcentage de l'objectif rempli", value = f"{prct_objectif_rempli}%")
+            # nombre de squat moyen par jour
+
+            st.metric(label="Squat moyen par jour", value=round(User.table['Squats'].mean(),2))
 
         with col2:
 
@@ -143,3 +149,7 @@ for i, tab in enumerate(tabs):
             )
           
             st.plotly_chart(fig, use_container_width=True)
+
+
+        fig = px.box(User.table, x='Squats', title='Distribution des Squats')
+        st.plotly_chart(fig, use_container_width=True)
