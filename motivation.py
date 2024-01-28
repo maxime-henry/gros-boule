@@ -25,5 +25,6 @@ motivate = (
 "Squats parfaits, comme d'habitude. Quand est-ce que tu nous montres quelque chose de difficile ?",
 "Ces squats étaient un peu trop simples, non ? On dirait que tu t'ennuies là-dedans.",
 "Les squats pour toi, c'est comme une pause détente. Pas vrai ?",
-"Il est con ce défi non ?"
+"Il est con ce défi non ?",
+"C'est ton boule qui rebondit ou les squats deviennent plus faciles ?"
 )
