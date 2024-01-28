@@ -44,7 +44,7 @@ st.write(
     "Rappel : seuls les squats sont enregistrés (pas le fentes), minimum 10 squats d'affilés"
 )
 
-participants = ("Matix", "Max", "Floflox", "Audrix", "Vio")
+participants = ("Matix", "Max", "Floflox", "Audrix", "Vio", "Carlix")
 OBJECTIF = 14200
 
 # display the number of day between today and the end of the year
