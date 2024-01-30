@@ -9,6 +9,10 @@ import boto3
 from boto3.dynamodb.conditions import Attr
 from dotenv import load_dotenv
 from motivation import motivate
+import locale
+
+# Set the locale to French
+locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
 load_dotenv()
 
@@ -27,10 +31,12 @@ table_squats = boto3.resource(
 )
 
 class Personne:
-    def __init__(self, name, done, somme_squat):
+    def __init__(self, name, done, somme_squat,earliest_date,total_squat_challenge):
         self.name = name
         self.done = done
         self.table = somme_squat
+        self.earliest_date =earliest_date
+        self.total_squat_challenge = total_squat_challenge
 
 st.set_page_config(
     page_title="🍑 Squat app 🍑",
@@ -45,7 +51,7 @@ st.write(
 )
 
 participants = ("Matix", "Max", "Floflox", "Audrix", "Vio", "Carlix")
-OBJECTIF = 14200
+OBJECTIF = 14160
 
 # display the number of day between today and the end of the year
 today = datetime.now()
@@ -63,7 +69,7 @@ with col2:
     st.metric(label="Jours restants", value=days_left)
 
 with col3:
-    st.metric(label="Objectif du jour", value=squats_restant)
+    st.metric(label="Objectif du jour", value=squats_restant, )
 with col4:
     st.metric(
         label="Objectif total",
@@ -75,6 +81,21 @@ with col4:
 
 def load_data(name):
     result = table_squats.scan(FilterExpression=Attr("name").eq(name))
+    # get the first day of squat
+
+
+# Convert date strings to datetime objects and find the earliest date
+    try:
+        earliest_date = min(datetime.strptime(item['date'], "%Y-%m-%dT%H:%M:%S.%f").date() for item in result["Items"])
+    except:
+        earliest_date = today.date()
+
+    total_day_challenge = (end_of_year.date() - earliest_date).days
+
+    total_squat_challenge = total_day_challenge * 40
+
+
+
     squats_by_day = defaultdict(int)
     for item in result["Items"]:
         date = item["date"][:10]  # Extract only the date part
@@ -85,7 +106,7 @@ def load_data(name):
     df = pd.DataFrame(list(squats_by_day.items()), columns=["Date", "Squats"])
     done = df["Squats"].sum()
 
-    return Personne(name, done, df)
+    return Personne(name, done, df,earliest_date,total_squat_challenge)
 
 
 tabs = st.tabs(participants)
@@ -123,9 +144,10 @@ for i, tab in enumerate(tabs):
                 st.toast("C'est enregistré mon reuf!", icon="🎉")
         st.write("---")
 
+
         User = load_data(participants[i])
 
-        restant = OBJECTIF - User.done
+        restant = User.total_squat_challenge - User.done  # l'objectif doit etre changé ici 
         restant_jour = restant / days_left
 
         # Get today's date in the same format as your 'Date' column
@@ -141,12 +163,6 @@ for i, tab in enumerate(tabs):
 
         col1, col2 = st.columns([2, 5])
         with col1:
-            st.metric(
-                label="Squats restants",
-                value=restant,
-                delta=int(squats_restant - restant),
-            )
-            st.metric(label="Total squats fait", value=User.done)
             # squat fait aujourd'hui
             st.metric(
                 label="Squats fait aujourd'hui",
@@ -154,15 +170,31 @@ for i, tab in enumerate(tabs):
                 delta=int(total_squats_today - 40),
             )
 
+            st.metric(
+                label = "Objectif total",
+                value = User.total_squat_challenge,
+                delta=f"debut {str(User.earliest_date.strftime('%d %B'))}",
+                delta_color="off"
+            )
+
+            st.metric(
+                label="Squats restants",
+                value=restant,
+                delta=int(squats_restant - restant),
+            )
+
+            st.metric(label="Total squats fait", value=User.done)
+
+
             # pourcentage de l'objectif rempli
-            prct_objectif_rempli = round(100 * User.done / OBJECTIF, 2)
+            prct_objectif_rempli = round(100 * User.done / User.total_squat_challenge, 2)
             st.metric(
                 label="Pourcentage de l'objectif rempli",
                 value=f"{prct_objectif_rempli}%",
             )
             # nombre de squat moyen par jour
-            # nombre de jour depuis le 12 janvier
-            nb_jour_defi = (today - datetime(today.year, 1, 12)).days + 1
+            # nombre de jour depuis le debut du challenge du participant
+            nb_jour_defi = (today.date() - User.earliest_date).days + 1
 
             mean_squat_per_day = round(User.table["Squats"].sum() / nb_jour_defi, 2)
             st.metric(
@@ -194,4 +226,5 @@ for i, tab in enumerate(tabs):
         fig = px.box(User.table, x="Squats", title="Distribution des Squats")
         st.plotly_chart(fig, use_container_width=True)
 
-        
+# add a comments at the bottom with the version of the app 
+st.caption("Version : 0.1.1")
