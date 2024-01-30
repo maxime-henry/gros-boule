@@ -12,7 +12,7 @@ from motivation import motivate
 import locale
 
 # Set the locale to French
-locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+# locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 
 load_dotenv()
 
