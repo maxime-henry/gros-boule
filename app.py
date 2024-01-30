@@ -171,16 +171,16 @@ for i, tab in enumerate(tabs):
             )
 
             st.metric(
+                label="Squats restants",
+                value=restant,
+                delta=int(squats_restant - restant),
+            )
+
+            st.metric(
                 label = "Objectif total",
                 value = User.total_squat_challenge,
                 delta=f"debut {str(User.earliest_date.strftime('%d %B'))}",
                 delta_color="off"
-            )
-
-            st.metric(
-                label="Squats restants",
-                value=restant,
-                delta=int(squats_restant - restant),
             )
 
             st.metric(label="Total squats fait", value=User.done)
