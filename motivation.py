@@ -26,5 +26,21 @@ motivate = (
 "Ces squats étaient un peu trop simples, non ? On dirait que tu t'ennuies là-dedans.",
 "Les squats pour toi, c'est comme une pause détente. Pas vrai ?",
 "Il est con ce défi non ?",
-"C'est ton boule qui rebondit ou les squats deviennent plus faciles ?"
+"C'est ton boule qui rebondit ou les squats deviennent plus faciles ?",
+
+
+
+"Allez là!",
+"Un petit squat pour l’homme, un gros boule pour l’humanité",
+"Tous pour boule, boule pour tous !",
+"Tu es sûr d'avoir tout donner ? Encore un effort !",
+"Mais tu serais pas boulemique toi ?",
+"Ce coup de boule est digne de Zizou !",
+"Ton boule me chamboule",
+"Ton choule bamboule",
+"Harder, better, faster, stronger !",
+"Ton ass'encion est fulgurante !",
+"Objectif 30 000 en 2025 ?",
+"Les squats c’est bon, maintenant les pompes",
+"Ton boule est assthetique"
 )
