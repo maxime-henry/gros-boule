@@ -198,7 +198,7 @@ for i, tab in enumerate(tabs):
 
             mean_squat_per_day = round(User.table["Squats"].sum() / nb_jour_defi, 2)
             st.metric(
-                label="Squat moyen par jour",
+                label="Squat moyen fait par jour",
                 value=mean_squat_per_day,
                 delta=mean_squat_per_day - 40,
             )
