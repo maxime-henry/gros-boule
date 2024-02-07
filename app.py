@@ -54,19 +54,17 @@ with col4:
 
 
 data_jour = today_data()
-
-# Créer la colonne "name" en spécifiant l'ordre des catégories
-data_jour['name'] = pd.Categorical(data_jour['name'], categories=participants, ordered=True)
-
-
-
-print(data_jour['name'])
+# Merge with a DataFrame containing all participants to ensure all participants are included
+df_all_participants = pd.DataFrame({'name': participants})
+df = pd.merge(df_all_participants, data_jour, on='name', how='left')
+# Set squats to 0 for participants without a value
+df['squats'].fillna(0, inplace=True)
 
 
-
-fig = px.bar(data_jour, x="name", y="squats", title="Qui a fait ses devoirs ?", width=400)
+fig = px.bar(df, x="name", y="squats" , title="Qui a fait ses devoirs ?")
 fig.update_layout(
-    xaxis={'categoryorder':'array', 'categoryarray':participants},
+    xaxis={'categoryorder':'array', 'categoryarray':participants, "autorange": False},
+
     shapes=[
         {
             "type":"line",

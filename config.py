@@ -77,7 +77,10 @@ def load_all():
 def today_data():
     data = load_all()
     data['date'] = data['date'].dt.date
-    return data[data["date"]==datetime.now().date()].reset_index()
+    extract = data[data["date"]==datetime.now().date()].reset_index()
+    # return only name and squats
+    return extract[['name', 'squats']]
+    
 
 
 # print(data[data["date"].date()== today])
