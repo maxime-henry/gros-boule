@@ -1,42 +1,14 @@
-import os
-from collections import defaultdict
+
 from datetime import datetime, timedelta
 import random
 import streamlit as st
 import plotly.express as px
-import pandas as pd
-import boto3
-from boto3.dynamodb.conditions import Attr
-from dotenv import load_dotenv
+
+
 from motivation import motivate
-import locale
-
-# Set the locale to French
-# locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
-
-load_dotenv()
-
-ACCESS_KEY = os.environ.get("ACCESS_KEY")
-SECRET_ACCESS_KEY = os.environ.get("SECRET_ACCESS_KEY")
+from config import Personne, load_data
 
 
-# Assuming you have AWS credentials set up or using other methods to authenticate with DynamoDB
-table_squats = boto3.resource(
-    "dynamodb",
-    region_name="eu-central-1",
-    aws_access_key_id=ACCESS_KEY,
-    aws_secret_access_key=SECRET_ACCESS_KEY,
-).Table(
-    "squats"
-)
-
-class Personne:
-    def __init__(self, name, done, somme_squat,earliest_date,total_squat_challenge):
-        self.name = name
-        self.done = done
-        self.table = somme_squat
-        self.earliest_date =earliest_date
-        self.total_squat_challenge = total_squat_challenge
 
 st.set_page_config(
     page_title="🍑 Squat app 🍑",
@@ -50,7 +22,7 @@ st.write(
     "Rappel : seuls les squats sont enregistrés (pas les fentes), minimum 10 squats d'affilés"
 )
 
-participants = ("Matix", "Max", "Floflox", "Audrix", "Vio", "Carlix", "Elix", "Tonix","Fannux", "Annax", "Thouvenix","Marinox")
+participants = ("Matix", "Max", "Floflox", "Audrix", "Viox", "Carlix", "Elix", "Tonix","Fannux", "Annax", "Thouvenix","Marinox")
 OBJECTIF = 14160
 
 # display the number of day between today and the end of the year
@@ -69,44 +41,17 @@ with col2:
     st.metric(label="Jours restants", value=days_left)
 
 with col3:
-    st.metric(label="Objectif du jour", value=squats_restant, )
+    st.metric(label="Squats total restant", value=squats_restant, )
 with col4:
     st.metric(
         label="Objectif total",
         value=OBJECTIF,
-        delta="début 12 janvier",
+        delta="Si début 12 janvier",
         delta_color="off",
     )
 
 
-def load_data(name):
-    result = table_squats.scan(FilterExpression=Attr("name").eq(name))
-    # get the first day of squat
 
-
-# Convert date strings to datetime objects and find the earliest date
-    try:
-        earliest_date = min(datetime.strptime(item['date'], "%Y-%m-%dT%H:%M:%S.%f").date() for item in result["Items"])
-    except:
-        earliest_date = today.date()
-
-    total_day_challenge = (end_of_year.date() - earliest_date).days
-
-    total_squat_challenge = total_day_challenge * 40
-
-
-
-    squats_by_day = defaultdict(int)
-    for item in result["Items"]:
-        date = item["date"][:10]  # Extract only the date part
-        squats_done = int(item["squats"])
-        squats_by_day[date] += squats_done
-
-    # Create a DataFrame
-    df = pd.DataFrame(list(squats_by_day.items()), columns=["Date", "Squats"])
-    done = df["Squats"].sum()
-
-    return Personne(name, done, df,earliest_date,total_squat_challenge)
 
 
 tabs = st.tabs(participants)
@@ -227,4 +172,4 @@ for i, tab in enumerate(tabs):
         st.plotly_chart(fig, use_container_width=True)
 
 # add a comments at the bottom with the version of the app 
-st.caption("Version : 0.1.1")
+st.caption("Version : 0.1.2")
