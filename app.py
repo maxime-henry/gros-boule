@@ -47,10 +47,10 @@ st.set_page_config(
 st.title("🍑 Squat app 🍑")
 st.subheader("Une super app pour enregistrer vos squats!")
 st.write(
-    "Rappel : seuls les squats sont enregistrés (pas le fentes), minimum 10 squats d'affilés"
+    "Rappel : seuls les squats sont enregistrés (pas les fentes), minimum 10 squats d'affilés"
 )
 
-participants = ("Matix", "Max", "Floflox", "Audrix", "Vio", "Carlix")
+participants = ("Matix", "Max", "Floflox", "Audrix", "Vio", "Carlix", "Elix", "Tonix")
 OBJECTIF = 14160
 
 # display the number of day between today and the end of the year
