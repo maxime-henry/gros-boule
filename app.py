@@ -3,16 +3,18 @@ from datetime import datetime, timedelta
 import random
 import streamlit as st
 import plotly.express as px
-
+import pandas as pd
 
 from motivation import motivate
-from config import Personne, load_data
+from config import Personne, load_data, load_all, today_data
 
 
 
 st.set_page_config(
     page_title="🍑 Squat app 🍑",
-    page_icon="🍑"
+    page_icon="🍑",
+    layout="wide",
+    
 )
 
 
@@ -22,7 +24,7 @@ st.write(
     "Rappel : seuls les squats sont enregistrés (pas les fentes), minimum 10 squats d'affilés"
 )
 
-participants = ("Matix", "Max", "Floflox", "Audrix", "Viox", "Carlix", "Elix", "Tonix","Fannux", "Annax", "Thouvenix","Marinox")
+participants = ("Matix", "Max", "Floflox", "Audrix", "Viox", "Carlix", "Elix", "Tonix","Fannux", "Annax", "Thouvenix", "Marinox")
 OBJECTIF = 14160
 
 # display the number of day between today and the end of the year
@@ -51,7 +53,41 @@ with col4:
     )
 
 
+data_jour = today_data()
 
+# Créer la colonne "name" en spécifiant l'ordre des catégories
+data_jour['name'] = pd.Categorical(data_jour['name'], categories=participants, ordered=True)
+
+
+
+print(data_jour['name'])
+
+
+
+fig = px.bar(data_jour, x="name", y="squats", title="Qui a fait ses devoirs ?", width=400)
+fig.update_layout(
+    xaxis={'categoryorder':'array', 'categoryarray':participants},
+    shapes=[
+        {
+            "type":"line",
+            "yref":"y",
+            "y0":40,
+            "y1":40,
+            "xref":"paper",  # Use 'paper' for x-axis values between 0 and 1
+            "x0":0,
+            "x1":1,
+            "line":{"color":"red", "width":2}
+        }
+    ]
+)
+fig.update_layout(
+    
+    xaxis=dict(title="Participants"),
+    yaxis=dict(title="Nombre de squats")
+)
+
+
+st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
 
 
 tabs = st.tabs(participants)

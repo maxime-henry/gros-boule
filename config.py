@@ -64,3 +64,20 @@ def load_data(name):
     done = df["Squats"].sum()
 
     return Personne(name, done, df,earliest_date,total_squat_challenge)
+
+def load_all():
+    result = table_squats.scan()
+    df = pd.DataFrame(result['Items'])
+    df['date'] = pd.to_datetime(df['date'])
+
+    return df
+
+
+
+def today_data():
+    data = load_all()
+    data['date'] = data['date'].dt.date
+    return data[data["date"]==datetime.now().date()].reset_index()
+
+
+# print(data[data["date"].date()== today])
