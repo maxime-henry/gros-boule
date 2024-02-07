@@ -120,7 +120,7 @@ for i, tab in enumerate(tabs):
             max_value=300,
             value=10,
             step=1,
-            key=i + 10,
+            key=i + 50,
         )
 
         if st.button(f"🍑 Save pour {participants[i]} 🍑", key= i):
