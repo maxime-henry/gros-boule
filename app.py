@@ -6,7 +6,7 @@ import plotly.express as px
 import pandas as pd
 
 from motivation import motivate
-from config import Personne, load_data, load_all, today_data
+from config import Personne, load_data, load_all, today_data, table_squats
 
 
 
