@@ -44,12 +44,12 @@ with col2:
 
 with col3:
     st.metric(label="Squats total restant", value=squats_restant, )
+
+data_total = load_all()
 with col4:
     st.metric(
-        label="Objectif total",
-        value=OBJECTIF,
-        delta="Si début 12 janvier",
-        delta_color="off",
+        label="Somme des sqats fait",
+        value=int(data_total["squats"].sum())
     )
 
 
