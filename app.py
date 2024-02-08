@@ -61,7 +61,7 @@ df = pd.merge(df_all_participants, data_jour, on='name', how='left')
 df['squats'].fillna(0, inplace=True)
 
 
-fig = px.bar(df, x="name", y="squats" , title="Qui a fait ses devoirs ?")
+fig = px.bar(df, x="name", y="squats" , title="Qui a fait ses devoirs ?", height=350)
 fig.update_layout(
     xaxis={'categoryorder':'array', 'categoryarray':participants, "autorange": True},
 
@@ -203,7 +203,7 @@ for i, tab in enumerate(tabs):
             st.plotly_chart(fig, use_container_width=True)
 
         fig = px.box(User.table, x="Squats", title="Distribution des Squats")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
 
 # add a comments at the bottom with the version of the app 
 st.caption("Version : 0.1.2")
