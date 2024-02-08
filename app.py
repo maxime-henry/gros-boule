@@ -63,7 +63,7 @@ df['squats'].fillna(0, inplace=True)
 
 fig = px.bar(df, x="name", y="squats" , title="Qui a fait ses devoirs ?")
 fig.update_layout(
-    xaxis={'categoryorder':'array', 'categoryarray':participants, "autorange": False},
+    xaxis={'categoryorder':'array', 'categoryarray':participants, "autorange": True},
 
     shapes=[
         {
