@@ -137,8 +137,8 @@ for i, tab in enumerate(tabs):
 
         # Calculate the sum of squats for today
         total_squats_today = today_data["Squats"].sum()
-        if total_squats_today >= 40:
-            st.toast(f"Bravo {participants[i]}! Objectif atteint!!! ", icon = "😍")
+        #if total_squats_today >= 40:
+            #st.toast(f"Bravo {participants[i]}! Objectif atteint!!! ", icon = "😍")
 
         col1, col2 = st.columns([2, 5])
         with col1:
