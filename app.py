@@ -48,7 +48,7 @@ with col3:
 data_total = load_all()
 with col4:
     st.metric(
-        label="Somme des sqats fait",
+        label="Somme des squats fait",
         value=int(data_total["squats"].sum())
     )
 
