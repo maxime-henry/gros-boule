@@ -65,6 +65,7 @@ def load_data(name):
 
     return Personne(name, done, df,earliest_date,total_squat_challenge)
 
+
 def load_all():
     result = table_squats.scan()
     df = pd.DataFrame(result['Items'])

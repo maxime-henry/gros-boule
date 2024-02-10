@@ -3,6 +3,11 @@ from config import load_all
 import pandas as pd
 import plotly.express as px
 
+
+
+st.title("Plus de stASStistique")
+st.write("---")
+
 # I want this page to display the main stats and graphs 
 
 df = load_all()
@@ -42,7 +47,7 @@ person_least_squats = df.loc[df['squats'] == min_squats, 'name'].iloc[0]
 
 
 
-st.metric(label=f"Le plus de squats en une session 👏", value=person_most_squats, delta = int(max_squats))
+st.metric(label=f"Record du plus de squats en une session 👏", value=person_most_squats, delta = int(max_squats))
 
 
 
@@ -51,13 +56,14 @@ fig.update_layout(
     xaxis_title="Squats",
     yaxis_title="Nombre de sessions")
 st.plotly_chart(fig)
+st.write("---")
 
 # Line plot of squats over time for each person
 # and smooth the lines 
 st.metric(label="⏰ Squatteur le plus matinal :", value= squatteur_du_matin, delta = f"le plus tôt : {first_squats['date'].min().strftime('%H:%M:%S')}", delta_color="off")
 st.metric(label="🌙 Squatteur du soir :", value= squatteur_du_soir, delta = f"le plus tard : {last_squats['date'].max().strftime('%H:%M:%S')}", delta_color="off")
 
-
+st.write("---")
 fig = px.line(data_frame=df, x="date_day", y="squats", color="name", title="📈 Evolution des squats", line_shape='spline')
 fig.update_layout(
     xaxis_title="Date",
@@ -113,6 +119,7 @@ total_sessions = df.groupby('name')['date_day'].nunique()
 
 
 # Display additional metrics
+st.write("---")
 
 st.metric(label="Squatteur le plus régulier :", value=str(consistent_squatter), delta=df.groupby('name')['squats'].std().min())
 st.metric(label="Squatteur le plus random :", value=str(least_consistent_squatter), delta=df.groupby('name')['squats'].std().max())
@@ -138,7 +145,7 @@ fig.update_layout(
 st.plotly_chart(fig)
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
+st.write("---")
 # Name with max sum of squats and sum of squats
 person_max_sum = df.groupby('name')['squats'].sum().idxmax()
 person_min_sum = df.groupby('name')['squats'].sum().idxmin()
