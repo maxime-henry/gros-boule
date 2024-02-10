@@ -58,7 +58,7 @@ st.metric(label=f"Record du plus de squats en une session 👏", value=person_mo
 
 
 
-fig = px.histogram(data_frame=df, x="squats", title="Distribution des Squats")
+fig = px.histogram(data_frame=df, x="squats", title="Distribution des Squats", nbins=50)
 fig.update_layout(
     xaxis_title="Squats",
     yaxis_title="Nombre de sessions")
