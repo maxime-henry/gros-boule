@@ -121,8 +121,8 @@ total_sessions = df.groupby('name')['date_day'].nunique()
 # Display additional metrics
 st.write("---")
 
-st.metric(label="Squatteur le plus régulier :", value=str(consistent_squatter), delta=df.groupby('name')['squats'].std().min())
-st.metric(label="Squatteur le plus random :", value=str(least_consistent_squatter), delta=df.groupby('name')['squats'].std().max())
+st.metric(label="🎲 Squatteur le plus régulier :", value=str(consistent_squatter), delta=df.groupby('name')['squats'].std().min())
+st.metric(label="🎲 Squatteur le plus random :", value=str(least_consistent_squatter), delta=df.groupby('name')['squats'].std().max())
 
 # Box plot of squats distribution across people
 fig = px.box(data_frame=df, x="name", y="squats", title="📊 Distribution des squats par jours")
