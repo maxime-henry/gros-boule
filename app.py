@@ -97,7 +97,7 @@ for i, tab in enumerate(tabs):
             f"Enregistrer une session squats",
             min_value=5,
             max_value=300,
-            value=10,
+            value=20,
             step=1,
             key=i + 50,
         )
@@ -206,4 +206,4 @@ for i, tab in enumerate(tabs):
         st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
 
 # add a comments at the bottom with the version of the app 
-st.caption("Version : 0.1.2")
+st.caption("Version : 0.1.3")
