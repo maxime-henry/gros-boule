@@ -13,7 +13,6 @@ from config import Personne, load_data, load_all, today_data, table_squats
 st.set_page_config(
     page_title="🍑 Squat app 🍑",
     page_icon="🍑",
-    layout="wide",
     initial_sidebar_state="collapsed"
     
 )
