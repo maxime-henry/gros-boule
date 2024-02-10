@@ -36,4 +36,4 @@ st.metric(label = "Nombre de participants", value = len(df['name'].unique()))
 st.metric(label = "Nombre de squats", value = int(df['squats'].sum()))
 # extract  the first row of the df
 
-st.metric(label= "Dernière session", value = str(df[:1]["name"].value))
+st.metric(label= "Dernière session", value = str(df.iloc[0]["name"]), delta=df.iloc[0]["squats"])
