@@ -3,6 +3,13 @@ from config import load_all
 import pandas as pd
 import plotly.express as px
 
+st.set_page_config(
+    page_title="🍑 Squat stat 🍑",
+    page_icon="🍑",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+    
+)
 
 
 st.title("Plus de stASStistique")
