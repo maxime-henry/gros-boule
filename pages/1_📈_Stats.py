@@ -87,7 +87,7 @@ fig.update_layout(
             "line":{"color":"red", "width":2}
         }
     ])
-st.plotly_chart(fig)
+st.plotly_chart(fig, use_container_width=True)
 
 
 
@@ -96,7 +96,7 @@ fig = px.area(data_frame=df, x = "date_day", y = "cumulative_squats", line_group
 fig.update_layout(
     xaxis_title="Date",
     yaxis_title="Squats")
-st.plotly_chart(fig)
+st.plotly_chart(fig, use_container_width=True)
 
 
 
@@ -117,7 +117,7 @@ fig.update_layout(
             "line":{"color":"red", "width":2}
         }
     ])
-st.plotly_chart(fig)
+st.plotly_chart(fig, use_container_width=True)
 
 consistent_squatter = df.groupby('name')['squats'].std().idxmin()
 least_consistent_squatter = df.groupby('name')['squats'].std().idxmax()
@@ -149,7 +149,7 @@ fig.update_layout(
             "line":{"color":"red", "width":2}
         }
     ])
-st.plotly_chart(fig)
+st.plotly_chart(fig, use_container_width=True)
 
 # $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 st.write("---")
@@ -163,7 +163,7 @@ st.metric(label="Qui a fait le moins de squats ?", value=person_min_sum, delta=f
 
 # Pie chart of proportion of squats done by each person
 fig = px.pie(data_frame=df, names="name", values="squats", title="🍑 Proportion des squats par squatteur : ")
-st.plotly_chart(fig)
+st.plotly_chart(fig, use_container_width=True)
 
 # Bar chart of total squats done by each person
 total_squats = df.groupby("name")["squats"].sum().reset_index()
@@ -190,6 +190,6 @@ fig.update_layout(
             "line":{"color":"red", "width":2}
         }
     ])
-st.plotly_chart(fig)
+st.plotly_chart(fig, use_container_width=True)
 
 
