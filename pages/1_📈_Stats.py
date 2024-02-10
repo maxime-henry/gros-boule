@@ -60,6 +60,8 @@ st.metric(label=f"Record du plus de squats en une session 👏", value=person_mo
 
 fig = px.histogram(data_frame=df, x="squats", title="Distribution des Squats")
 fig.update_layout(
+    width=600,  # Set the width of the plot
+    height=400,  # Set the height of the plot,
     xaxis_title="Squats",
     yaxis_title="Nombre de sessions")
 st.plotly_chart(fig)
