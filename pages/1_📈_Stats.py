@@ -74,19 +74,8 @@ st.write("---")
 fig = px.line(data_frame=df, x="date_day", y="squats", color="name", title="📈 Evolution des squats", line_shape='spline')
 fig.update_layout(
     xaxis_title="Date",
-    yaxis_title="Squats",
-    shapes=[
-        {
-            "type":"line",
-            "yref":"y",
-            "y0":40,
-            "y1":40,
-            "xref":"paper",  # Use 'paper' for x-axis values between 0 and 1
-            "x0":0,
-            "x1":1,
-            "line":{"color":"red", "width":2}
-        }
-    ])
+    yaxis_title="Squats"
+    )
 st.plotly_chart(fig, use_container_width=True)
 
 
