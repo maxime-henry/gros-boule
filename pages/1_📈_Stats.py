@@ -22,13 +22,16 @@ df = load_all()
 df['date'] = pd.to_datetime(df['date'])
 # change the date to only keep the day part
 df['date_day'] = df['date'].dt.date
-df = df.sort_values(by='date_day')
+df = df.sort_values(by='date')
+
 
 # a graph with the lines but empillé, summed one on top of the other
 # Calculate cumulative sum of squats for each person
 df['squats'] = pd.to_numeric(df['squats'])
 df['cumulative_squats'] = df.groupby('name')['squats'].cumsum()
 
+daily_squats = df.groupby(['date_day', 'name'])['squats'].sum().reset_index()
+daily_squats['cumulative_squats'] = daily_squats.groupby('name')['squats'].cumsum()
 
 
 # Find the person who usually makes the first squats of the day
@@ -69,9 +72,10 @@ st.write("---")
 # and smooth the lines 
 st.metric(label="⏰ Squatteur le plus matinal :", value= squatteur_du_matin, delta = f"le plus tôt : {first_squats['date'].min().strftime('%H:%M:%S')}", delta_color="off")
 st.metric(label="🌙 Squatteur du soir :", value= squatteur_du_soir, delta = f"le plus tard : {last_squats['date'].max().strftime('%H:%M:%S')}", delta_color="off")
+st.caption('La personne qui en moyenne enregistre le premier et le dernier squat')
 
 st.write("---")
-fig = px.line(data_frame=df, x="date_day", y="squats", color="name", title="📈 Evolution des squats", line_shape='spline')
+fig = px.line(data_frame=daily_squats, x="date_day", y="squats", color="name", title="📈 Evolution des squats",line_shape="spline")
 fig.update_layout(
     xaxis_title="Date",
     yaxis_title="Squats"
@@ -81,7 +85,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 # Plot stacked lines
-fig = px.area(data_frame=df, x = "date_day", y = "cumulative_squats", line_group="name", color="name", title=" Squats CULmulés")
+fig = px.area(data_frame=daily_squats, x = "date_day", y = "cumulative_squats", line_group="name", color="name", title=" Squats CULmulés")
 fig.update_layout(
     xaxis_title="Date",
     yaxis_title="Squats")
@@ -90,7 +94,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 # Scatter plot of squats over time colored by person
-fig = px.scatter(data_frame=df, x="date_day", y="squats", color="name", title="Ce graph est cool non ?")
+fig = px.scatter(data_frame=daily_squats, x="date_day", y="squats", color="name", title="Ce graph est cool non ?")
 fig.update_layout(
     xaxis_title="Date",
     yaxis_title="Squats",
@@ -165,20 +169,7 @@ fig.update_layout(
 
 
 
-    yaxis_title="Squats",
-    
-    shapes=[
-        {
-            "type":"line",
-            "yref":"y",
-            "y0":40,
-            "y1":40,
-            "xref":"paper",  # Use 'paper' for x-axis values between 0 and 1
-            "x0":0,
-            "x1":1,
-            "line":{"color":"red", "width":2}
-        }
-    ])
+    yaxis_title="Squats")
 st.plotly_chart(fig, use_container_width=True)
 
 
