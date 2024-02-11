@@ -173,3 +173,41 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 
+
+# Assuming daily_squats DataFrame contains the number of squats per day per name
+
+# Group by 'name' and count the number of sessions
+sessions_count = daily_squats.groupby('name').size()
+
+# Select names with more than 10 sessions
+names_with_more_than_10_sessions = sessions_count[sessions_count > 5].index.tolist()
+
+# Filter daily_squats DataFrame for names with more than 10 sessions
+filtered_daily_squats = daily_squats[daily_squats['name'].isin(names_with_more_than_10_sessions)]
+
+
+
+
+
+pivot_df = filtered_daily_squats.pivot_table(index='date_day', columns='name', values='squats', aggfunc='sum')
+
+# Calculate the correlation matrix
+correlation_matrix = pivot_df.corr()
+
+# Plot heatmap
+# Plot heatmap using Plotly Express
+fig = px.imshow(correlation_matrix,
+                labels=dict(x="Names", y="Names", color="Correlation"),
+                x=correlation_matrix.columns,
+                y=correlation_matrix.columns,
+                color_continuous_scale="Viridis")
+
+fig.update_layout(title="🫂 Correlation entre squatteurs",
+                  xaxis_title=None,
+                  yaxis_title=None
+                  )
+
+
+# Display the plot
+st.plotly_chart(fig, use_container_width=True)
+st.caption("Qui squat avec qui ? Minimum 5 jours de squats pour calculer les corrélations.")
