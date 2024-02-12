@@ -190,7 +190,7 @@ filtered_daily_squats = daily_squats[daily_squats['name'].isin(names_with_more_t
 
 
 pivot_df = filtered_daily_squats.pivot_table(index='date_day', columns='name', values='squats', aggfunc='sum')
-
+# pivot_df
 # Calculate the correlation matrix
 correlation_matrix = pivot_df.corr()
 
@@ -211,3 +211,39 @@ fig.update_layout(title="🫂 Correlation entre squatteurs",
 # Display the plot
 st.plotly_chart(fig, use_container_width=True)
 st.caption("Qui squat avec qui ? Minimum 5 jours de squats pour calculer les corrélations.")
+
+
+
+# df['hour'] = df['date'].dt.hour
+
+
+# df = df[df['name'].isin(names_with_more_than_10_sessions)]
+
+# pivot_df = df.pivot_table(index='date_day', columns='name', values='hour', aggfunc='median')
+
+
+# # Calculate the correlation matrix
+# correlation_matrix = pivot_df.corr()
+
+# # Plot heatmap
+# # Plot heatmap using Plotly Express
+# fig = px.imshow(correlation_matrix,
+#                 labels=dict(x="Names", y="Names", color="Correlation"),
+#                 x=correlation_matrix.columns,
+#                 y=correlation_matrix.columns,
+#                 color_continuous_scale="Viridis")
+
+# fig.update_layout(title="🫂 Correlation de l'heure du squat",
+#                   xaxis_title=None,
+#                   yaxis_title=None
+#                   )
+
+
+# # Display the plot
+# st.plotly_chart(fig, use_container_width=True)
+# st.caption("Qui squat en meme temps que qui ? Minimum 5 jours de squats pour calculer les corrélations.")
+
+
+
+
+

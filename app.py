@@ -28,7 +28,7 @@ participants = ("Matix", "Max", "Floflox", "Audrix", "Viox", "Carlix", "Elix", "
 OBJECTIF = 14160
 
 # display the number of day between today and the end of the year
-today = datetime.now()
+today = datetime.now()+timedelta(hours=1)
 end_of_year = datetime(today.year, 12, 31)
 days_left = (end_of_year - today).days
 squats_restant = days_left * 40
