@@ -65,7 +65,6 @@ filtered_df = filtered_df.sort_values(by="date_day")
 
 # Find the person who usually makes the first squats of the day
 first_squats = df.loc[df.groupby(df["date_day"])["date"].idxmin()]
-
 # Find the person who usually makes the last squats of the day
 last_squats = df.loc[df.groupby(df["date"].dt.date)["date"].idxmax()]
 
@@ -92,7 +91,7 @@ st.metric(
 
 
 fig = px.histogram(data_frame=df, x="squats", title="Distribution des Squats", nbins=50)
-fig.update_layout(xaxis_title="Squats", yaxis_title="Nombre de sessions")
+fig.update_layout(xaxis_title="Squats par session", yaxis_title="Nombre de sessions")
 st.plotly_chart(fig, use_container_width=True)
 st.write("---")
 
@@ -169,19 +168,18 @@ least_consistent_squatter = filtered_df.groupby("name")["squats"].std().idxmax()
 average_squats_per_session = filtered_df.groupby("name")["squats"].mean()
 total_sessions = filtered_df.groupby("name")["date_day"].nunique()
 
-
 # Display additional metrics
 st.write("---")
-
+st.caption("Ecart-type du nombre de squats par jour")
 st.metric(
     label="🎲 Squatteur le plus régulier :",
     value=str(consistent_squatter),
-    delta=df.groupby("name")["squats"].std().min(),
+    delta=filtered_df.groupby("name")["squats"].std().min(),
 )
 st.metric(
     label="🎲 Squatteur le plus random :",
     value=str(least_consistent_squatter),
-    delta=df.groupby("name")["squats"].std().max(),
+    delta=filtered_df.groupby("name")["squats"].std().max(),
 )
 
 # Box plot of squats distribution across people
@@ -302,14 +300,14 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 # Group by 'name' and count the number of sessions
-sessions_count = daily_squats.groupby("name").size()
+sessions_count = filtered_df.groupby("name").size()
 
 # Select names with more than 10 sessions
 names_with_more_than_10_sessions = sessions_count[sessions_count > 5].index.tolist()
 
 # Filter daily_squats DataFrame for names with more than 10 sessions
-filtered_daily_squats = daily_squats[
-    daily_squats["name"].isin(names_with_more_than_10_sessions)
+filtered_daily_squats = filtered_df[
+    filtered_df["name"].isin(names_with_more_than_10_sessions)
 ]
 
 
@@ -319,6 +317,8 @@ pivot_df = filtered_daily_squats.pivot_table(
 # pivot_df
 # Calculate the correlation matrix
 correlation_matrix = pivot_df.corr()
+
+
 
 # Plot heatmap
 # Plot heatmap using Plotly Express
@@ -334,6 +334,9 @@ fig.update_layout(
     title="🫂 Correlation entre squatteurs", xaxis_title=None, yaxis_title=None
 )
 
+st.write("---")
+
+st.subheader("Correlation")
 
 # Display the plot
 st.plotly_chart(fig, use_container_width=True)
@@ -342,31 +345,53 @@ st.caption(
 )
 
 
-# df['hour'] = df['date'].dt.hour
 
 
-# df = df[df['name'].isin(names_with_more_than_10_sessions)]
 
-# pivot_df = df.pivot_table(index='date_day', columns='name', values='hour', aggfunc='median')
+# Initialize variables to store highest and lowest correlation values and their pairs
+highest_corr_value = None
+lowest_corr_value = None
+highest_corr_pair = None
+lowest_corr_pair = None
 
-
-# # Calculate the correlation matrix
-# correlation_matrix = pivot_df.corr()
-
-# # Plot heatmap
-# # Plot heatmap using Plotly Express
-# fig = px.imshow(correlation_matrix,
-#                 labels=dict(x="Names", y="Names", color="Correlation"),
-#                 x=correlation_matrix.columns,
-#                 y=correlation_matrix.columns,
-#                 color_continuous_scale="Viridis")
-
-# fig.update_layout(title="🫂 Correlation de l'heure du squat",
-#                   xaxis_title=None,
-#                   yaxis_title=None
-#                   )
+# Iterate through the correlation matrix to find highest and lowest correlation values and their pairs
+for i in range(len(correlation_matrix.columns)):
+    for j in range(i+1, len(correlation_matrix.columns)):
+        if highest_corr_value is None or correlation_matrix.iloc[i, j] > highest_corr_value:
+            highest_corr_value = correlation_matrix.iloc[i, j]
+            highest_corr_pair = (correlation_matrix.columns[i], correlation_matrix.columns[j])
+        if lowest_corr_value is None or correlation_matrix.iloc[i, j] < lowest_corr_value:
+            lowest_corr_value = correlation_matrix.iloc[i, j]
+            lowest_corr_pair = (correlation_matrix.columns[i], correlation_matrix.columns[j])
 
 
-# # Display the plot
-# st.plotly_chart(fig, use_container_width=True)
-# st.caption("Qui squat en meme temps que qui ? Minimum 5 jours de squats pour calculer les corrélations.")
+
+# Define your custom color palette
+custom_palette = ['#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+
+
+fig = px.line(
+    data_frame=filtered_df[filtered_df["name"].isin(highest_corr_pair)],
+    x="date_day",
+    y="squats",
+    color="name",
+    title=f"📈 {highest_corr_pair[0]} et {highest_corr_pair[1]}, ça squatte ensemble ou quoi ?",
+    line_shape="spline",
+    color_discrete_sequence=custom_palette
+)
+fig.update_layout(xaxis_title="Date", yaxis_title="Squats")
+st.plotly_chart(fig, use_container_width=True)
+st.caption(f"Plus forte correlation : {highest_corr_value}")
+
+fig = px.line(
+    data_frame=filtered_df[filtered_df["name"].isin(lowest_corr_pair)],
+    x="date_day",
+    y="squats",
+    color="name",
+    title=f"📈 Quand {lowest_corr_pair[0]} fait des squats, {lowest_corr_pair[1]} fait l'inverse",
+    line_shape="spline",
+)
+fig.update_layout(xaxis_title="Date", yaxis_title="Squats")
+st.plotly_chart(fig, use_container_width=True)
+st.caption(f"Plus faible correlation : {lowest_corr_value}")
+
