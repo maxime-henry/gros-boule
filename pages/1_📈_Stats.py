@@ -270,6 +270,8 @@ st.metric(
     delta=f"{int(test.groupby('name')['squats'].mean().min())} squats/jour",
     delta_color="inverse")
 
+st.caption("Le calcul de la moyenne est indépendant de l'objectif de chaque participant.")
+
 fig = px.bar(
     test, x="name", y="squats", title="Moyenne des squats par participant et par jour"
 )
