@@ -12,7 +12,7 @@ load_dotenv()
 ACCESS_KEY = os.environ.get("ACCESS_KEY")
 SECRET_ACCESS_KEY = os.environ.get("SECRET_ACCESS_KEY")
 
-today = datetime.now()
+today = datetime.now()+timedelta(hours=1)
 end_of_year = datetime(today.year, 12, 31)
 
 
@@ -78,7 +78,7 @@ def load_all():
 def today_data():
     data = load_all()
     data['date'] = data['date'].dt.date
-    extract = data[data["date"]==datetime.now().date()].reset_index()
+    extract = data[data["date"]==(datetime.now()+timedelta(hours=1)).date()].reset_index()
     # return only name and squats
     return extract[['name', 'squats']]
     
