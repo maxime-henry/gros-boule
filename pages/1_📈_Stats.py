@@ -31,7 +31,7 @@ df["cumulative_squats"] = df.groupby("name")["squats"].cumsum()
 
 daily_squats = df.groupby(["date_day", "name"])["squats"].sum().reset_index()
 daily_squats["cumulative_squats"] = daily_squats.groupby("name")["squats"].cumsum()
-daily_squats
+
 
 
 # Create a pivot table to reshape the DataFrame
