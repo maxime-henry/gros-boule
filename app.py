@@ -118,27 +118,28 @@ for i, tab in enumerate(tabs):
                     confirm = False
             else :
                 confirm = True
-                
+
             print(confirm)
-            if confirm : 
-                with st.spinner("Saving..."):
-                    User = load_data(participants[i])
-                    User.done += squats_faits
+            
+        if confirm : 
+            with st.spinner("Saving..."):
+                User = load_data(participants[i])
+                User.done += squats_faits
 
-                    size = len(motivate)
-                    random_motivate = random.randrange(0, size)
-                    st.success(motivate[random_motivate])
+                size = len(motivate)
+                random_motivate = random.randrange(0, size)
+                st.success(motivate[random_motivate])
 
-                    table_squats.put_item(
-                        Item={
-                            "name": participants[i],
-                            # date with time and seconds
-                            "date": (datetime.utcnow()+timedelta(hours=1)).isoformat(),
-                            "squats": squats_faits,
-                        }
-                    )
+                table_squats.put_item(
+                    Item={
+                        "name": participants[i],
+                        # date with time and seconds
+                        "date": (datetime.utcnow()+timedelta(hours=1)).isoformat(),
+                        "squats": squats_faits,
+                    }
+                )
 
-                    st.toast("C'est enregistré mon reuf!", icon="🎉")
+                st.toast("C'est enregistré mon reuf!", icon="🎉")
         st.write("---")
 
 
