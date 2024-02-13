@@ -369,9 +369,13 @@ for i in range(len(correlation_matrix.columns)):
 # Define your custom color palette
 custom_palette = ['#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
 
+# Find the minimum start date for the two participants
+start_date_highest = filtered_df[filtered_df["name"].isin(highest_corr_pair)].groupby("name")["date_day"].min().max()
+# Filter the DataFrame to include only data after the minimum start date
+filtered_df_highest = filtered_df[filtered_df["date_day"] >= start_date_highest]
 
 fig = px.line(
-    data_frame=filtered_df[filtered_df["name"].isin(highest_corr_pair)],
+    data_frame=filtered_df_highest[filtered_df_highest["name"].isin(highest_corr_pair)],
     x="date_day",
     y="squats",
     color="name",
