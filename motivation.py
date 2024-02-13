@@ -6,7 +6,6 @@ motivate = (
 "La douleur d'aujourd'hui est la force de demain. Tu es sur la bonne voie !",
 "Tu as juste défié la gravité avec ces squats. Continue à voler haut !",
 "Squatter avec autant de détermination, c'est la clé du succès. Continue comme ça !",
-"Ton endurance et ta force sont incroyables. Tu es en train de devenir plus fort(e) à chaque répétition.",
 "Les squats ne sont pas faciles, mais tu les rends impressionnants. Bravo !",
 "Chaque série de squats te rapproche un peu plus de la version la plus forte de toi-même. Continue cette belle progression !",
 "Ton boule il chamboule", 
