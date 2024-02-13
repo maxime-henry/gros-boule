@@ -115,7 +115,7 @@ for i, tab in enumerate(tabs):
 
         if st.button(f"🍑 Save pour {participants[i]} 🍑", key= i) and valid :
             with st.spinner("Saving..."):
-                # User = load_data(participants[i])
+                User = load_data(participants[i])
                 User.done += squats_faits
 
                 size = len(motivate)
@@ -134,7 +134,7 @@ for i, tab in enumerate(tabs):
                 st.toast("C'est enregistré mon reuf!", icon="🎉")
         st.write("---")
 
-
+        User = load_data(participants[i])
         
 
         restant = User.total_squat_challenge - User.done  # l'objectif doit etre changé ici 
