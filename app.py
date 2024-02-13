@@ -93,6 +93,9 @@ tabs = st.tabs(participants)
 
 for i, tab in enumerate(tabs):
     with tab:
+
+        User = load_data(participants[i])
+
         squats_faits = st.number_input(
             f"Enregistrer une session squats",
             min_value=5,
@@ -102,9 +105,11 @@ for i, tab in enumerate(tabs):
             key=i + 50,
         )
 
+
         if st.button(f"🍑 Save pour {participants[i]} 🍑", key= i):
+            
             with st.spinner("Saving..."):
-                User = load_data(participants[i])
+                # User = load_data(participants[i])
                 User.done += squats_faits
 
                 size = len(motivate)
@@ -124,13 +129,13 @@ for i, tab in enumerate(tabs):
         st.write("---")
 
 
-        User = load_data(participants[i])
+        
 
         restant = User.total_squat_challenge - User.done  # l'objectif doit etre changé ici 
         restant_jour = restant / days_left
 
         # Get today's date in the same format as your 'Date' column
-        today_date = datetime.utcnow().strftime("%Y-%m-%d")
+        today_date = datetime.utcnow()+timedelta(hours=1).strftime("%Y-%m-%d")
 
         # Filter DataFrame for today's date
         today_data = User.table[User.table["Date"] == today_date]
