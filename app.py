@@ -108,8 +108,9 @@ for i, tab in enumerate(tabs):
         valid = False
         if participants[i] == "Matix":
             st.warning("Joue pas au con !!! Est tu bien Matix Bartz ??")
-            st.info("Il est interdit de voler l'identité d'autrui")
+
             valid = st.checkbox("🚨 Oui, je suis MATIX !! 🚨", key= i+300)
+            st.info("Il est interdit de voler l'identité d'autrui")
         else:
             valid = True
 
