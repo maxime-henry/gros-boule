@@ -111,7 +111,7 @@ for i, tab in enumerate(tabs):
                 st.warning("Joue pas au con!! ! Est tu bien Matix Bartz ??")
                 st.info("Il est interdit de voler l'identité d'autrui")
 
-                if st.button("🚨 Oui, je suis MATIX !! 🚨") :
+                if st.button("🚨 Oui, je suis MATIX !! 🚨", key= i+300) :
 
                     confirm = True
                 else :
@@ -121,7 +121,7 @@ for i, tab in enumerate(tabs):
             
             if confirm : 
                 with st.spinner("Saving..."):
-                    # User = load_data(participants[i])
+                    User = load_data(participants[i])
                     User.done += squats_faits
 
                     size = len(motivate)
