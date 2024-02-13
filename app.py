@@ -107,10 +107,10 @@ for i, tab in enumerate(tabs):
 
         valid = False
         if participants[i] == "Matix":
-            st.warning("Joue pas au con !!! Es-tu bien Matix Bartz ??")
+            st.warning("Es-tu bien Matix Bartz ??")
 
             valid = st.checkbox("🚨 Oui, je suis MATIX !! 🚨", key= i+300)
-            st.info("Il est interdit de voler l'identité d'autrui")
+            st.info("Il est interdit de voler l'identité d'autrui.")
         else:
             valid = True
 
@@ -195,6 +195,11 @@ for i, tab in enumerate(tabs):
                 delta=mean_squat_per_day - 40,
             )
             st.metric(label="Objectif squat/jour", value=round(restant_jour, 2))
+
+
+            st.metric(label = "Squats à la fin de l'année", 
+                      value = int(mean_squat_per_day*days_left+User.done),
+                      delta = int(mean_squat_per_day*days_left+User.done) - User.total_squat_challenge)
         with col2:
             # Plotly line chart
             fig = px.bar(User.table, x="Date", y="Squats", title="Nombre de squats")
