@@ -111,16 +111,27 @@ for i, tab in enumerate(tabs):
                 st.info("Il est interdit de voler l'identité d'autrui")
 
                 if st.button("🚨 Oui, je suis MATIX !! 🚨", key= i+300) :
+                    with st.spinner("Saving..."):
+                        # User = load_data(participants[i])
+                        User.done += squats_faits
 
-                    confirm = True
-                else :
-                    confirm = False
+                        size = len(motivate)
+                        random_motivate = random.randrange(0, size)
+                        st.success(motivate[random_motivate])
+
+                        table_squats.put_item(
+                            Item={
+                                "name": participants[i],
+                                # date with time and seconds
+                                "date": (datetime.utcnow()+timedelta(hours=1)).isoformat(),
+                                "squats": squats_faits,
+                            }
+                        )
+
+                        st.toast("C'est enregistré Matix bravo!", icon="🎉")
+
+
             else :
-                confirm = True
-
-                print(confirm)
-
-            if confirm : 
                 with st.spinner("Saving..."):
                     # User = load_data(participants[i])
                     User.done += squats_faits
