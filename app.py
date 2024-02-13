@@ -105,51 +105,33 @@ for i, tab in enumerate(tabs):
             key=i + 50,
         )
 
-        if st.button(f"🍑 Save pour {participants[i]} 🍑", key= i):
-            if participants[i] == "Matix":
-                st.warning("Joue pas au con!! ! Est tu bien Matix Bartz ??")
-                st.info("Il est interdit de voler l'identité d'autrui")
+        valid = False
+        if participants[i] == "Matix":
+            st.warning("Joue pas au con!! ! Est tu bien Matix Bartz ??")
+            st.info("Il est interdit de voler l'identité d'autrui")
+            valid = st.checkbox("🚨 Oui, je suis MATIX !! 🚨", key= i+300)
+        else:
+            valid = True
 
-                if st.checkbox("🚨 Oui, je suis MATIX !! 🚨", key= i+300) :
-                    with st.spinner("Saving..."):
-                        # User = load_data(participants[i])
-                        User.done += squats_faits
+        if st.button(f"🍑 Save pour {participants[i]} 🍑", key= i) and valid :
+            with st.spinner("Saving..."):
+                # User = load_data(participants[i])
+                User.done += squats_faits
 
-                        size = len(motivate)
-                        random_motivate = random.randrange(0, size)
-                        st.success(motivate[random_motivate])
+                size = len(motivate)
+                random_motivate = random.randrange(0, size)
+                st.success(motivate[random_motivate])
 
-                        table_squats.put_item(
-                            Item={
-                                "name": participants[i],
-                                # date with time and seconds
-                                "date": (datetime.utcnow()+timedelta(hours=1)).isoformat(),
-                                "squats": squats_faits,
-                            }
-                        )
+                table_squats.put_item(
+                    Item={
+                        "name": participants[i],
+                        # date with time and seconds
+                        "date": (datetime.utcnow()+timedelta(hours=1)).isoformat(),
+                        "squats": squats_faits,
+                    }
+                )
 
-                        st.toast("C'est enregistré Matix bravo!", icon="🎉")
-
-
-            else :
-                with st.spinner("Saving..."):
-                    # User = load_data(participants[i])
-                    User.done += squats_faits
-
-                    size = len(motivate)
-                    random_motivate = random.randrange(0, size)
-                    st.success(motivate[random_motivate])
-
-                    table_squats.put_item(
-                        Item={
-                            "name": participants[i],
-                            # date with time and seconds
-                            "date": (datetime.utcnow()+timedelta(hours=1)).isoformat(),
-                            "squats": squats_faits,
-                        }
-                    )
-
-                    st.toast("C'est enregistré mon reuf!", icon="🎉")
+                st.toast("C'est enregistré mon reuf!", icon="🎉")
         st.write("---")
 
 
