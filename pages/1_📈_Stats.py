@@ -100,13 +100,13 @@ st.write("---")
 st.metric(
     label="⏰ Squatteur le plus matinal :",
     value=squatteur_du_matin,
-    delta=f"le plus tôt : {first_squats['date'].min().strftime('%H:%M:%S')}",
+    delta=f"le plus tôt : {first_squats['date'].dt.time.min()}",
     delta_color="off",
 )
 st.metric(
     label="🌙 Squatteur du soir :",
     value=squatteur_du_soir,
-    delta=f"le plus tard : {last_squats['date'].max().strftime('%H:%M:%S')}",
+    delta=f"le plus tard : {last_squats['date'].dt.time.max().strftime('%H:%M:%S')}",
     delta_color="off",
 )
 st.caption("La personne qui en moyenne enregistre le premier et le dernier squat")
