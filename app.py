@@ -110,7 +110,7 @@ for i, tab in enumerate(tabs):
                 st.warning("Joue pas au con!! ! Est tu bien Matix Bartz ??")
                 st.info("Il est interdit de voler l'identité d'autrui")
 
-                if st.button("🚨 Oui, je suis MATIX !! 🚨", key= i+300) :
+                if st.checkbox("🚨 Oui, je suis MATIX !! 🚨", key= i+300) :
                     with st.spinner("Saving..."):
                         # User = load_data(participants[i])
                         User.done += squats_faits
