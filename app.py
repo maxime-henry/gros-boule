@@ -111,7 +111,7 @@ for i, tab in enumerate(tabs):
                 st.warning("Joue pas au con!! ! Est tu bien Matix Bartz ??")
                 st.info("Il est interdit de voler l'identité d'autrui")
 
-                if st.button("Oui, je suis MATIX !!") :
+                if st.button("🚨 Oui, je suis MATIX !! 🚨") :
 
                     confirm = True
                 else :
