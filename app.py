@@ -118,7 +118,8 @@ for i, tab in enumerate(tabs):
                     confirm = False
             else :
                 confirm = True
-            
+                
+            print(confirm)
             if confirm : 
                 with st.spinner("Saving..."):
                     User = load_data(participants[i])
