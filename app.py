@@ -107,25 +107,37 @@ for i, tab in enumerate(tabs):
 
 
         if st.button(f"🍑 Save pour {participants[i]} 🍑", key= i):
+            if participants[i] == "Matix":
+                st.warning("Joue pas au con!! ! Est tu bien Matix Bartz ??")
+                st.info("Il est interdit de voler l'identité d'autrui")
+
+                if st.button("Oui, je suis MATIX !!") :
+
+                    confirm = True
+                else :
+                    confirm = False
+            else :
+                confirm = True
             
-            with st.spinner("Saving..."):
-                # User = load_data(participants[i])
-                User.done += squats_faits
+            if confirm : 
+                with st.spinner("Saving..."):
+                    # User = load_data(participants[i])
+                    User.done += squats_faits
 
-                size = len(motivate)
-                random_motivate = random.randrange(0, size)
-                st.success(motivate[random_motivate])
+                    size = len(motivate)
+                    random_motivate = random.randrange(0, size)
+                    st.success(motivate[random_motivate])
 
-                table_squats.put_item(
-                    Item={
-                        "name": participants[i],
-                        # date with time and seconds
-                        "date": (datetime.utcnow()+timedelta(hours=1)).isoformat(),
-                        "squats": squats_faits,
-                    }
-                )
+                    table_squats.put_item(
+                        Item={
+                            "name": participants[i],
+                            # date with time and seconds
+                            "date": (datetime.utcnow()+timedelta(hours=1)).isoformat(),
+                            "squats": squats_faits,
+                        }
+                    )
 
-                st.toast("C'est enregistré mon reuf!", icon="🎉")
+                    st.toast("C'est enregistré mon reuf!", icon="🎉")
         st.write("---")
 
 
@@ -209,7 +221,7 @@ for i, tab in enumerate(tabs):
             st.plotly_chart(fig, use_container_width=True)
 
         fig = px.box(User.table, x="Squats", title="Distribution des Squats")
-        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
+        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 # add a comments at the bottom with the version of the app 
 st.caption(f"Version : 0.1.3 - time now = {today}")
