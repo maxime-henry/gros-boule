@@ -105,7 +105,7 @@ for i, tab in enumerate(tabs):
             key=i + 50,
         )
 
-
+        confirm = False
         if st.button(f"🍑 Save pour {participants[i]} 🍑", key= i):
             if participants[i] == "Matix":
                 st.warning("Joue pas au con!! ! Est tu bien Matix Bartz ??")
