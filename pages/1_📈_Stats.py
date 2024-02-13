@@ -387,6 +387,15 @@ fig.update_layout(xaxis_title="Date", yaxis_title="Squats")
 st.plotly_chart(fig, use_container_width=True)
 st.caption(f"Plus forte correlation : {highest_corr_value}")
 
+
+# Find the minimum start date for the two participants
+start_date_lowest = filtered_df[filtered_df["name"].isin(lowest_corr_pair)].groupby("name")["date_day"].min().max()
+# Filter the DataFrame to include only data after the minimum start date
+filtered_df_lowest = filtered_df[filtered_df["date_day"] >= start_date_lowest]
+
+
+
+
 fig = px.line(
     data_frame=filtered_df[filtered_df["name"].isin(lowest_corr_pair)],
     x="date_day",
