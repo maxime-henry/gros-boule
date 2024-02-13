@@ -100,7 +100,7 @@ st.write("---")
 st.metric(
     label="⏰ Squatteur le plus matinal :",
     value=squatteur_du_matin,
-    delta=f"le plus tôt : {first_squats['date'].dt.time.min()}",
+    delta=f"le plus tôt : {first_squats['date'].dt.time.min().strftime('%H:%M:%S')}",
     delta_color="off",
 )
 st.metric(
