@@ -184,7 +184,7 @@ st.metric(
 
 # Box plot of squats distribution across people
 fig = px.box(
-    data_frame=df, x="name", y="squats", title="📊 Distribution des squats par session"
+    data_frame=filtered_df, x="name", y="squats", title="📊 Distribution des squats par jour"
 )
 fig.update_layout(
     xaxis_title="Qui ?",
