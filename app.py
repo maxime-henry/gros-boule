@@ -135,7 +135,7 @@ for i, tab in enumerate(tabs):
         restant_jour = restant / days_left
 
         # Get today's date in the same format as your 'Date' column
-        today_date = datetime.utcnow()+timedelta(hours=1).strftime("%Y-%m-%d")
+        today_date = datetime.utcnow().strftime("%Y-%m-%d")+timedelta(hours=1)
 
         # Filter DataFrame for today's date
         today_data = User.table[User.table["Date"] == today_date]
