@@ -394,8 +394,6 @@ start_date_lowest = filtered_df[filtered_df["name"].isin(lowest_corr_pair)].grou
 filtered_df_lowest = filtered_df[filtered_df["date_day"] >= start_date_lowest]
 
 
-
-
 fig = px.line(
     data_frame=filtered_df_lowest[filtered_df_lowest["name"].isin(lowest_corr_pair)],
     x="date_day",
