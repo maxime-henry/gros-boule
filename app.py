@@ -99,7 +99,7 @@ for i, tab in enumerate(tabs):
         squats_faits = st.number_input(
             f"Enregistrer une session squats",
             min_value=5,
-            max_value=300,
+            max_value=600,
             value=20,
             step=1,
             key=i + 50,
