@@ -2,6 +2,7 @@ import streamlit as st
 from config import load_all
 import pandas as pd
 import plotly.express as px
+from datetime import datetime
 
 st.set_page_config(
     page_title="🍑 Squat stat 🍑",
@@ -72,10 +73,16 @@ for name in result_df['name'].unique():
 # Display the result
 filtered_df = filtered_df.sort_values(by="date_day")
 
+df_depuis_fevrier = df[df["date"]>= datetime(df["date"].dt.year.min(), 2, 8)]
+
 # Find the person who usually makes the first squats of the day
-first_squats = df.loc[df.groupby(df["date_day"])["date"].idxmin()]
+
+first_squats = df_depuis_fevrier.loc[df_depuis_fevrier.groupby(df_depuis_fevrier["date_day"])["date"].idxmin()]
+
+
+
 # Find the person who usually makes the last squats of the day
-last_squats = df.loc[df.groupby(df["date"].dt.date)["date"].idxmax()]
+last_squats = df_depuis_fevrier.loc[df_depuis_fevrier.groupby(df_depuis_fevrier["date"].dt.date)["date"].idxmax()]
 
 
 squatteur_du_matin = first_squats["name"].mode()[0]
@@ -98,6 +105,14 @@ st.metric(
     delta=int(max_squats),
 )
 
+person_most_squats_day = daily_squats.loc[daily_squats["squats"] == max_squats, "name"].iloc[0]
+st.metric(
+    label = " Record du plus de squats en une journée 👏",
+    value = person_most_squats_day,
+    delta = daily_squats["squats"].max()
+
+)
+
 
 fig = px.histogram(data_frame=df, x="squats", title="Distribution des Squats", nbins=50)
 fig.update_layout(xaxis_title="Squats par session", yaxis_title="Nombre de sessions")
@@ -118,7 +133,7 @@ st.metric(
     delta=f"le plus tard : {last_squats['date'].dt.time.max().strftime('%H:%M:%S')}",
     delta_color="off",
 )
-st.caption("La personne qui en moyenne enregistre le premier et le dernier squat")
+st.caption("La personne qui en moyenne enregistre le premier et le dernier squat (depuis le 8 février).")
 
 st.write("---")
 fig = px.line(
@@ -146,31 +161,31 @@ fig.update_layout(xaxis_title="Date", yaxis_title="Squats")
 st.plotly_chart(fig, use_container_width=True)
 
 
-# Scatter plot of squats over time colored by person
-fig = px.scatter(
-    data_frame=filtered_df,
-    x="date_day",
-    y="squats",
-    color="name",
-    title="Ce graph est cool non ?",
-)
-fig.update_layout(
-    xaxis_title="Date",
-    yaxis_title="Squats",
-    shapes=[
-        {
-            "type": "line",
-            "yref": "y",
-            "y0": 40,
-            "y1": 40,
-            "xref": "paper",  # Use 'paper' for x-axis values between 0 and 1
-            "x0": 0,
-            "x1": 1,
-            "line": {"color": "red", "width": 2},
-        }
-    ],
-)
-st.plotly_chart(fig, use_container_width=True)
+# # Scatter plot of squats over time colored by person
+# fig = px.scatter(
+#     data_frame=filtered_df,
+#     x="date_day",
+#     y="squats",
+#     color="name",
+#     title="Ce graph est cool non ?",
+# )
+# fig.update_layout(
+#     xaxis_title="Date",
+#     yaxis_title="Squats",
+#     shapes=[
+#         {
+#             "type": "line",
+#             "yref": "y",
+#             "y0": 40,
+#             "y1": 40,
+#             "xref": "paper",  # Use 'paper' for x-axis values between 0 and 1
+#             "x0": 0,
+#             "x1": 1,
+#             "line": {"color": "red", "width": 2},
+#         }
+#     ],
+# )
+# st.plotly_chart(fig, use_container_width=True)
 
 consistent_squatter = filtered_df.groupby("name")["squats"].std().idxmin()
 least_consistent_squatter = filtered_df.groupby("name")["squats"].std().idxmax()
