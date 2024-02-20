@@ -17,6 +17,15 @@ st.write("---")
 # I want this page to display the main stats and graphs
 
 df = load_all()
+
+if st.checkbox("🫡 Inclure gym Tonix ?"):
+    pass
+else : 
+    df = df[df["name"]!="Tonix"]
+
+st.write("---")
+
+
 # order df my date as date time in this format 2024-01-17 08:49:32
 df["date"] = pd.to_datetime(df["date"])
 # change the date to only keep the day part
