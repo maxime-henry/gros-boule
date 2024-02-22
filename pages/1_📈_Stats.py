@@ -105,11 +105,14 @@ st.metric(
     delta=int(max_squats),
 )
 
-person_most_squats_day = daily_squats.loc[daily_squats["squats"] == max_squats, "name"].iloc[0]
+max_squats_day = daily_squats["squats"].max()
+person_most_squats_day = daily_squats.loc[daily_squats["squats"] == max_squats_day, "name"].iloc[0]
+
+
 st.metric(
     label = " Record du plus de squats en une journée 👏",
     value = person_most_squats_day,
-    delta = daily_squats["squats"].max()
+    delta = int(max_squats_day)
 
 )
 
