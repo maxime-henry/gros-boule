@@ -61,6 +61,43 @@ df = pd.merge(df_all_participants, data_jour, on='name', how='left')
 df['squats'].fillna(0, inplace=True)
 
 
+# Get the latest date
+latest_date = data_total['date'].max()
+
+# Create a new DataFrame to calculate the days since last squat
+days_since_last_squat = pd.DataFrame(columns=['name', 'days_since_last_squat'])
+results = []
+
+for name, group in data_total.groupby('name'):
+    last_squat_date = group['date'].max()
+    days_since_last = (latest_date - last_squat_date).days
+    results.append({'name': name, 'days_since_last_squat': days_since_last})
+
+# Convert the list to a DataFrame
+days_since_last_squat = pd.DataFrame(results)
+# Sort DataFrame by days_since_last_squat
+days_since_last_squat.sort_values(by='days_since_last_squat', ascending=True, inplace=True)
+
+# Plot using Plotly Express
+fig = px.bar(days_since_last_squat, y="name", x="days_since_last_squat", title="Nombre de jours depuis le dernier squat (c'est chaud)", height=350)
+
+
+# Updating layout
+fig.update_layout(
+    yaxis=dict(title="Participants"),
+    xaxis=dict(title="Jours"),
+    xaxis_categoryorder='array',
+    xaxis_categoryarray=days_since_last_squat['name'].tolist()
+)
+
+# Displaying the plot
+st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
+
+
+
+
+
+
 fig = px.bar(df, x="name", y="squats" , title="Qui a fait ses devoirs ?", height=350)
 fig.update_layout(
     xaxis={'categoryorder':'array', 'categoryarray':participants, "autorange": True},
