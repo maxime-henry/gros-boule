@@ -28,7 +28,7 @@ participants = ("Matix", "Max", "Floflox", "Audrix", "Viox", "Carlix", "Elix", "
 OBJECTIF = 14160
 
 # display the number of day between today and the end of the year
-today = datetime.now()+timedelta(hours=1)
+today = datetime.now()+timedelta(hours=2)
 end_of_year = datetime(today.year, 12, 31)
 days_left = (end_of_year - today).days
 squats_restant = days_left * 40
@@ -127,7 +127,7 @@ for i, tab in enumerate(tabs):
                     Item={
                         "name": participants[i],
                         # date with time and seconds
-                        "date": (datetime.utcnow()+timedelta(hours=1)).isoformat(),
+                        "date": (datetime.utcnow()+timedelta(hours=2)).isoformat(),
                         "squats": squats_faits,
                     }
                 )
@@ -142,7 +142,7 @@ for i, tab in enumerate(tabs):
         restant_jour = restant / days_left
 
         # Get today's date in the same format as your 'Date' column
-        today_date = datetime.utcnow()+timedelta(hours=1)
+        today_date = datetime.utcnow()+(hours=2)
         today_date = today_date.strftime("%Y-%m-%d")
 
         # Filter DataFrame for today's date
