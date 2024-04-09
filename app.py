@@ -142,7 +142,7 @@ for i, tab in enumerate(tabs):
         restant_jour = restant / days_left
 
         # Get today's date in the same format as your 'Date' column
-        today_date = datetime.utcnow()+(hours=2)
+        today_date = datetime.utcnow()+timedelta(hours=2)
         today_date = today_date.strftime("%Y-%m-%d")
 
         # Filter DataFrame for today's date
