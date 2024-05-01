@@ -145,7 +145,7 @@ fig = px.line(
     y="squats",
     color="name",
     title="📈 Evolution des squats",
-    line_shape="spline",
+    line_shape="linear",
 )
 fig.update_layout(xaxis_title="Date", yaxis_title="Squats")
 st.plotly_chart(fig, use_container_width=True)
