@@ -141,7 +141,7 @@ total_squats = squat_game_df.groupby("name")["squats"].sum().reset_index()
 # # order the bars
 total_squats = total_squats.sort_values(by="squats", ascending=False)
 fig = px.bar(
-     total_squats, x="name", y="squats", title="-----     SQUATS GAMES      ------"
+     total_squats, x="name", y="squats", title="-----     PACS GAMES      ------"
  )
 fig.update_layout(
 #     # hide x label
