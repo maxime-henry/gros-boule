@@ -127,28 +127,28 @@ st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
 
 data_total.date = pd.to_datetime(data_total.date )
 
-# mask = (data_total['date'] >= '2024-05-08') & (data_total['date'] <= '2024-05-12')
+ mask = (data_total['date'] >= '2024-10-18') & (data_total['date'] <= '2024-10-20')
 
-# squat_game_df = data_total.loc[mask]
+ squat_game_df = data_total.loc[mask]
 
 
-# st.write('---')
-# "Du 8 au 12 mai, c'est les SQUATS GAME, en gros il faut faire le plus de squats en un gros weekend!  "
-# "Pas de vacances prolongées pour les muscles fessiers."
+ st.write('---')
+ "Du 18 au 20 octobre, c'est les PACS GAME, en gros il faut faire le plus de squats en un gros weekend!  "
+ "Pas de vacances prolongées pour les muscles fessiers."
 # Bar chart of total squats done by each person
 
-# total_squats = squat_game_df.groupby("name")["squats"].sum().reset_index()
+ total_squats = squat_game_df.groupby("name")["squats"].sum().reset_index()
 # # order the bars
-# total_squats = total_squats.sort_values(by="squats", ascending=False)
-# fig = px.bar(
-#     total_squats, x="name", y="squats", title="-----     SQUATS GAMES      ------"
-# )
-# fig.update_layout(
+ total_squats = total_squats.sort_values(by="squats", ascending=False)
+ fig = px.bar(
+     total_squats, x="name", y="squats", title="-----     SQUATS GAMES      ------"
+ )
+ fig.update_layout(
 #     # hide x label
-#     xaxis_title=None,
-#     yaxis_title="Squats",
+     xaxis_title=None,
+     yaxis_title="Squats",
 # )
-# st.plotly_chart(fig, use_container_width=True)
+ st.plotly_chart(fig, use_container_width=True)
 
 st.write('---')
 
