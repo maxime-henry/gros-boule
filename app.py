@@ -127,21 +127,20 @@ st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
 
 data_total.date = pd.to_datetime(data_total.date )
 
-mask = (data_total['date'] >= '2024-10-18') & (data_total['date'] <= '2024-10-20')
+mask = (data_total['date'] >= '2024-12-01') & (data_total['date'] <= '2024-12-31')
 
 squat_game_df = data_total.loc[mask]
 
 st.write('---')
 
-"Du 18 au 20 octobre, c'est les PACS GAME, en gros il faut faire le plus de squats en un gros weekend!  "
-"Pas de vacances prolongées pour les muscles fessiers."
+"🎅 Le rush de décembre ! C'est le squat friday! Le calendrier de l'arrière-train! Le petit popotin noel! 🎄"
 # Bar chart of total squats done by each person
 
 total_squats = squat_game_df.groupby("name")["squats"].sum().reset_index()
 # # order the bars
 total_squats = total_squats.sort_values(by="squats", ascending=False)
 fig = px.bar(
-     total_squats, x="name", y="squats", title="-----     PACS GAMES      ------"
+     total_squats, x="name", y="squats", title="-----     Décembre SQUATS      ------"
  )
 fig.update_layout(
 #     # hide x label
