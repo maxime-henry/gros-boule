@@ -73,7 +73,7 @@ for name in result_df['name'].unique():
 # Display the result
 filtered_df = filtered_df.sort_values(by="date_day")
 
-df_depuis_fevrier = df[df["date"]>= datetime(df["date"].dt.year.min(), 2, 8)]
+df_depuis_fevrier = df[df["date"]>= datetime(df["date"].dt.year.min(), 1, 1)]
 
 # Find the person who usually makes the first squats of the day
 
@@ -179,8 +179,8 @@ st.plotly_chart(fig, use_container_width=True)
 #         {
 #             "type": "line",
 #             "yref": "y",
-#             "y0": 40,
-#             "y1": 40,
+#             "y0": 20,
+#             "y1": 20,
 #             "xref": "paper",  # Use 'paper' for x-axis values between 0 and 1
 #             "x0": 0,
 #             "x1": 1,
@@ -220,8 +220,8 @@ fig.update_layout(
         {
             "type": "line",
             "yref": "y",
-            "y0": 40,
-            "y1": 40,
+            "y0": 20,
+            "y1": 20,
             "xref": "paper",  # Use 'paper' for x-axis values between 0 and 1
             "x0": 0,
             "x1": 1,
@@ -305,8 +305,8 @@ fig.update_layout(
         {
             "type": "line",
             "yref": "y",
-            "y0": 40,
-            "y1": 40,
+            "y0": 20,
+            "y1": 20,
             "xref": "paper",  # Use 'paper' for x-axis values between 0 and 1
             "x0": 0,
             "x1": 1,

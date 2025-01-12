@@ -37,24 +37,34 @@ table_squats = boto3.resource(
 )
 
 def load_data(name):
+
+    # Get the current year
+    current_year = datetime.now().year
+
     result = table_squats.scan(FilterExpression=Attr("name").eq(name))
     # get the first day of squat
+
+        # Filter items for the current year
+    filtered_items = [
+        item for item in result["Items"]
+        if datetime.strptime(item["date"], "%Y-%m-%dT%H:%M:%S.%f").year == current_year
+    ]
 
 
 # Convert date strings to datetime objects and find the earliest date
     try:
-        earliest_date = min(datetime.strptime(item['date'], "%Y-%m-%dT%H:%M:%S.%f").date() for item in result["Items"])
+        earliest_date = min(datetime.strptime(item['date'], "%Y-%m-%dT%H:%M:%S.%f").date() for item in filtered_items)
     except:
         earliest_date = today.date()
 
     total_day_challenge = (end_of_year.date() - earliest_date).days
 
-    total_squat_challenge = total_day_challenge * 40
+    total_squat_challenge = total_day_challenge * 20
 
 
 
     squats_by_day = defaultdict(int)
-    for item in result["Items"]:
+    for item in filtered_items:
         date = item["date"][:10]  # Extract only the date part
         squats_done = int(item["squats"])
         squats_by_day[date] += squats_done
@@ -70,6 +80,10 @@ def load_all():
     result = table_squats.scan()
     df = pd.DataFrame(result['Items'])
     df['date'] = pd.to_datetime(df['date'])
+
+    # Filter rows for the current year
+    current_year = datetime.now().year
+    df = df[df['date'].dt.year == current_year]
 
     return df
 

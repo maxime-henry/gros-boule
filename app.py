@@ -19,20 +19,19 @@ st.set_page_config(
 
 
 st.title("🍑 Squapp 🍑")
-st.subheader("Une super app pour enregistrer vos squats!")
+st.subheader("New year new me")
 st.write(
-    "Rappel : seuls les squats sont enregistrés (pas les fentes), minimum 10 squats d'affilés"
+    "Cette année on se calme, objecitf 20 squats par jour pendant un an"
 )
 st.caption("La persévérance, secret de tous les triomphes. - Victor Hugo")
 
-participants = ("Matix", "Max", "Floflox", "Audrix", "Viox", "Carlix", "Elix", "Tonix","Fannux", "Annax", "Thouvenix", "Marinox")
-OBJECTIF = 14160
-
+participants = ("Audrix", "Matix", "Floflox", "Max", "Marinox",  "Viox", "Carlix", "Annax", "Elix", "Le K" , "Tonix","Fannux", "Thouvenix",)
+SQUAT_JOUR = 20 
 # display the number of day between today and the end of the year
 today = datetime.now()+timedelta(hours=1)
 end_of_year = datetime(today.year, 12, 31)
 days_left = (end_of_year - today).days +1
-squats_restant = days_left * 40
+squats_restant = days_left * SQUAT_JOUR
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -53,8 +52,8 @@ with col4:
         value=int(data_total["squats"].sum())
     )
 
-
 data_jour = today_data()
+
 # Merge with a DataFrame containing all participants to ensure all participants are included
 df_all_participants = pd.DataFrame({'name': participants})
 df = pd.merge(df_all_participants, data_jour, on='name', how='left')
@@ -80,7 +79,7 @@ days_since_last_squat = pd.DataFrame(results)
 days_since_last_squat.sort_values(by='days_since_last_squat', ascending=True, inplace=True)
 
 # Plot using Plotly Express
-fig = px.bar(days_since_last_squat, y="name", x="days_since_last_squat", title="Nombre de jours depuis le dernier squat (c'est chaud)", height=350)
+fig = px.bar(days_since_last_squat, y="name", x="days_since_last_squat", title="Nombre de jours depuis le dernier squat", height=350)
 
 
 # Updating layout
@@ -107,8 +106,8 @@ fig.update_layout(
         {
             "type":"line",
             "yref":"y",
-            "y0":40,
-            "y1":40,
+            "y0":SQUAT_JOUR,
+            "y1":SQUAT_JOUR,
             "xref":"paper",  # Use 'paper' for x-axis values between 0 and 1
             "x0":0,
             "x1":1,
@@ -125,30 +124,30 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
 
-data_total.date = pd.to_datetime(data_total.date )
+# data_total.date = pd.to_datetime(data_total.date )
 
-mask = (data_total['date'] >= '2024-12-01') & (data_total['date'] <= '2024-12-31')
+# mask = (data_total['date'] >= '2025-12-01') & (data_total['date'] <= '2025-12-31')
 
-squat_game_df = data_total.loc[mask]
+# squat_game_df = data_total.loc[mask]
 
-st.write('---')
+# st.write('---')
 
-"🎅 Le rush de décembre ! C'est le squat friday! Le calendrier de l'arrière-train! Le petit popotin noel! 🎄"
-# Bar chart of total squats done by each person
+# "🎅 Le rush de décembre ! C'est le squat friday! Le calendrier de l'arrière-train! Le petit popotin noel! 🎄"
+# # Bar chart of total squats done by each person
 
-total_squats = squat_game_df.groupby("name")["squats"].sum().reset_index()
-# # order the bars
-total_squats = total_squats.sort_values(by="squats", ascending=False)
-fig = px.bar(
-     total_squats, x="name", y="squats", title="-----     Décembre SQUATS      ------"
- )
-fig.update_layout(
-#     # hide x label
-     xaxis_title=None,
-     yaxis_title="Squats")
-st.plotly_chart(fig, use_container_width=True)
+# total_squats = squat_game_df.groupby("name")["squats"].sum().reset_index()
+# # # order the bars
+# total_squats = total_squats.sort_values(by="squats", ascending=False)
+# fig = px.bar(
+#      total_squats, x="name", y="squats", title="-----     Décembre SQUATS      ------"
+#  )
+# fig.update_layout(
+# #     # hide x label
+#      xaxis_title=None,
+#      yaxis_title="Squats")
+# st.plotly_chart(fig, use_container_width=True)
 
-st.write('---')
+# st.write('---')
 
 
 tabs = st.tabs(participants)
@@ -169,15 +168,14 @@ for i, tab in enumerate(tabs):
         )
 
         valid = False
-        if participants[i] == "Matix":
-            st.warning("Es-tu bien Matix Bartz ??")
+        if participants[i] == "Audrix":
+            st.warning("Es-tu bien Audrix Cousinx ??")
 
-            valid = st.checkbox("🚨 Oui, je suis MATIX !! 🚨", key= i+300)
-            st.info("Il est interdit de voler l'identité d'autrui.")
+            valid = st.checkbox("🚨 Oui, je suis AUDRIX !! 🚨", key= i+300)
         else:
             valid = True
 
-        if st.button(f"🍑 Save pour {participants[i]} 🍑", key= i) and valid :
+        if st.button(f"🍑 Enregistrer pour {participants[i]} 🍑", key= i) and valid :
             with st.spinner("Saving..."):
                 User = load_data(participants[i])
                 User.done += squats_faits
@@ -195,7 +193,7 @@ for i, tab in enumerate(tabs):
                     }
                 )
 
-                st.toast("C'est enregistré mon reuf!", icon="🎉")
+                st.toast("C'est enregistré frérot!", icon="🎉")
         st.write("---")
 
         User = load_data(participants[i])
@@ -213,8 +211,6 @@ for i, tab in enumerate(tabs):
 
         # Calculate the sum of squats for today
         total_squats_today = today_data["Squats"].sum()
-        #if total_squats_today >= 40:
-            #st.toast(f"Bravo {participants[i]}! Objectif atteint!!! ", icon = "😍")
 
         col1, col2 = st.columns([2, 5])
         with col1:
@@ -222,7 +218,7 @@ for i, tab in enumerate(tabs):
             st.metric(
                 label="Squats fait aujourd'hui",
                 value=total_squats_today,
-                delta=int(total_squats_today - 40),
+                delta=int(total_squats_today - SQUAT_JOUR),
             )
 
             st.metric(
@@ -255,7 +251,7 @@ for i, tab in enumerate(tabs):
             st.metric(
                 label="Squat moyen fait par jour",
                 value=mean_squat_per_day,
-                delta=mean_squat_per_day - 40,
+                delta=mean_squat_per_day - SQUAT_JOUR,
             )
             st.metric(label="Objectif squat/jour", value=round(restant_jour, 2))
 
@@ -271,8 +267,8 @@ for i, tab in enumerate(tabs):
                     {
                         "type":"line",
                         "yref":"y",
-                        "y0":40,
-                        "y1":40,
+                        "y0":SQUAT_JOUR,
+                        "y1":SQUAT_JOUR,
                         "xref":"paper",  # Use 'paper' for x-axis values between 0 and 1
                         "x0":0,
                         "x1":1,
