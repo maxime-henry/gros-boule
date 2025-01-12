@@ -21,7 +21,7 @@ st.set_page_config(
 st.title("🍑 Squapp 🍑")
 st.subheader("New year new me")
 st.write(
-    "Cette année on se calme, objecitf 20 squats par jour pendant un an"
+    "Cette année on se calme, objectif 20 squats par jour pendant un an"
 )
 st.caption("La persévérance, secret de tous les triomphes. - Victor Hugo")
 
