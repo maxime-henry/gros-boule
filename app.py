@@ -1,13 +1,16 @@
-
+import os
 from datetime import datetime, timedelta
 import random
 import streamlit as st
 import plotly.express as px
 import pandas as pd
 
+from streamlit_cookies_controller import CookieController
+controller = CookieController()
+
+
 from motivation import motivate
 from config import Personne, load_data, load_all, today_data, table_squats
-
 
 
 st.set_page_config(
@@ -17,8 +20,23 @@ st.set_page_config(
     
 )
 
+id_squatteur = "Le K"
+controller.set("id_squatteur", id_squatteur) 
 
-st.title("🍑 Squapp 🍑")
+
+
+cookies = controller.getAll()
+cookies
+id_squatteur
+id_squatteur_from_cookies = cookies.get("id_squatteur", None)
+
+
+if id_squatteur_from_cookies is not None:
+    st.write(f"Welcome back {id_squatteur_from_cookies}!") 
+
+
+
+st.title("🍑 Squat App 🍑")
 st.subheader("New year new me")
 st.write(
     "Cette année on se calme, objectif 20 squats par jour pendant un an"
@@ -94,6 +112,7 @@ for name, group in data_total.groupby('name'):
     results.append({'name': name, 'days_since_last_squat': days_since_last})
 
 
+
 # Convert the list to a DataFrame
 days_since_last_squat = pd.DataFrame(results)
 
@@ -114,7 +133,7 @@ fig.update_layout(
 )
 
 # Displaying the plot
-st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
+# st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
 
 
 st.write("Qui a fait ses devoirs ?")
@@ -123,7 +142,7 @@ for index, row in df.iterrows():
     if row['squats'] >= SQUAT_JOUR:
         f"✅ {df.at[index, 'name']} 🍑"
 
-
+st.write("---")
 # data_total.date = pd.to_datetime(data_total.date )
 
 # mask = (data_total['date'] >= '2025-12-01') & (data_total['date'] <= '2025-12-31')
@@ -277,10 +296,10 @@ for i, tab in enumerate(tabs):
                 ]
             )
 
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, use_container_width=True, key=i+1000)
 
         fig = px.box(User.table, x="Squats", title="Distribution des Squats")
-        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+        # st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 # add a comments at the bottom with the version of the app 
 st.caption(f"Version : 0.1.3 - time now = {today}")

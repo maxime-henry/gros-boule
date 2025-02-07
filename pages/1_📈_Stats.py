@@ -264,12 +264,12 @@ total_squats = df.groupby("name")["squats"].sum().reset_index()
 # order the bars
 total_squats = total_squats.sort_values(by="squats", ascending=False)
 fig = px.bar(
-    total_squats, x="name", y="squats", title="Somme des squats par participant"
+    total_squats, y="name", x="squats", title="Somme des squats par participant"
 )
 fig.update_layout(
     # hide x label
-    xaxis_title=None,
-    yaxis_title="Squats",
+    xaxis_title="Somme des squats",
+    yaxis_title=None,
 )
 st.plotly_chart(fig, use_container_width=True)
 # $$$$$$$$$$$$$$$$$$$$$$$$$$

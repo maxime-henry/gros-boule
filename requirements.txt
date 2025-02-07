@@ -1,5 +1,7 @@
-streamlit==1.30.0
+streamlit==1.42.0
 python-dotenv ==         1.0.0
 pandas  ==  2.1.4
 boto3       ==              1.34.21
 plotly  ==5.18.0
+
+streamlit-cookies-controller == 0.0.4
