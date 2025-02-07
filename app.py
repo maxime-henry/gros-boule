@@ -6,7 +6,7 @@ import plotly.express as px
 import pandas as pd
 
 from streamlit_cookies_controller import CookieController
-controller = CookieController()
+
 
 
 from motivation import motivate
@@ -21,6 +21,7 @@ st.set_page_config(
 )
 
 
+controller = CookieController()
 
 
 
