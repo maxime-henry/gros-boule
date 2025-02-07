@@ -20,14 +20,13 @@ st.set_page_config(
     
 )
 
-id_squatteur = "Le K"
-controller.set("id_squatteur", id_squatteur) 
+
 
 
 
 cookies = controller.getAll()
-cookies
-id_squatteur
+
+
 id_squatteur_from_cookies = cookies.get("id_squatteur", None)
 
 
@@ -211,6 +210,8 @@ for i, tab in enumerate(tabs):
                         "squats": squats_faits,
                     }
                 )
+                id_squatteur = participants[i]
+                controller.set("id_squatteur", id_squatteur) 
 
                 st.toast("C'est enregistré frérot!", icon="🎉")
         st.write("---")
