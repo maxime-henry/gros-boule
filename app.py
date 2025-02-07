@@ -31,15 +31,14 @@ id_squatteur_from_cookies = cookies.get("id_squatteur", None)
 
 
 if id_squatteur_from_cookies is not None:
-    st.write(f"Bah salut {id_squatteur_from_cookies}!") 
     
-    st.title(f"Allez {id_squatteur_from_cookies}, t'es pas une merde ")
+    st.title(f"Allez {id_squatteur_from_cookies}, t'es pas une merde!! ")
     st.write(f"New year new {id_squatteur_from_cookies}")
 
     st.subheader(f"{id_squatteur_from_cookies}, maintenant tu peux directement enregistrer tes squats ici")
 
     squats_faits = st.number_input(
-            f"Enregistrer une session squats pour {id_squatteur_from_cookies} :",
+            f"Enregistrer une session squats :",
             min_value=5,
             max_value=600,
             value=20,
@@ -50,7 +49,7 @@ if id_squatteur_from_cookies is not None:
 
     if st.button(f" Enregistrer pour {id_squatteur_from_cookies} 🍑") :
                 with st.spinner("Saving..."):
-                    User = load_data(id_squatteur_from_cookies)
+                    # User = load_data(id_squatteur_from_cookies)
                     
 
                     size = len(motivate)
@@ -88,16 +87,14 @@ participants = ("Audrix", "Matix", "Floflox", "Max", "Marinox",  "Viox", "Carlix
 
 SQUAT_JOUR = 20 
 
-
-
-
-
-
 # display the number of day between today and the end of the year
 today = datetime.now()+timedelta(hours=1)
 end_of_year = datetime(today.year, 12, 31)
 days_left = (end_of_year - today).days +1
 
+
+data_total = load_all()
+data_jour = today_data(data_total)
 
 
 col1, col2, col3, col4 = st.columns(4)
@@ -113,18 +110,13 @@ with col3:
     squats_restant = days_left * SQUAT_JOUR
     st.metric(label="Squats total restant", value=squats_restant, )
 
-
-
-data_total = load_all()
-
-
 with col4:
     st.metric(
         label="Somme des squats fait",
         value=int(data_total["squats"].sum())
     )
 
-data_jour = today_data()
+
 
 # Merge with a DataFrame containing all participants to ensure all participants are included
 df_all_participants = pd.DataFrame({'name': participants})
@@ -134,43 +126,38 @@ df = pd.merge(df_all_participants, data_jour, on='name', how='left')
 df['squats'].fillna(0, inplace=True)
 
 
+# # Get the latest date
+# latest_date = data_total['date'].max()
+
+# # Create a new DataFrame to calculate the days since last squat
+# days_since_last_squat = pd.DataFrame(columns=['name', 'days_since_last_squat'])
+# results = []
+
+# for name, group in data_total.groupby('name'):
+#     last_squat_date = group['date'].max()
+#     days_since_last = (latest_date - last_squat_date).days
+#     results.append({'name': name, 'days_since_last_squat': days_since_last})
 
 
 
+# # Convert the list to a DataFrame
+# days_since_last_squat = pd.DataFrame(results)
+
+# # Sort DataFrame by days_since_last_squat
+# days_since_last_squat.sort_values(by='days_since_last_squat', ascending=True, inplace=True)
 
 
-# Get the latest date
-latest_date = data_total['date'].max()
-
-# Create a new DataFrame to calculate the days since last squat
-days_since_last_squat = pd.DataFrame(columns=['name', 'days_since_last_squat'])
-results = []
-
-for name, group in data_total.groupby('name'):
-    last_squat_date = group['date'].max()
-    days_since_last = (latest_date - last_squat_date).days
-    results.append({'name': name, 'days_since_last_squat': days_since_last})
+# # Plot using Plotly Express
+# fig = px.bar(days_since_last_squat, y="name", x="days_since_last_squat", title="Nombre de jours depuis le dernier squat", height=350)
 
 
-
-# Convert the list to a DataFrame
-days_since_last_squat = pd.DataFrame(results)
-
-# Sort DataFrame by days_since_last_squat
-days_since_last_squat.sort_values(by='days_since_last_squat', ascending=True, inplace=True)
-
-
-# Plot using Plotly Express
-fig = px.bar(days_since_last_squat, y="name", x="days_since_last_squat", title="Nombre de jours depuis le dernier squat", height=350)
-
-
-# Updating layout
-fig.update_layout(
-    yaxis=dict(title="Participants"),
-    xaxis=dict(title="Jours"),
-    xaxis_categoryorder='array',
-    xaxis_categoryarray=days_since_last_squat['name'].tolist()
-)
+# # Updating layout
+# fig.update_layout(
+#     yaxis=dict(title="Participants"),
+#     xaxis=dict(title="Jours"),
+#     xaxis_categoryorder='array',
+#     xaxis_categoryarray=days_since_last_squat['name'].tolist()
+# )
 
 # Displaying the plot
 # st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
