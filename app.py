@@ -26,12 +26,21 @@ st.write(
 st.caption("La persévérance, secret de tous les triomphes. - Victor Hugo")
 
 participants = ("Audrix", "Matix", "Floflox", "Max", "Marinox",  "Viox", "Carlix", "Annax", "Elix", "Le K" , "Tonix","Fannux", "Thouvenix",)
+
+
 SQUAT_JOUR = 20 
+
+
+
+
+
+
 # display the number of day between today and the end of the year
 today = datetime.now()+timedelta(hours=1)
 end_of_year = datetime(today.year, 12, 31)
 days_left = (end_of_year - today).days +1
-squats_restant = days_left * SQUAT_JOUR
+
+
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -43,9 +52,14 @@ with col2:
     st.metric(label="Jours restants", value=days_left)
 
 with col3:
+    squats_restant = days_left * SQUAT_JOUR
     st.metric(label="Squats total restant", value=squats_restant, )
 
+
+
 data_total = load_all()
+
+
 with col4:
     st.metric(
         label="Somme des squats fait",
@@ -58,7 +72,13 @@ data_jour = today_data()
 df_all_participants = pd.DataFrame({'name': participants})
 df = pd.merge(df_all_participants, data_jour, on='name', how='left')
 # Set squats to 0 for participants without a value
+
 df['squats'].fillna(0, inplace=True)
+
+
+
+
+
 
 
 # Get the latest date
@@ -73,10 +93,13 @@ for name, group in data_total.groupby('name'):
     days_since_last = (latest_date - last_squat_date).days
     results.append({'name': name, 'days_since_last_squat': days_since_last})
 
+
 # Convert the list to a DataFrame
 days_since_last_squat = pd.DataFrame(results)
+
 # Sort DataFrame by days_since_last_squat
 days_since_last_squat.sort_values(by='days_since_last_squat', ascending=True, inplace=True)
+
 
 # Plot using Plotly Express
 fig = px.bar(days_since_last_squat, y="name", x="days_since_last_squat", title="Nombre de jours depuis le dernier squat", height=350)
@@ -94,35 +117,12 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
 
 
+st.write("Qui a fait ses devoirs ?")
+# for each line of the data check if it more than SQUAT_JOUR
+for index, row in df.iterrows():
+    if row['squats'] >= SQUAT_JOUR:
+        f"✅ {df.at[index, 'name']} 🍑"
 
-
-
-
-fig = px.bar(df, x="name", y="squats" , title="Qui a fait ses devoirs ?", height=350)
-fig.update_layout(
-    xaxis={'categoryorder':'array', 'categoryarray':participants, "autorange": True},
-
-    shapes=[
-        {
-            "type":"line",
-            "yref":"y",
-            "y0":SQUAT_JOUR,
-            "y1":SQUAT_JOUR,
-            "xref":"paper",  # Use 'paper' for x-axis values between 0 and 1
-            "x0":0,
-            "x1":1,
-            "line":{"color":"red", "width":2}
-        }
-    ]
-)
-fig.update_layout(
-    
-    xaxis=dict(title="Participants"),
-    yaxis=dict(title="Nombre de squats")
-)
-
-
-st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
 
 # data_total.date = pd.to_datetime(data_total.date )
 
