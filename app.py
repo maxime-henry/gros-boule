@@ -31,16 +31,57 @@ id_squatteur_from_cookies = cookies.get("id_squatteur", None)
 
 
 if id_squatteur_from_cookies is not None:
-    st.write(f"Welcome back {id_squatteur_from_cookies}!") 
+    st.write(f"Bah salut {id_squatteur_from_cookies}!") 
+    
+    st.title(f"Allez {id_squatteur_from_cookies}, t'es pas une merde ")
+    st.write(f"New year new {id_squatteur_from_cookies}")
+
+    st.subheader(f"{id_squatteur_from_cookies}, maintenant tu peux directement enregistrer tes squats ici")
+
+    squats_faits = st.number_input(
+            f"Enregistrer une session squats pour {id_squatteur_from_cookies} :",
+            min_value=5,
+            max_value=600,
+            value=20,
+            step=1,
+        )
 
 
 
-st.title("🍑 Squat App 🍑")
-st.subheader("New year new me")
-st.write(
-    "Cette année on se calme, objectif 20 squats par jour pendant un an"
-)
-st.caption("La persévérance, secret de tous les triomphes. - Victor Hugo")
+    if st.button(f" Enregistrer pour {id_squatteur_from_cookies} 🍑") :
+                with st.spinner("Saving..."):
+                    User = load_data(id_squatteur_from_cookies)
+                    
+
+                    size = len(motivate)
+                    random_motivate = random.randrange(0, size)
+                    st.success(motivate[random_motivate])
+
+                    table_squats.put_item(
+                        Item={
+                            "name": id_squatteur_from_cookies,
+                            # date with time and seconds
+                            "date": (datetime.utcnow()+timedelta(hours=1)).isoformat(),
+                            "squats": squats_faits,
+                        }
+                    )
+                    id_squatteur = id_squatteur_from_cookies
+                    controller.set("id_squatteur", id_squatteur) 
+
+                    st.toast("C'est enregistré frérot!", icon="🎉")
+
+    st.write("---")
+
+
+else :
+    st.title("🍑 Squat App 🍑")
+    st.subheader("New year new me")
+    st.write(
+        "Cette année on se calme, objectif 20 squats par jour pendant un an"
+    )
+    st.caption("La persévérance, secret de tous les triomphes. - Victor Hugo")
+
+
 
 participants = ("Audrix", "Matix", "Floflox", "Max", "Marinox",  "Viox", "Carlix", "Annax", "Elix", "Le K" , "Tonix","Fannux", "Thouvenix",)
 
