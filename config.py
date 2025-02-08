@@ -89,12 +89,15 @@ def load_all():
 
 
 
-def today_data(data = None):
+def today_data(data = None, date = None):
     if data is None:
         data = load_all()
     data = data.copy()
     data['date'] = data['date'].dt.date
-    extract = data[data["date"]==(datetime.now()+timedelta(hours=1)).date()].reset_index()
+
+    target_date = date if date is not None else (datetime.now()+timedelta(hours=1)).date()
+
+    extract = data[data["date"]==target_date].reset_index()
     # return only name and squats
     return extract[['name', 'squats']]
     

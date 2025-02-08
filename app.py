@@ -38,26 +38,32 @@ DAYS_LEFT = (end_of_year - today).days +1
 data_total = load_all()
 data_jour = today_data(data_total)
 
-# Merge with a DataFrame containing all participants to ensure all participants are included
-df_all_participants = pd.DataFrame({'name': participants})
-df = pd.merge(df_all_participants, data_jour, on='name', how='left')
-# Set squats to 0 for participants without a value
-df['squats'].fillna(0, inplace=True)
 
+# Merge with a DataFrame containing all participants to ensure all participants are included
+df_participants = pd.DataFrame({'name': participants})
+df_all_participants_jour = pd.merge(df_participants, data_jour, on='name', how='left')
+# Set squats to 0 for participants without a value
+df_all_participants_jour['squats'].fillna(0, inplace=True)
+
+data_hier = today_data(data_total, date = (datetime.now()+timedelta(days = -1, hours=1)).date())
 
 
 # COOKIES CONTROL ##################################################################################################################
 controller = CookieController()
 cookies = controller.getAll()
 id_squatteur_from_cookies = cookies.get("id_squatteur", None)
-#####################################################################################################################################
+##################################################################################################################################### 
 
 if id_squatteur_from_cookies is not None:
     
     st.title(f"Allez {id_squatteur_from_cookies}, t'es pas une merde!! ")
     
-    
-    message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait zero squat aujourd'hui" )
+    squat_du_jour_participant = df_all_participants_jour[df_all_participants_jour["name"]==id_squatteur_from_cookies]
+    valeur_squat = squat_du_jour_participant["squats"].iloc[0] 
+
+
+
+    message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait {valeur_squat}  squat aujourd'hui" )
     st.write(message_motivation)
 
 
@@ -135,9 +141,9 @@ with col4:
 
 st.write("Qui a fait ses devoirs ?")
 # for each line of the data check if it more than SQUAT_JOUR
-for index, row in df.iterrows():
+for index, row in df_all_participants_jour.iterrows():
     if row['squats'] >= SQUAT_JOUR:
-        f"✅ {df.at[index, 'name']} 🍑"
+        f"✅ {df_all_participants_jour.at[index, 'name']} 🍑"
 
 st.write("---")
 
