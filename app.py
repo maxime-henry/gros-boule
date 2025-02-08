@@ -59,15 +59,18 @@ if id_squatteur_from_cookies is not None:
     st.title(f"Allez {id_squatteur_from_cookies}, t'es pas une merde!! ")
     
     squat_du_jour_participant = df_all_participants_jour[df_all_participants_jour["name"]==id_squatteur_from_cookies]
-    valeur_squat = squat_du_jour_participant["squats"].iloc[0] 
+    valeur_squat_jour = squat_du_jour_participant["squats"].iloc[0] 
+
+    squat_hier_participant = data_hier[data_hier["name"]==id_squatteur_from_cookies]
+    valeur_squat_hier = squat_hier_participant["squats"].sum()
 
 
+    # message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait {valeur_squat_jour}  squat aujourd'hui et {valeur_squat_hier} hier" )
+    # st.write(message_motivation)
 
-    message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait {valeur_squat}  squat aujourd'hui" )
-    st.write(message_motivation)
+    st.divider()
 
-
-    st.subheader(f"{id_squatteur_from_cookies}, maintenant tu peux directement enregistrer tes squats ici")
+    st.write(f"{id_squatteur_from_cookies}, maintenant tu peux directement enregistrer tes squats ici :")
 
     squats_faits = st.number_input(
             f"Enregistrer une session squats :",
@@ -145,7 +148,7 @@ for index, row in df_all_participants_jour.iterrows():
     if row['squats'] >= SQUAT_JOUR:
         f"✅ {df_all_participants_jour.at[index, 'name']} 🍑"
 
-st.write("---")
+st.divider()
 
 
 
@@ -176,7 +179,7 @@ for i, tab in enumerate(tabs):
 
         if st.button(f"🍑 Enregistrer pour {participants[i]} 🍑", key= i) and valid :
             with st.spinner("Saving..."):
-                User = load_data(participants[i])
+                # User = load_data(participants[i])
                 User.done += squats_faits
 
                 size = len(motivate)
@@ -197,7 +200,7 @@ for i, tab in enumerate(tabs):
                 st.toast("C'est enregistré frérot!", icon="🎉")
         st.write("---")
 
-        User = load_data(participants[i])
+        # User = load_data(participants[i])
         
 
         restant = User.total_squat_challenge - User.done  # l'objectif doit etre changé ici 

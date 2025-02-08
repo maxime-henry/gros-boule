@@ -36,19 +36,21 @@ table_squats = boto3.resource(
     "squats"
 )
 
-def load_data(name):
+def load_data(name, data = None):
 
     # Get the current year
-    current_year = datetime.now().year
-
-    result = table_squats.scan(FilterExpression=Attr("name").eq(name))
-    # get the first day of squat
-
-        # Filter items for the current year
-    filtered_items = [
+    if data is None:
+        
+        current_year = datetime.now().year
+        result = table_squats.scan(FilterExpression=Attr("name").eq(name))
+        filtered_items = [
         item for item in result["Items"]
+        
         if datetime.strptime(item["date"], "%Y-%m-%dT%H:%M:%S.%f").year == current_year
     ]
+
+    else : 
+        filtered_items = data[data['name']==name]
 
 
 # Convert date strings to datetime objects and find the earliest date
@@ -64,6 +66,7 @@ def load_data(name):
 
 
     squats_by_day = defaultdict(int)
+
     for item in filtered_items:
         date = item["date"][:10]  # Extract only the date part
         squats_done = int(item["squats"])
@@ -74,6 +77,8 @@ def load_data(name):
     done = df["Squats"].sum()
 
     return Personne(name, done, df,earliest_date,total_squat_challenge)
+
+
 
 
 def load_all():
