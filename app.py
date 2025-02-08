@@ -65,8 +65,8 @@ if id_squatteur_from_cookies is not None:
     valeur_squat_hier = squat_hier_participant["squats"].sum()
 
 
-    # message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait {valeur_squat_jour}  squat aujourd'hui et {valeur_squat_hier} hier" )
-    # st.write(message_motivation)
+    message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait {valeur_squat_jour}  squat aujourd'hui et {valeur_squat_hier} hier" )
+    st.write(message_motivation)
 
     st.divider()
 
