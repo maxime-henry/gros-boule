@@ -32,27 +32,11 @@ SQUAT_JOUR = 20
 # display the number of day between today and the end of the year
 today = datetime.now()+timedelta(hours=1)
 end_of_year = datetime(today.year, 12, 31)
-days_left = (end_of_year - today).days +1
+DAYS_LEFT = (end_of_year - today).days +1
 
 
 data_total = load_all()
 data_jour = today_data(data_total)
-
-
-
-
-
-
-
-
-
-
-st.write (mistral_chat("ça va ?"))
-
-
-
-
-
 
 
 controller = CookieController()
@@ -68,7 +52,11 @@ id_squatteur_from_cookies = cookies.get("id_squatteur", None)
 if id_squatteur_from_cookies is not None:
     
     st.title(f"Allez {id_squatteur_from_cookies}, t'es pas une merde!! ")
-    st.write(f"New year new {id_squatteur_from_cookies}")
+    
+    
+    message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait zero squat aujourd'hui alors qu'il doit en faire 20, ecrit un court message de motivation pour qu'il fasse ses squats du jour" )
+    st.write(message_motivation)
+
 
     st.subheader(f"{id_squatteur_from_cookies}, maintenant tu peux directement enregistrer tes squats ici")
 
@@ -117,8 +105,6 @@ else :
 
 
 
-
-
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -126,10 +112,10 @@ with col1:
 
 with col2:
     # metric nombre de jour restant
-    st.metric(label="Jours restants", value=days_left)
+    st.metric(label="Jours restants", value=DAYS_LEFT)
 
 with col3:
-    squats_restant = days_left * SQUAT_JOUR
+    squats_restant = DAYS_LEFT * SQUAT_JOUR
     st.metric(label="Squats total restant", value=squats_restant, )
 
 with col4:
@@ -148,42 +134,6 @@ df = pd.merge(df_all_participants, data_jour, on='name', how='left')
 df['squats'].fillna(0, inplace=True)
 
 
-# # Get the latest date
-# latest_date = data_total['date'].max()
-
-# # Create a new DataFrame to calculate the days since last squat
-# days_since_last_squat = pd.DataFrame(columns=['name', 'days_since_last_squat'])
-# results = []
-
-# for name, group in data_total.groupby('name'):
-#     last_squat_date = group['date'].max()
-#     days_since_last = (latest_date - last_squat_date).days
-#     results.append({'name': name, 'days_since_last_squat': days_since_last})
-
-
-
-# # Convert the list to a DataFrame
-# days_since_last_squat = pd.DataFrame(results)
-
-# # Sort DataFrame by days_since_last_squat
-# days_since_last_squat.sort_values(by='days_since_last_squat', ascending=True, inplace=True)
-
-
-# # Plot using Plotly Express
-# fig = px.bar(days_since_last_squat, y="name", x="days_since_last_squat", title="Nombre de jours depuis le dernier squat", height=350)
-
-
-# # Updating layout
-# fig.update_layout(
-#     yaxis=dict(title="Participants"),
-#     xaxis=dict(title="Jours"),
-#     xaxis_categoryorder='array',
-#     xaxis_categoryarray=days_since_last_squat['name'].tolist()
-# )
-
-# Displaying the plot
-# st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': True})
-
 
 st.write("Qui a fait ses devoirs ?")
 # for each line of the data check if it more than SQUAT_JOUR
@@ -192,30 +142,7 @@ for index, row in df.iterrows():
         f"✅ {df.at[index, 'name']} 🍑"
 
 st.write("---")
-# data_total.date = pd.to_datetime(data_total.date )
 
-# mask = (data_total['date'] >= '2025-12-01') & (data_total['date'] <= '2025-12-31')
-
-# squat_game_df = data_total.loc[mask]
-
-# st.write('---')
-
-# "🎅 Le rush de décembre ! C'est le squat friday! Le calendrier de l'arrière-train! Le petit popotin noel! 🎄"
-# # Bar chart of total squats done by each person
-
-# total_squats = squat_game_df.groupby("name")["squats"].sum().reset_index()
-# # # order the bars
-# total_squats = total_squats.sort_values(by="squats", ascending=False)
-# fig = px.bar(
-#      total_squats, x="name", y="squats", title="-----     Décembre SQUATS      ------"
-#  )
-# fig.update_layout(
-# #     # hide x label
-#      xaxis_title=None,
-#      yaxis_title="Squats")
-# st.plotly_chart(fig, use_container_width=True)
-
-# st.write('---')
 
 
 tabs = st.tabs(participants)
@@ -270,7 +197,7 @@ for i, tab in enumerate(tabs):
         
 
         restant = User.total_squat_challenge - User.done  # l'objectif doit etre changé ici 
-        restant_jour = restant / days_left
+        restant_jour = restant / DAYS_LEFT
 
         # Get today's date in the same format as your 'Date' column
         today_date = datetime.utcnow()+timedelta(hours=1)
@@ -327,8 +254,8 @@ for i, tab in enumerate(tabs):
 
 
             st.metric(label = "Squats à la fin de l'année", 
-                      value = int(mean_squat_per_day*days_left+User.done),
-                      delta = int(mean_squat_per_day*days_left+User.done) - User.total_squat_challenge)
+                      value = int(mean_squat_per_day*DAYS_LEFT+User.done),
+                      delta = int(mean_squat_per_day*DAYS_LEFT+User.done) - User.total_squat_challenge)
         with col2:
             # Plotly line chart
             fig = px.bar(User.table, x="Date", y="Squats", title="Nombre de squats")
