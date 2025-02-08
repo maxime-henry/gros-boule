@@ -111,8 +111,8 @@ client = Mistral(api_key=api_key)
 
 
 def mistral_chat(message):
-    chat_response = client.chat.complete(
-        model= model,
+    chat_response = client.agents.complete(
+        agent_id="ag:71fb9a73:20250208:untitled-agent:774ff24a",
         messages = [
             {
                 "role": "user",
