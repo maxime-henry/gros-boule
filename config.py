@@ -101,3 +101,25 @@ def today_data(data = None):
 
 
 # print(data[data["date"].date()== today])
+
+from mistralai import Mistral
+
+api_key = os.environ["MISTRAL_API_KEY"]
+model = "mistral-large-latest"
+
+client = Mistral(api_key=api_key)
+
+
+def mistral_chat(message):
+    chat_response = client.chat.complete(
+        model= model,
+        messages = [
+            {
+                "role": "user",
+                "content": message,
+            },
+        ]
+    )
+    return chat_response.choices[0].message.content
+
+

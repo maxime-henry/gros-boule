@@ -9,8 +9,10 @@ from streamlit_cookies_controller import CookieController
 
 
 
+
+
 from motivation import motivate
-from config import Personne, load_data, load_all, today_data, table_squats
+from config import Personne, load_data, load_all, today_data, table_squats, mistral_chat
 
 
 st.set_page_config(
@@ -19,6 +21,38 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
     
 )
+
+# LOAD and DEFINE the DATA here ######################################
+
+participants = ("Audrix", "Matix", "Floflox", "Max", "Marinox",  "Viox", "Carlix", "Annax", "Elix", "Le K" , "Tonix","Fannux", "Thouvenix",)
+
+
+SQUAT_JOUR = 20 
+
+# display the number of day between today and the end of the year
+today = datetime.now()+timedelta(hours=1)
+end_of_year = datetime(today.year, 12, 31)
+days_left = (end_of_year - today).days +1
+
+
+data_total = load_all()
+data_jour = today_data(data_total)
+
+
+
+
+
+
+
+
+
+
+st.write (mistral_chat("ça va ?"))
+
+
+
+
+
 
 
 controller = CookieController()
@@ -83,19 +117,6 @@ else :
 
 
 
-participants = ("Audrix", "Matix", "Floflox", "Max", "Marinox",  "Viox", "Carlix", "Annax", "Elix", "Le K" , "Tonix","Fannux", "Thouvenix",)
-
-
-SQUAT_JOUR = 20 
-
-# display the number of day between today and the end of the year
-today = datetime.now()+timedelta(hours=1)
-end_of_year = datetime(today.year, 12, 31)
-days_left = (end_of_year - today).days +1
-
-
-data_total = load_all()
-data_jour = today_data(data_total)
 
 
 col1, col2, col3, col4 = st.columns(4)
