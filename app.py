@@ -59,7 +59,7 @@ if id_squatteur_from_cookies is not None:
     st.title(f"Allez {id_squatteur_from_cookies}, t'es pas une merde!! ")
     
     squat_du_jour_participant = df_all_participants_jour[df_all_participants_jour["name"]==id_squatteur_from_cookies]
-    valeur_squat_jour = squat_du_jour_participant["squats"].iloc[0] 
+    valeur_squat_jour = squat_du_jour_participant["squats"].sum()
 
     squat_hier_participant = data_hier[data_hier["name"]==id_squatteur_from_cookies]
     valeur_squat_hier = squat_hier_participant["squats"].sum()

@@ -24,6 +24,14 @@ class Personne:
         self.earliest_date =earliest_date
         self.total_squat_challenge = total_squat_challenge
 
+class Participant:
+    def __init__(self, name, done, somme_squat):
+        self.name = name
+
+
+
+
+
 
 
 # Assuming you have AWS credentials set up or using other methods to authenticate with DynamoDB
