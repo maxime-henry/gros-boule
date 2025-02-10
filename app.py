@@ -1,4 +1,5 @@
 import os
+import asyncio
 from datetime import datetime, timedelta
 import random
 import streamlit as st
@@ -12,7 +13,7 @@ from streamlit_cookies_controller import CookieController
 
 
 from motivation import motivate
-from config import Personne, load_data, load_all, today_data, table_squats, mistral_chat, Participant, save_new_squat
+from config import  load_all, today_data, mistral_chat, Participant, save_new_squat
 
 
 st.set_page_config(
@@ -32,7 +33,7 @@ SQUAT_JOUR = 20
 # display the number of day between today and the end of the year
 today = datetime.now()+timedelta(hours=1)
 end_of_year = datetime(today.year, 12, 31)
-DAYS_LEFT = (end_of_year - today).days +1
+DAYS_LEFT = (end_of_year - today).days + 1
 
 
 data_total = load_all()
@@ -49,11 +50,11 @@ if "participants_obj" not in st.session_state:
         st.session_state.participants_obj[name] = Participant(name, st.session_state.squat_data, days_left=DAYS_LEFT, squat_objectif_quotidien=SQUAT_JOUR)
 
 
-# Merge with a DataFrame containing all participants to ensure all participants are included
-df_participants = pd.DataFrame({'name': participants})
-df_all_participants_jour = pd.merge(df_participants, data_jour, on='name', how='left')
-# Set squats to 0 for participants without a value
-df_all_participants_jour['squats'].fillna(0, inplace=True)
+# # Merge with a DataFrame containing all participants to ensure all participants are included
+# df_participants = pd.DataFrame({'name': participants})
+# df_all_participants_jour = pd.merge(df_participants, data_jour, on='name', how='left')
+# # Set squats to 0 for participants without a value
+# df_all_participants_jour['squats'].fillna(0, inplace=True)
 
 
 
@@ -70,24 +71,34 @@ if id_squatteur_from_cookies is not None:
     
     participant_obj=st.session_state.participants_obj.get(id_squatteur_from_cookies)
 
+    
+    print(datetime.now())
+
+    placeholder = st.empty()
+    placeholder.info("Fait un squat en attendant au pire non ?")
+    
+
+    
 
 
-    message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait {participant_obj.sum_squats_done_today}  squat aujourd'hui et {participant_obj.sum_squats_hier} hier. Au global sur son objectif annuel {id_squatteur_from_cookies} à un delta de {participant_obj.delta_done_vs_objecitf_today}  " )
-    st.write(message_motivation)
-
+    print(datetime.now())
     st.divider()
+
+
 
     st.write(f"{id_squatteur_from_cookies}, maintenant tu peux directement enregistrer tes squats ici :")
 
-    squats_faits = st.number_input(
-            f"Enregistrer une session squats :",
+    with st.form("squat_form"):
+        squats_faits = st.number_input(
+            "Enregistrer une session squats :",
             min_value=5,
             max_value=600,
             value=20,
             step=1,
         )
+        submitted = st.form_submit_button(f"Enregistrer pour {id_squatteur_from_cookies} 🍑")
     
-    if st.button(f"Enregistrer pour {id_squatteur_from_cookies} 🍑"):
+    if submitted:
         with st.spinner("Saving..."):
             # Sauvegarder dans DynamoDB
             new_item = save_new_squat(id_squatteur_from_cookies, squats_faits)
@@ -165,15 +176,17 @@ for i, tab in enumerate(tabs):
 
         # User = st.session_state.participants_obj.get(participants[i])
 
-        squats_faits = st.number_input(
-            f"Enregistrer une session squats",
-            min_value=5,
-            max_value=600,
-            value=20,
-            step=1,
-            key=i + 50,
-        )
-
+        with st.form(f"squat_form_tabs_{i}"):
+            squats_faits = st.number_input(
+                "Enregistrer une session squats :",
+                min_value=5,
+                max_value=600,
+                value=20,
+                step=1,
+            )
+            submitted = st.form_submit_button(f"Enregistrer pour {participants[i]} 🍑")
+        
+    
         valid = False
         if participants[i] == "Audrix":
             st.warning("Es-tu bien Audrix Cousinx ??")
@@ -182,7 +195,7 @@ for i, tab in enumerate(tabs):
         else:
             valid = True
 
-        if st.button(f"Enregistrer pour {participants[i]} 🍑", key = i*4500):
+        if submitted:
             with st.spinner("Saving..."):
                 # Sauvegarder dans DynamoDB
                 new_item = save_new_squat(participants[i], squats_faits)
@@ -228,9 +241,16 @@ for i, tab in enumerate(tabs):
 
 
             st.metric(label="Total squats fait", value= int(participant.sum_squats_done),
-                      delta=f"En {participant.nombre_jours_depuis_debut} jours")
+            delta=f"En {participant.nombre_jours_depuis_debut} jours")
 
-            st.metric(label="Retard de squats", value= int(participant.delta_done_vs_objecitf_today))
+
+            if int(participant.delta_done_vs_objecitf_today) > 0:
+                st.metric(label="Avance de squats", value= int(participant.delta_done_vs_objecitf_today))
+            elif int(participant.delta_done_vs_objecitf_today) == 0:
+                st.metric(label="Pile à l'équilibre", value= int(participant.delta_done_vs_objecitf_today))
+            else :
+                st.metric(label="Retard de squats", value= int(participant.delta_done_vs_objecitf_today))
+
 
         with col2:
             # Plotly line chart
@@ -257,3 +277,7 @@ for i, tab in enumerate(tabs):
 
 # add a comments at the bottom with the version of the app 
 st.caption(f"Version : 0.1.4 - time now = {today}")
+
+message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait {participant_obj.sum_squats_done_today}  squat aujourd'hui et {participant_obj.sum_squats_hier} hier. Au global sur son objectif annuel {id_squatteur_from_cookies} à un différence de {participant_obj.delta_done_vs_objecitf_today}  " )
+placeholder.text(message_motivation)
+

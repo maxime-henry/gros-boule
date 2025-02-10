@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 from boto3.dynamodb.conditions import Attr
 import pandas as pd
-
+import asyncio
 
 load_dotenv()
 
@@ -26,16 +26,6 @@ def save_new_squat(name, squats_count):
     }
     table_squats.put_item(Item=new_item)
     return new_item
-
-
-class Personne:
-    def __init__(self, name, done, somme_squat,earliest_date,total_squat_challenge):
-        self.name = name
-        self.done = done
-        self.table = somme_squat
-        self.earliest_date =earliest_date
-        self.total_squat_challenge = total_squat_challenge
-
 
 
 class Participant:
@@ -117,47 +107,47 @@ table_squats = boto3.resource(
     "squats"
 )
 
-def load_data(name, data = None):
+# def load_data(name, data = None):
 
-    # Get the current year
-    if data is None:
+#     # Get the current year
+#     if data is None:
         
-        current_year = datetime.now().year
-        result = table_squats.scan(FilterExpression=Attr("name").eq(name))
-        filtered_items = [
-        item for item in result["Items"]
+#         current_year = datetime.now().year
+#         result = table_squats.scan(FilterExpression=Attr("name").eq(name))
+#         filtered_items = [
+#         item for item in result["Items"]
         
-        if datetime.strptime(item["date"], "%Y-%m-%dT%H:%M:%S.%f").year == current_year
-    ]
+#         if datetime.strptime(item["date"], "%Y-%m-%dT%H:%M:%S.%f").year == current_year
+#     ]
 
-    else : 
-        filtered_items = data[data['name']==name]
-
-
-# Convert date strings to datetime objects and find the earliest date
-    try:
-        earliest_date = min(datetime.strptime(item['date'], "%Y-%m-%dT%H:%M:%S.%f").date() for item in filtered_items)
-    except:
-        earliest_date = today.date()
-
-    total_day_challenge = (end_of_year.date() - earliest_date).days
-
-    total_squat_challenge = total_day_challenge * 20
+#     else : 
+#         filtered_items = data[data['name']==name]
 
 
+# # Convert date strings to datetime objects and find the earliest date
+#     try:
+#         earliest_date = min(datetime.strptime(item['date'], "%Y-%m-%dT%H:%M:%S.%f").date() for item in filtered_items)
+#     except:
+#         earliest_date = today.date()
 
-    squats_by_day = defaultdict(int)
+#     total_day_challenge = (end_of_year.date() - earliest_date).days
 
-    for item in filtered_items:
-        date = item["date"][:10]  # Extract only the date part
-        squats_done = int(item["squats"])
-        squats_by_day[date] += squats_done
+#     total_squat_challenge = total_day_challenge * 20
 
-    # Create a DataFrame
-    df = pd.DataFrame(list(squats_by_day.items()), columns=["Date", "Squats"])
-    done = df["Squats"].sum()
 
-    return Personne(name, done, df,earliest_date,total_squat_challenge)
+
+#     squats_by_day = defaultdict(int)
+
+#     for item in filtered_items:
+#         date = item["date"][:10]  # Extract only the date part
+#         squats_done = int(item["squats"])
+#         squats_by_day[date] += squats_done
+
+#     # Create a DataFrame
+#     df = pd.DataFrame(list(squats_by_day.items()), columns=["Date", "Squats"])
+#     done = df["Squats"].sum()
+
+#     return Personne(name, done, df,earliest_date,total_squat_challenge)
 
 
 
@@ -210,5 +200,4 @@ def mistral_chat(message):
         ]
     )
     return chat_response.choices[0].message.content
-
 
