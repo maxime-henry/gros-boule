@@ -16,6 +16,18 @@ today = datetime.now()+timedelta(hours=1)
 end_of_year = datetime(today.year, 12, 31)
 
 
+
+
+def save_new_squat(name, squats_count):
+    new_item = {
+        "name": name,
+        "date": (datetime.utcnow() + timedelta(hours=1)).isoformat(),
+        "squats": squats_count,
+    }
+    table_squats.put_item(Item=new_item)
+    return new_item
+
+
 class Personne:
     def __init__(self, name, done, somme_squat,earliest_date,total_squat_challenge):
         self.name = name
@@ -24,11 +36,72 @@ class Personne:
         self.earliest_date =earliest_date
         self.total_squat_challenge = total_squat_challenge
 
+
+
 class Participant:
-    def __init__(self, name, done, somme_squat):
+    def __init__(self, name, df, days_left, squat_objectif_quotidien = 20 ):
+        """
+        Initialise un participant avec ses statistiques.
+        :param name: Nom du participant
+        :param df: DataFrame contenant les données ('name', 'squats', 'date')
+        :param squat_objectif: Objectif de squats à atteindre
+        """
         self.name = name
+        self.squat_objectif_quotidien = squat_objectif_quotidien
+
+        # Filtrer les données du participant
+        self.df = df[df["name"] == name].copy()
+        self.df["date"] = pd.to_datetime(self.df["date"]).dt.date  # Garder seulement la date
+
+        # Calculs des statistiques
+        self.sum_squats_done = self.df["squats"].sum()
+        # sum squats aujourdhui 
+        self.sum_squats_done_today = self.df[self.df["date"] == today.date()]["squats"].sum()
+        self.premier_squat_date = self.df["date"].min() if not self.df.empty else datetime.now().date()
+        self.squats_restants = days_left* squat_objectif_quotidien
+    
+
+        self.objectif_sum_squat = self._objectif_sum_squat()
+        self.nombre_jours_depuis_debut = self._nombre_jours_depuis_debut()
+        self.sum_squat_should_be_done_today = self.nombre_jours_depuis_debut * squat_objectif_quotidien
+        self.delta_done_vs_objecitf_today = self.sum_squats_done - self.sum_squat_should_be_done_today
+        self.moyenne_squats_par_jour = (self.sum_squats_done / self.nombre_jours_depuis_debut
+            if self.nombre_jours_depuis_debut > 0 else 0)
+        self.sum_squats_hier = self._yesterday_squats()
 
 
+    def _objectif_sum_squat(self):
+        if not self.premier_squat_date:
+            return self.squats_restants  # Sécurité si premier squat inconnu
+
+        total_day_challenge = (end_of_year.date() - self.premier_squat_date).days
+
+        return total_day_challenge * self.squat_objectif_quotidien
+    
+    def _nombre_jours_depuis_debut(self):
+        """ Calcule le nombre de jours actifs. """
+        current_date = datetime.now() + timedelta(hours=1)
+        return (current_date.date() - self.premier_squat_date).days + 1
+    
+    # calculer somme des squats d'hier 
+    def _yesterday_squats(self):
+        yesterday = datetime.now() + timedelta(hours=1) - timedelta(days=1)
+        yesterday = yesterday.date()
+        return self.df[self.df["date"] == yesterday]["squats"].sum()
+    
+
+
+    def __repr__(self):
+        return (f"Participant(name={self.name}, sum_squats_done={self.sum_squats_done}, "
+                f"premier_squat_date={self.premier_squat_date}, squats_restants={self.squats_restants}, "
+                f"objectif_sum_squat={self.objectif_sum_squat}," 
+                f"nombre_jours_depuis_debut={self.nombre_jours_depuis_debut},"
+                f"sum_squat_should_be_done_today={self.sum_squat_should_be_done_today},"
+                f"delta_done_vs_objecitf_today={self.delta_done_vs_objecitf_today},"
+                f"moyenne_squats_par_jour={self.moyenne_squats_par_jour:.2f},"  
+                f"somme_squats_hier={self.sum_squats_hier},"
+                f"sum_squats_done_today={self.sum_squats_done_today},"
+                )
 
 
 
