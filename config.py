@@ -190,14 +190,17 @@ client = Mistral(api_key=api_key)
 
 
 def mistral_chat(message):
-    chat_response = client.agents.complete(
-        agent_id="ag:71fb9a73:20250208:untitled-agent:774ff24a",
-        messages = [
-            {
-                "role": "user",
-                "content": message,
-            },
-        ]
-    )
-    return chat_response.choices[0].message.content
+    try : 
+        chat_response = client.agents.complete(
+            agent_id="ag:71fb9a73:20250208:untitled-agent:774ff24a",
+            messages = [
+                {
+                    "role": "user",
+                    "content": message,
+                },
+            ]
+        )
+        return chat_response.choices[0].message.content
+    except :
+        return "Bon courage mon reuf"
 
