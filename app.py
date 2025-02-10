@@ -72,7 +72,7 @@ if id_squatteur_from_cookies is not None:
 
 
 
-    message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait {participant_obj.sum_squats_done_today}  squat aujourd'hui et {participant_obj.sum_squats_hier} hier" )
+    message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait {participant_obj.sum_squats_done_today}  squat aujourd'hui et {participant_obj.sum_squats_hier} hier. Au global sur son objectif annuel {id_squatteur_from_cookies} à un delta de {participant_obj.delta_done_vs_objecitf_today}  " )
     st.write(message_motivation)
 
     st.divider()
