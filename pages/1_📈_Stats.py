@@ -190,10 +190,13 @@ st.plotly_chart(fig, use_container_width=True)
 # )
 # st.plotly_chart(fig, use_container_width=True)
 
-consistent_squatter = filtered_df.groupby("name")["squats"].std().idxmin()
-least_consistent_squatter = filtered_df.groupby("name")["squats"].std().idxmax()
-average_squats_per_session = filtered_df.groupby("name")["squats"].mean()
-total_sessions = filtered_df.groupby("name")["date_day"].nunique()
+# drop Zero in filered df
+filtered_df_without_zero = filtered_df[filtered_df["squats"] != 0]
+# filtered_df_without_zero
+consistent_squatter = filtered_df_without_zero.groupby("name")["squats"].std().idxmin()
+least_consistent_squatter = filtered_df_without_zero.groupby("name")["squats"].std().idxmax()
+average_squats_per_session = filtered_df_without_zero.groupby("name")["squats"].mean()
+total_sessions = filtered_df_without_zero.groupby("name")["date_day"].nunique()
 
 # Display additional metrics
 st.write("---")
@@ -201,17 +204,17 @@ st.caption("Ecart-type du nombre de squats par jour")
 st.metric(
     label="🎲 Squatteur le plus régulier :",
     value=str(consistent_squatter),
-    delta=filtered_df.groupby("name")["squats"].std().min(),
+    delta=filtered_df_without_zero.groupby("name")["squats"].std().min(),
 )
 st.metric(
     label="🎲 Squatteur le plus random :",
     value=str(least_consistent_squatter),
-    delta=filtered_df.groupby("name")["squats"].std().max(),
+    delta=filtered_df_without_zero.groupby("name")["squats"].std().max(),
 )
 
 # Box plot of squats distribution across people
 fig = px.box(
-    data_frame=filtered_df, x="name", y="squats", title="📊 Distribution des squats par jour"
+    data_frame=filtered_df_without_zero, x="name", y="squats", title="📊 Distribution des squats par jour"
 )
 fig.update_layout(
     xaxis_title="Qui ?",
