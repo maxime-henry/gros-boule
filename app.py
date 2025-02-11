@@ -130,6 +130,9 @@ if id_squatteur_from_cookies is not None:
             random_motivate = random.randrange(0, size)
             st.success(motivate[random_motivate])
 
+            id_squatteur = id_squatteur_from_cookies
+            controller.set("id_squatteur", id_squatteur, expires=datetime.now()+timedelta(days = 5, hours=1)) 
+
 
 else :
     st.title("🍑 Squat App 🍑")
@@ -284,6 +287,11 @@ for i, tab in enumerate(tabs):
 # add a comments at the bottom with the version of the app 
 st.caption(f"Version : 0.1.4 - time now = {today}")
 
-message_motivation = mistral_chat(f"{id_squatteur_from_cookies} a fait {participant_obj.sum_squats_done_today}  squat aujourd'hui et {participant_obj.sum_squats_hier} hier. Au global sur son objectif annuel {id_squatteur_from_cookies} à un différence de {participant_obj.delta_done_vs_objecitf_today}  " )
-placeholder.text(message_motivation)
+if id_squatteur_from_cookies is not None:
+    message_motivation = mistral_chat(f"""{id_squatteur_from_cookies} a fait {participant_obj.sum_squats_done_today}  squat aujourd'hui 
+                                    et {participant_obj.sum_squats_hier} hier. 
+                                    Au global sur son objectif annuel {id_squatteur_from_cookies} à un différence de {participant_obj.delta_done_vs_objecitf_today} squats.
+                                    {id_squatteur_from_cookies} à commence le challenge il y'a {participant_obj.nombre_jours_depuis_debut} et à une moyenne de {participant_obj.moyenne_squats_par_jour} squats par jour.""" )
+    placeholder.text(message_motivation)
+
 
