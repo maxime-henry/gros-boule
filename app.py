@@ -1,5 +1,3 @@
-import os
-import asyncio
 from datetime import datetime, timedelta
 import random
 import streamlit as st
@@ -51,8 +49,8 @@ if "last_update" not in st.session_state :
 
 if "squat_data" not in st.session_state or st.session_state.last_update < today_date:
     st.session_state.squat_data = load_all()
+    st.session_state.last_update = today_date  # Update the last update date
 
-if "participants_obj" not in st.session_state or st.session_state.last_update < today_date:
     st.session_state.participants_obj = {}
     for name in participants:
         st.session_state.participants_obj[name] = Participant(name, st.session_state.squat_data, days_left=DAYS_LEFT, squat_objectif_quotidien=SQUAT_JOUR)
