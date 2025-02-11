@@ -41,7 +41,7 @@ data_jour = today_data(data_total)
 
 # --- Initialisation de st.session_state ---
 today_date = today.date()  # Get today's date in UTC
-
+st.session_state.clear()
 if "last_update" not in st.session_state :
     st.session_state.last_update = today_date  # Store the first update date
 
