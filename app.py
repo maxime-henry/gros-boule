@@ -75,6 +75,12 @@ id_squatteur_from_cookies = cookies.get("id_squatteur", None)
 ##################################################################################################################################### 
 
 if id_squatteur_from_cookies is not None:
+
+
+
+    participants= list(participants)
+    participants.remove(id_squatteur_from_cookies)
+    participants.insert(0, id_squatteur_from_cookies)
     
     st.title(f"Allez {id_squatteur_from_cookies}, t'es pas une merde!! ")
     
@@ -233,6 +239,7 @@ for i, tab in enumerate(tabs):
                 controller.set("id_squatteur", id_squatteur, expires=datetime.now()+timedelta(days = 5, hours=1)) 
 
                 st.toast("C'est enregistré frérot!", icon="🎉")
+                st.rerun()
         st.write("---")
 
         
