@@ -119,7 +119,7 @@ if id_squatteur_from_cookies is not None:
                 )
             
             # Mettre à jour l'objet Participant correspondant
-            st.session_state.participants_obj[id_squatteur_from_cookies] = Participant(
+            participant_obj = st.session_state.participants_obj[id_squatteur_from_cookies] = Participant(
                 id_squatteur_from_cookies,
                 st.session_state.squat_data,
                 days_left=DAYS_LEFT,
@@ -230,7 +230,7 @@ for i, tab in enumerate(tabs):
                 random_motivate = random.randrange(0, size)
                 st.success(motivate[random_motivate])
                 id_squatteur = participants[i]
-                controller.set("id_squatteur", id_squatteur) 
+                controller.set("id_squatteur", id_squatteur, expires=datetime.now()+timedelta(days = 5, hours=1)) 
 
                 st.toast("C'est enregistré frérot!", icon="🎉")
         st.write("---")
