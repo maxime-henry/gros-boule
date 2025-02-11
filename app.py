@@ -267,6 +267,9 @@ for i, tab in enumerate(tabs):
             else :
                 st.metric(label="Retard de squats", value= int(participant.delta_done_vs_objecitf_today))
 
+            st.metric(label = "Squat moyen par jours", value=round(float(participant.moyenne_squats_par_jour),2), 
+                    delta = round(float(participant.moyenne_squats_par_jour - SQUAT_JOUR ),2))
+
 
         with col2:
             # Plotly line chart
