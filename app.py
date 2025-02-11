@@ -40,11 +40,19 @@ data_total = load_all()
 data_jour = today_data(data_total)
 
 
+
 # --- Initialisation de st.session_state ---
-if "squat_data" not in st.session_state:
+today_date = today.date()  # Get today's date in UTC
+
+if "last_update" not in st.session_state :
+    st.session_state.last_update = today_date  # Store the first update date
+
+
+
+if "squat_data" not in st.session_state or st.session_state.last_update < today_date:
     st.session_state.squat_data = load_all()
 
-if "participants_obj" not in st.session_state:
+if "participants_obj" not in st.session_state or st.session_state.last_update < today_date:
     st.session_state.participants_obj = {}
     for name in participants:
         st.session_state.participants_obj[name] = Participant(name, st.session_state.squat_data, days_left=DAYS_LEFT, squat_objectif_quotidien=SQUAT_JOUR)
@@ -56,6 +64,9 @@ if "participants_obj" not in st.session_state:
 # # Set squats to 0 for participants without a value
 # df_all_participants_jour['squats'].fillna(0, inplace=True)
 
+# if st.button("Reset Session"):
+#     st.session_state.clear()
+#     st.rerun()  # Force the app to reload
 
 
 
@@ -72,16 +83,13 @@ if id_squatteur_from_cookies is not None:
     participant_obj=st.session_state.participants_obj.get(id_squatteur_from_cookies)
 
     
-    print(datetime.now())
+
 
     placeholder = st.empty()
     placeholder.info("Fait un squat en attendant au pire non ?")
     
 
-    
 
-
-    print(datetime.now())
     st.divider()
 
 
