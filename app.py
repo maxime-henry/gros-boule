@@ -41,18 +41,29 @@ data_jour = today_data(data_total)
 
 # --- Initialisation de st.session_state ---
 today_date = today.date()  # Get today's date in UTC
+
+# today_date = datetime(2025, 2, 13).date()
 # st.session_state.clear()
+
+
+
+print("Today's date:", today_date)
+
 if "last_update" not in st.session_state :
     st.session_state.last_update = today_date  # Store the first update date
+    print("Initialized last_update to:", st.session_state.last_update)
 
 
-print(today_date)
-print(st.session_state.last_update)
+
+
+print("Last session update date",st.session_state.last_update)
+
 
 
 if "squat_data" not in st.session_state or st.session_state.last_update < today_date:
     st.session_state.squat_data = load_all()
     st.session_state.last_update = today_date  # Update the last update date
+    print("Updated squat_data and last_update to:", st.session_state.last_update)
 
     st.session_state.participants_obj = {}
     for name in participants:
