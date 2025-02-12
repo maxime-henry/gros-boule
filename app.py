@@ -46,6 +46,9 @@ if "last_update" not in st.session_state :
     st.session_state.last_update = today_date  # Store the first update date
 
 
+print(today_date)
+print(st.session_state.last_update)
+
 
 if "squat_data" not in st.session_state or st.session_state.last_update < today_date:
     st.session_state.squat_data = load_all()
@@ -295,7 +298,9 @@ for i, tab in enumerate(tabs):
         # st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 # add a comments at the bottom with the version of the app 
-st.caption(f"Version : 0.1.4 - time now = {today}")
+st.caption(f"Version : 0.1.4 - time now = {today_date}")
+
+st.caption( st.session_state.last_update )
 
 if id_squatteur_from_cookies is not None:
     message_motivation = mistral_chat(f"""{id_squatteur_from_cookies} a fait {participant_obj.sum_squats_done_today}  squat aujourd'hui 
