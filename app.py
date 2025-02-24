@@ -11,7 +11,7 @@ from streamlit_cookies_controller import CookieController
 
 
 from motivation import motivate
-from config import  load_all, today_data, mistral_chat, Participant, save_new_squat
+from config import  load_all, today_data, mistral_chat, Participant, save_new_squat, today, end_of_year
 
 
 st.set_page_config(
@@ -28,30 +28,26 @@ participants = ("Audrix", "Matix", "Floflox", "Max", "Marinox",  "Viox", "Carlix
 
 SQUAT_JOUR = 20 
 
-# display the number of day between today and the end of the year
-today = datetime.now()+timedelta(hours=1)
-end_of_year = datetime(today.year, 12, 31)
 DAYS_LEFT = (end_of_year - today).days + 1
 
 
 data_total = load_all()
-data_jour = today_data(data_total)
+# data_jour = today_data(data_total)
 
 
 
 # --- Initialisation de st.session_state ---
 today_date = today.date()  # Get today's date in UTC
 
-# today_date = datetime(2025, 2, 13).date()
-# st.session_state.clear()
 
+# st.session_state.clear()
 
 
 print("Today's date:", today_date)
 
-if "last_update" not in st.session_state :
-    st.session_state.last_update = today_date  # Store the first update date
-    print("Initialized last_update to:", st.session_state.last_update)
+# if "last_update" not in st.session_state :
+st.session_state.last_update = today_date  # Store the first update date
+print("Initialized last_update to:", st.session_state.last_update)
 
 
 
@@ -60,16 +56,18 @@ print("Last session update date",st.session_state.last_update)
 
 
 
-if "squat_data" not in st.session_state or st.session_state.last_update < today_date:
-    st.session_state.squat_data = load_all()
-    st.session_state.last_update = today_date  # Update the last update date
-    print("Updated squat_data and last_update to:", st.session_state.last_update)
+# if "squat_data" not in st.session_state or st.session_state.last_update < today_date:
+st.session_state.squat_data = load_all()
+st.session_state.last_update = today_date  # Update the last update date
+print("Updated squat_data and last_update to:", st.session_state.last_update)
 
-    st.session_state.participants_obj = {}
-    for name in participants:
-        st.session_state.participants_obj[name] = Participant(name, st.session_state.squat_data, days_left=DAYS_LEFT, squat_objectif_quotidien=SQUAT_JOUR)
+st.session_state.participants_obj = {}
+for name in participants:
+    st.session_state.participants_obj[name] = Participant(name, st.session_state.squat_data, days_left=DAYS_LEFT, squat_objectif_quotidien=SQUAT_JOUR)
 
 
+if st.session_state.last_update < today_date:
+    st.rerun()
 # # Merge with a DataFrame containing all participants to ensure all participants are included
 # df_participants = pd.DataFrame({'name': participants})
 # df_all_participants_jour = pd.merge(df_participants, data_jour, on='name', how='left')
