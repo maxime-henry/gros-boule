@@ -279,7 +279,7 @@ for i, tab in enumerate(tabs):
         # st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
 
 # add a comments at the bottom with the version of the app 
-st.caption(f"Version : 0.1.4 - time now = {today_date}")
+st.caption(f"Version : 0.1.5 - time now = {today_date}")
 
 
 
