@@ -40,43 +40,15 @@ data_total = load_all()
 today_date = today.date()  # Get today's date in UTC
 
 
-# st.session_state.clear()
+
+squat_data = load_all()
 
 
-print("Today's date:", today_date)
-
-# if "last_update" not in st.session_state :
-st.session_state.last_update = today_date  # Store the first update date
-print("Initialized last_update to:", st.session_state.last_update)
-
-
-
-
-print("Last session update date",st.session_state.last_update)
-
-
-
-# if "squat_data" not in st.session_state or st.session_state.last_update < today_date:
-st.session_state.squat_data = load_all()
-st.session_state.last_update = today_date  # Update the last update date
-print("Updated squat_data and last_update to:", st.session_state.last_update)
-
-st.session_state.participants_obj = {}
+participants_obj = {}
 for name in participants:
-    st.session_state.participants_obj[name] = Participant(name, st.session_state.squat_data, days_left=DAYS_LEFT, squat_objectif_quotidien=SQUAT_JOUR)
+    participants_obj[name] = Participant(name, squat_data, days_left=DAYS_LEFT, squat_objectif_quotidien=SQUAT_JOUR)
 
 
-if st.session_state.last_update < today_date:
-    st.rerun()
-# # Merge with a DataFrame containing all participants to ensure all participants are included
-# df_participants = pd.DataFrame({'name': participants})
-# df_all_participants_jour = pd.merge(df_participants, data_jour, on='name', how='left')
-# # Set squats to 0 for participants without a value
-# df_all_participants_jour['squats'].fillna(0, inplace=True)
-
-# if st.button("Reset Session"):
-#     st.session_state.clear()
-#     st.rerun()  # Force the app to reload
 
 
 
@@ -96,7 +68,7 @@ if id_squatteur_from_cookies is not None:
     
     st.title(f"Allez {id_squatteur_from_cookies}, t'es pas une merde!! ")
     
-    participant_obj=st.session_state.participants_obj.get(id_squatteur_from_cookies)
+    participant_obj=participants_obj.get(id_squatteur_from_cookies)
 
     
 
@@ -129,17 +101,17 @@ if id_squatteur_from_cookies is not None:
             
             # Mettre à jour la copie locale des données
             new_entry_df = pd.DataFrame([new_item])
-            if st.session_state.squat_data is None or st.session_state.squat_data.empty:
-                st.session_state.squat_data = new_entry_df
+            if squat_data is None or squat_data.empty:
+                squat_data = new_entry_df
             else:
-                st.session_state.squat_data = pd.concat(
-                    [st.session_state.squat_data, new_entry_df], ignore_index=True
+                squat_data = pd.concat(
+                    [squat_data, new_entry_df], ignore_index=True
                 )
             
             # Mettre à jour l'objet Participant correspondant
-            participant_obj = st.session_state.participants_obj[id_squatteur_from_cookies] = Participant(
+            participant_obj = participants_obj[id_squatteur_from_cookies] = Participant(
                 id_squatteur_from_cookies,
-                st.session_state.squat_data,
+                squat_data,
                 days_left=DAYS_LEFT,
                 squat_objectif_quotidien=SQUAT_JOUR
             )
@@ -186,7 +158,7 @@ with col4:
 
 st.write("Qui a fait ses devoirs ?")
 # Iterate over all Participant objects stored in session_state
-for participant in st.session_state.participants_obj.values():
+for participant in participants_obj.values():
     # Check if the participant has met or exceeded the daily squat objective
     if participant.sum_squats_done_today >= SQUAT_JOUR:
         st.write(f"✅ {participant.name} 🍑")
@@ -229,17 +201,17 @@ for i, tab in enumerate(tabs):
                 
                 # Mettre à jour la copie locale des données
                 new_entry_df = pd.DataFrame([new_item])
-                if st.session_state.squat_data is None or st.session_state.squat_data.empty:
-                    st.session_state.squat_data = new_entry_df
+                if squat_data is None or squat_data.empty:
+                    squat_data = new_entry_df
                 else:
-                    st.session_state.squat_data = pd.concat(
-                        [st.session_state.squat_data, new_entry_df], ignore_index=True
+                    squat_data = pd.concat(
+                        [squat_data, new_entry_df], ignore_index=True
                     )
                 
                 # Mettre à jour l'objet Participant correspondant
-                st.session_state.participants_obj[participants[i]] = Participant(
+                participants_obj[participants[i]] = Participant(
                     participants[i],
-                    st.session_state.squat_data,
+                    squat_data,
                     days_left=DAYS_LEFT,
                     squat_objectif_quotidien=SQUAT_JOUR
                 )
@@ -256,7 +228,7 @@ for i, tab in enumerate(tabs):
 
         
 
-        participant = st.session_state.participants_obj.get(participants[i])
+        participant = participants_obj.get(participants[i])
 
         col1, col2 = st.columns([2, 5])
         with col1:
@@ -309,7 +281,7 @@ for i, tab in enumerate(tabs):
 # add a comments at the bottom with the version of the app 
 st.caption(f"Version : 0.1.4 - time now = {today_date}")
 
-st.caption( st.session_state.last_update )
+
 
 if id_squatteur_from_cookies is not None:
     message_motivation = mistral_chat(f"""{id_squatteur_from_cookies} a fait {participant_obj.sum_squats_done_today}  squat aujourd'hui 
