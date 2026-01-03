@@ -306,11 +306,17 @@ if (
             random_motivate = random.randrange(0, size)
             st.success(motivate[random_motivate])
 
+            # secure_cookie = (
+            #     st.runtime.exists() and st.runtime.scriptrunner.streamlit_cloud
+            # )
+
             id_squatteur = id_squatteur_from_cookies
             controller.set(
                 "id_squatteur",
                 id_squatteur,
                 expires=datetime.now() + timedelta(days=5, hours=1),
+                # secure=True,
+                # same_site="Strict" if secure_cookie else "Lax",
             )
             st.rerun()
 
@@ -422,10 +428,9 @@ if (
 else:
     st.title("🍑 Squat App 🍑")
     st.subheader("New year new me")
-    st.write("Cette année on se calme, objectif 20 squats par jour pendant un an")
     st.caption("La persévérance, secret de tous les triomphes. - Victor Hugo")
 
-    st.subheader("Choisis ton blaze pour te connecter")
+    st.subheader("Choisis ton nom pour te connecter")
     st.caption("Clique sur ton nom, on te prépare le formulaire perso juste après 👇")
     login_container = st.container()
     login_container.markdown('<div class="login-grid">', unsafe_allow_html=True)
@@ -449,7 +454,7 @@ else:
     hero_cols = st.columns([3, 2])
 with hero_cols[0]:
     st.write(
-        "🔥 20 squats par tête jusqu'au 31 décembre. On compte les reps, pas les excuses."
+        "🔥 20 squats par jour jusqu'au 31 décembre. On compte les reps, pas les excuses."
     )
 with hero_cols[1]:
     st.metric(
@@ -459,12 +464,12 @@ with hero_cols[1]:
     )
     st.progress(
         min(crew_completion_pct / 100, 1.0),
-        text="Progression du crew sur l'année",
+        text="Progression de l'équipe sur l'année",
     )
 
 crew_metrics = [
     {
-        "label": "Crew en piste",
+        "label": "Equipe en piste",
         "value": len(participants),
         "delta": f"{active_today} validés aujourd'hui",
     },
@@ -573,65 +578,65 @@ if not leaderboard_df.empty:
     )
 
 
-st.write("---")
-st.subheader("Focus par squatteur")
+# st.write("---")
+# st.subheader("Focus par squatteur")
 
-focus_columns = 1 if mobile_view else 3
-for chunk_start in range(0, len(participant_order), focus_columns):
-    cols = st.columns(focus_columns)
-    for col, name in zip(
-        cols, participant_order[chunk_start : chunk_start + focus_columns]
-    ):
-        participant = participants_obj.get(name)
-        if participant is None or participant.df.empty:
-            col.info(f"{name} n'a pas encore loggé de squats.")
-            continue
+# focus_columns = 1 if mobile_view else 3
+# for chunk_start in range(0, len(participant_order), focus_columns):
+#     cols = st.columns(focus_columns)
+#     for col, name in zip(
+#         cols, participant_order[chunk_start : chunk_start + focus_columns]
+#     ):
+#         participant = participants_obj.get(name)
+#         if participant is None or participant.df.empty:
+#             col.info(f"{name} n'a pas encore loggé de squats.")
+#             continue
 
-        with col:
-            st.markdown(f"### {name}")
-            st.metric(
-                label="Aujourd'hui",
-                value=int(participant.sum_squats_done_today),
-                delta=int(participant.sum_squats_done_today - SQUAT_JOUR),
-            )
-            st.metric(
-                label="Total cumulé",
-                value=int(participant.sum_squats_done),
-                delta=f"Depuis {participant.nombre_jours_depuis_debut} jours",
-            )
-            # st.metric(
-            #     label="Delta vs objectif",
-            #     value=int(participant.delta_done_vs_objecitf_today),
-            # )
-            # st.metric(
-            #     label="Moyenne / jour",
-            #     value=round(float(participant.moyenne_squats_par_jour), 2),
-            #     delta=round(float(participant.moyenne_squats_par_jour - SQUAT_JOUR), 2),
-            # )
-            st.metric(
-                label="🔥 Streak",
-                value=f"{participant.current_objective_streak} j",
-                delta=f"Record {participant.best_objective_streak}",
-            )
+#         with col:
+#             st.markdown(f"### {name}")
+#             st.metric(
+#                 label="Aujourd'hui",
+#                 value=int(participant.sum_squats_done_today),
+#                 delta=int(participant.sum_squats_done_today - SQUAT_JOUR),
+#             )
+#             st.metric(
+#                 label="Total cumulé",
+#                 value=int(participant.sum_squats_done),
+#                 delta=f"Depuis {participant.nombre_jours_depuis_debut} jours",
+#             )
+# st.metric(
+#     label="Delta vs objectif",
+#     value=int(participant.delta_done_vs_objecitf_today),
+# )
+# st.metric(
+#     label="Moyenne / jour",
+#     value=round(float(participant.moyenne_squats_par_jour), 2),
+#     delta=round(float(participant.moyenne_squats_par_jour - SQUAT_JOUR), 2),
+# # )
+# st.metric(
+#     label="🔥 Streak",
+#     value=f"{participant.current_objective_streak} j",
+#     delta=f"Record {participant.best_objective_streak}",
+# )
 
-            # progress_ratio = min(
-            #     max(participant.sum_squats_done_today / SQUAT_JOUR, 0), 2
-            # )
-            # st.progress(
-            #     min(progress_ratio, 1.0),
-            #     text=(
-            #         "Objectif du jour" if progress_ratio < 1 else "🔥 Objectif dépassé"
-            #     ),
-            # )
+# # progress_ratio = min(
+# #     max(participant.sum_squats_done_today / SQUAT_JOUR, 0), 2
+# # )
+# # st.progress(
+# #     min(progress_ratio, 1.0),
+# #     text=(
+# #         "Objectif du jour" if progress_ratio < 1 else "🔥 Objectif dépassé"
+# #     ),
+# # )
 
-            st.caption(
-                f"{participant.sessions_logged} sessions • {participant.weekly_total} squats cette semaine"
-            )
+# st.caption(
+#     f"{participant.sessions_logged} sessions • {participant.weekly_total} squats cette semaine"
+# )
 
-            if id_squatteur_from_cookies == name:
-                st.success(
-                    "Connecté. Utilise le gros formulaire au-dessus pour logger."
-                )
+# if id_squatteur_from_cookies == name:
+#     st.success(
+#         "Connecté. Utilise le gros formulaire au-dessus pour logger."
+#     )
 
 st.write("---")
 
