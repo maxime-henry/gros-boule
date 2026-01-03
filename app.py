@@ -58,6 +58,15 @@ cookies = controller.getAll()
 id_squatteur_from_cookies = cookies.get("id_squatteur", None)
 ##################################################################################################################################### 
 
+
+def clear_login_cookie():
+    """Reset the participant cookie so someone else can se connecter."""
+    try:
+        controller.delete("id_squatteur")  # type: ignore[attr-defined]
+    except AttributeError:
+        controller.set("id_squatteur", "", expires=datetime.now() - timedelta(days=1))
+
+
 if id_squatteur_from_cookies is not None:
 
 
@@ -67,6 +76,10 @@ if id_squatteur_from_cookies is not None:
     participants.insert(0, id_squatteur_from_cookies)
     
     st.title(f"Allez {id_squatteur_from_cookies}, t'es pas une merde!! ")
+
+    if st.button("Pas toi ? Clique ici pour changer de squatteur", key="change_user_btn"):
+        clear_login_cookie()
+        st.rerun()
     
     participant_obj=participants_obj.get(id_squatteur_from_cookies)
 
@@ -132,6 +145,19 @@ else :
     )
     st.caption("La persévérance, secret de tous les triomphes. - Victor Hugo")
 
+    st.subheader("Choisis ton blaze pour te connecter")
+    st.caption("Clique sur ton nom, on te prépare le formulaire perso juste après 👇")
+    selection_cols = st.columns(3)
+    for idx, name in enumerate(participants):
+        col = selection_cols[idx % len(selection_cols)]
+        if col.button(f"{name} 🔓", key=f"login_{name}", use_container_width=True):
+            controller.set(
+                "id_squatteur",
+                name,
+                expires=datetime.now()+timedelta(days = 5, hours=1)
+            )
+            st.rerun()
+
 
 
 col1, col2, col3, col4 = st.columns(4)
@@ -172,63 +198,16 @@ tabs = st.tabs(participants)
 
 for i, tab in enumerate(tabs):
     with tab:
-
-        # User = st.session_state.participants_obj.get(participants[i])
-
-        with st.form(f"squat_form_tabs_{i}"):
-            squats_faits = st.number_input(
-                "Enregistrer une session squats :",
-                min_value=5,
-                max_value=600,
-                value=20,
-                step=1,
-            )
-            submitted = st.form_submit_button(f"Enregistrer pour {participants[i]} 🍑")
-        
-    
-        valid = False
-        if participants[i] == "Audrix":
-            st.warning("Es-tu bien Audrix Cousinx ??")
-
-            valid = st.checkbox("🚨 Oui, je suis AUDRIX !! 🚨", key= i+300)
-        else:
-            valid = True
-
-        if submitted:
-            with st.spinner("Saving..."):
-                # Sauvegarder dans DynamoDB
-                new_item = save_new_squat(participants[i], squats_faits)
-                
-                # Mettre à jour la copie locale des données
-                new_entry_df = pd.DataFrame([new_item])
-                if squat_data is None or squat_data.empty:
-                    squat_data = new_entry_df
-                else:
-                    squat_data = pd.concat(
-                        [squat_data, new_entry_df], ignore_index=True
-                    )
-                
-                # Mettre à jour l'objet Participant correspondant
-                participants_obj[participants[i]] = Participant(
-                    participants[i],
-                    squat_data,
-                    days_left=DAYS_LEFT,
-                    squat_objectif_quotidien=SQUAT_JOUR
-                )
-                
-                size = len(motivate)
-                random_motivate = random.randrange(0, size)
-                st.success(motivate[random_motivate])
-                id_squatteur = participants[i]
-                controller.set("id_squatteur", id_squatteur, expires=datetime.now()+timedelta(days = 5, hours=1)) 
-
-                st.toast("C'est enregistré frérot!", icon="🎉")
-                st.rerun()
-        st.write("---")
-
-        
-
         participant = participants_obj.get(participants[i])
+
+        if participant is None:
+            st.info("Aucune donnée pour ce squatteur pour le moment.")
+            continue
+
+        if id_squatteur_from_cookies == participants[i]:
+            st.success("Tu es connecté ici, utilise le formulaire perso plus haut 👆")
+        else:
+            st.caption("Pour enregistrer tes squats, clique sur ton nom dans la zone de connexion au-dessus.")
 
         col1, col2 = st.columns([2, 5])
         with col1:
