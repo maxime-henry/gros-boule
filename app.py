@@ -877,6 +877,7 @@ Stats complètes (données figées au {today_snapshot} UTC+1) :
 - Streak actuel : {participant_obj.current_objective_streak} jours | Record : {participant_obj.best_objective_streak} jours.
 - Dernière activité : {last_activity}.
 - Objectif restant estimé : {participant_obj.objectif_sum_squat - participant_obj.sum_squats_done} squats pour boucler l'année.
+- Squats des autres membres aujourd'hui : {active_today} sur {len(participants)} ont déjà validé leurs {SQUAT_JOUR} squats.
 """
 
     # message_motivation = mistral_chat(motivation_prompt)

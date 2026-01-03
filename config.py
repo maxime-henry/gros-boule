@@ -9,7 +9,7 @@ load_dotenv()
 ACCESS_KEY = os.environ.get("ACCESS_KEY")
 SECRET_ACCESS_KEY = os.environ.get("SECRET_ACCESS_KEY")
 
-today = datetime.now() + timedelta(hours=1)
+today = datetime.now()  # + timedelta(hours=1)
 # today = datetime(2025,2,20)
 
 end_of_year = datetime(today.year, 12, 31)
@@ -18,7 +18,7 @@ end_of_year = datetime(today.year, 12, 31)
 def save_new_squat(name, squats_count):
     new_item = {
         "name": name,
-        "date": (datetime.utcnow() + timedelta(hours=1)).isoformat(),
+        "date": datetime.utcnow().isoformat(),
         "squats": squats_count,
     }
     table_squats.put_item(Item=new_item)
