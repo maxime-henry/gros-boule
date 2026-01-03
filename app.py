@@ -132,6 +132,53 @@ st.markdown(
         background: transparent !important;
     }
 
+    /* Radial progress ring styles */
+    .radial-progress {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .radial-progress svg {
+        transform: rotate(-90deg);
+        filter: drop-shadow(0 4px 12px rgba(255, 111, 97, 0.3));
+    }
+    .radial-progress .ring-bg {
+        fill: none;
+        stroke: rgba(255, 111, 97, 0.15);
+    }
+    .radial-progress .ring-progress {
+        fill: none;
+        stroke: url(#peachGradient);
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.6s ease;
+    }
+    .radial-progress .ring-label {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .radial-progress .ring-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #ff6f61;
+    }
+    .radial-progress .ring-subtitle {
+        font-size: 0.75rem;
+        color: #666;
+        margin-top: 2px;
+    }
+    .radial-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     @media (max-width: 768px) {
         .block-container {
             padding: 0.6rem 0.8rem 2.5rem !important;
@@ -201,6 +248,43 @@ def render_metric_rows(metric_items, per_row):
                 delta=metric.get("delta"),
                 help=metric.get("help"),
             )
+
+
+def render_radial_progress(
+    percent: float, label: str, subtitle: str = "", size: int = 140, stroke: int = 10
+):
+    """Render a radial progress ring with gradient fill."""
+    # Clamp percent between 0 and 100 for display, but show actual value
+    display_percent = min(max(percent, 0), 100)
+    radius = (size - stroke) / 2
+    circumference = 2 * 3.14159 * radius
+    offset = circumference * (1 - display_percent / 100)
+
+    html = f"""
+    <div class="radial-progress">
+        <div class="radial-container" style="width:{size}px;height:{size}px;">
+            <svg width="{size}" height="{size}" viewBox="0 0 {size} {size}">
+                <defs>
+                    <linearGradient id="peachGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff6f61;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#ff8a65;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ffab91;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <circle class="ring-bg" cx="{size/2}" cy="{size/2}" r="{radius}" stroke-width="{stroke}"/>
+                <circle class="ring-progress" cx="{size/2}" cy="{size/2}" r="{radius}" 
+                    stroke-width="{stroke}" 
+                    stroke-dasharray="{circumference}" 
+                    stroke-dashoffset="{offset}"/>
+            </svg>
+            <div class="ring-label" style="width:{size}px;height:{size}px;">
+                <span class="ring-value">{label}</span>
+                <span class="ring-subtitle">{subtitle}</span>
+            </div>
+        </div>
+    </div>
+    """
+    return html
 
 
 # @st.cache_data(ttl=100, max_entries=1)
@@ -407,6 +491,40 @@ if is_logged_in:
             unsafe_allow_html=True,
         )
         st.caption("Tes stats personnelles en temps réel")
+
+        # Radial progress rings for daily and annual goals
+        with st.container(border=True):
+            daily_pct = (participant_obj.sum_squats_done_today / SQUAT_JOUR) * 100
+            annual_pct = participant_obj.progress_pct_vs_objectif
+
+            if mobile_view:
+                ring_cols = [st.container(), st.container()]
+            else:
+                ring_cols = st.columns(2)
+
+            with ring_cols[0]:
+                st.markdown(
+                    render_radial_progress(
+                        daily_pct,
+                        f"{int(participant_obj.sum_squats_done_today)}",
+                        f"/ {SQUAT_JOUR} aujourd'hui",
+                        size=130,
+                        stroke=12,
+                    ),
+                    unsafe_allow_html=True,
+                )
+            with ring_cols[1]:
+                st.markdown(
+                    render_radial_progress(
+                        annual_pct,
+                        f"{annual_pct:.1f}%",
+                        "objectif annuel",
+                        size=130,
+                        stroke=12,
+                    ),
+                    unsafe_allow_html=True,
+                )
+
         with st.container(border=True):
             cockpit_metrics = [
                 {
@@ -507,6 +625,15 @@ if is_logged_in:
             fig = px.bar(
                 personal_history, x="date", y="squats", title="Sessions récentes"
             )
+            # Apply gradient-like coloring based on values
+            fig.update_traces(
+                marker=dict(
+                    color=personal_history["squats"],
+                    colorscale=[[0, "#ffab91"], [0.5, "#ff8a65"], [1, "#ff6f61"]],
+                    line=dict(width=0),
+                ),
+                opacity=0.9,
+            )
             fig.update_layout(
                 shapes=[
                     {
@@ -517,11 +644,16 @@ if is_logged_in:
                         "xref": "paper",
                         "x0": 0,
                         "x1": 1,
-                        "line": {"color": "red", "width": 2},
+                        "line": {"color": "#e53935", "width": 2, "dash": "dot"},
                     }
                 ],
                 margin=dict(l=10, r=10, t=40, b=10),
+                plot_bgcolor="rgba(0,0,0,0)",
+                paper_bgcolor="rgba(0,0,0,0)",
+                showlegend=False,
             )
+            fig.update_xaxes(showgrid=False)
+            fig.update_yaxes(showgrid=True, gridcolor="rgba(255,111,97,0.1)")
             st.plotly_chart(fig, width="stretch")
 
         with box_col:
@@ -544,21 +676,27 @@ with st.container(border=True):
     if mobile_view:
         hero_cols = [st.container(), st.container()]
     else:
-        hero_cols = st.columns([3, 2])
+        hero_cols = st.columns([2, 1])
     with hero_cols[0]:
         st.markdown(
             "**🎯 L'objectif :** 20 squats par jour, chaque jour, jusqu'au 31 décembre."
         )
         st.caption("On compte les reps, pas les excuses.")
-    with hero_cols[1]:
         st.metric(
-            label="Challenge complété",
-            value=f"{crew_completion_pct:.1f}%",
-            delta=f"{crew_total_squats} squats loggés",
+            label="Squats cumulés",
+            value=f"{crew_total_squats:,}".replace(",", " "),
+            delta=f"{crew_delta_today:+d} vs objectif",
         )
-        st.progress(
-            min(crew_completion_pct / 100, 1.0),
-            text="Progression de l'équipe sur l'année",
+    with hero_cols[1]:
+        st.markdown(
+            render_radial_progress(
+                crew_completion_pct,
+                f"{crew_completion_pct:.1f}%",
+                "challenge complété",
+                size=120,
+                stroke=10,
+            ),
+            unsafe_allow_html=True,
         )
 
     crew_metrics = [
@@ -629,19 +767,38 @@ if not crew_daily_totals.empty:
             x="date_day",
             y="squats",
             title="Volume quotidien du crew",
-            color_discrete_sequence=["#ff6f61"],
+        )
+        # Apply gradient fill effect
+        trend_fig.update_traces(
+            fill="tozeroy",
+            fillgradient=dict(
+                type="vertical",
+                colorscale=[
+                    [0, "rgba(255,171,145,0.1)"],
+                    [0.5, "rgba(255,138,101,0.4)"],
+                    [1, "rgba(255,111,97,0.8)"],
+                ],
+            ),
+            line=dict(color="#ff6f61", width=3),
         )
         trend_fig.add_hline(
             y=len(participants) * SQUAT_JOUR,
             line_dash="dot",
-            line_color="red",
-            opacity=0.7,
+            line_color="#e53935",
+            opacity=0.8,
+            annotation_text=f"Objectif ({len(participants) * SQUAT_JOUR})",
+            annotation_position="top right",
         )
         trend_fig.update_layout(
             xaxis_title="Date",
             yaxis_title="Squats cumulés",
             margin=dict(l=10, r=10, t=60, b=20),
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            showlegend=False,
         )
+        trend_fig.update_xaxes(showgrid=False)
+        trend_fig.update_yaxes(showgrid=True, gridcolor="rgba(255,111,97,0.1)")
         st.plotly_chart(trend_fig, width="stretch")
 
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
