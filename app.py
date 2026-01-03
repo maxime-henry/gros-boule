@@ -323,7 +323,7 @@ if not is_logged_in:
     selection_cols = login_container.columns(1 if mobile_view else 3)
     for idx, name in enumerate(participants):
         col = selection_cols[idx % len(selection_cols)]
-        if col.button(f"{name} 🔓", key=f"login_{name}", use_container_width=True):
+        if col.button(f"{name} 🔓", key=f"login_{name}", width="stretch"):
 
             st.session_state["pending_loading"] = name
             st.rerun()
@@ -508,11 +508,11 @@ if is_logged_in:
                 ],
                 margin=dict(l=10, r=10, t=40, b=10),
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
         with box_col:
             box_fig = px.box(personal_history, y="squats", title="Distribution")
-            st.plotly_chart(box_fig, use_container_width=True)
+            st.plotly_chart(box_fig, width="stretch")
 
 
 elif not is_logged_in:
@@ -627,7 +627,7 @@ if not crew_daily_totals.empty:
         yaxis_title="Squats cumulés",
         margin=dict(l=10, r=10, t=60, b=20),
     )
-    st.plotly_chart(trend_fig, use_container_width=True)
+    st.plotly_chart(trend_fig, width="stretch")
 
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 st.markdown(
@@ -672,7 +672,7 @@ if not leaderboard_df.empty:
     with st.container(border=True):
         st.dataframe(
             leaderboard_df,
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
         st.caption("Mise à jour automatique à chaque nouvelle session.")
