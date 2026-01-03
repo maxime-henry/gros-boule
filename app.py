@@ -119,6 +119,19 @@ st.markdown(
         font-size: 0.8rem;
         font-weight: 600;
     }
+
+    /* Custom background for bordered containers */
+    div[data-testid="stVerticalBlock"] {
+        background: rgba(255, 255, 255, 0.7) !important;
+        border-radius: 16px !important;
+        border: 1px solid rgba(255, 111, 97, 0.2) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08) !important;
+        padding: 1.5rem !important;
+    }
+    div[data-testid="stVerticalBlock"] > div {
+        background: transparent !important;
+    }
+
     @media (max-width: 768px) {
         .block-container {
             padding: 0.6rem 0.8rem 2.5rem !important;
@@ -512,8 +525,9 @@ if is_logged_in:
             st.plotly_chart(fig, width="stretch")
 
         with box_col:
-            box_fig = px.box(personal_history, y="squats", title="Distribution")
-            st.plotly_chart(box_fig, width="stretch")
+            pass
+            # box_fig = px.box(personal_history, y="squats", title="Distribution")
+            # st.plotly_chart(box_fig, width="stretch")
 
 
 elif not is_logged_in:
