@@ -122,7 +122,7 @@ st.markdown(
 
     /* Custom background for bordered containers */
     div[data-testid="stVerticalBlock"] {
-        background: rgba(255, 255, 255, 0.7) !important;
+        /*background: rgba(255, 255, 255, 0.7) !important;*/
         border-radius: 16px !important;
         border: 1px solid rgba(255, 111, 97, 0.2) !important;
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08) !important;
