@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import os
 import random
 import streamlit as st
 import plotly.express as px
@@ -169,6 +170,29 @@ SQUAT_JOUR = 20
 
 DAYS_LEFT = (end_of_year - today).days + 1
 
+COOKIE_DURATION = timedelta(days=5, hours=1)
+
+
+# def _resolve_secure_cookie_flag() -> bool:
+#     """Decide if cookies should be marked Secure (HTTPS-only)."""
+#     env_flag = os.getenv("STREAMLIT_COOKIE_SECURE")
+#     if env_flag is not None:
+#         return env_flag.lower() in {"1", "true", "yes"}
+
+#     try:
+#         # Allow overriding via secrets.toml
+#         secrets_flag = st.secrets.get("secure_cookie", None)
+#         if secrets_flag is not None:
+#             return bool(secrets_flag)
+#     except Exception:
+#         # st.secrets might not be initialised in some contexts
+#         pass
+
+#     return False
+
+
+# SECURE_COOKIE = _resolve_secure_cookie_flag()
+
 
 def chunked_sequence(items, size):
     """Yield successive chunks sized for responsive metric grids."""
@@ -285,7 +309,22 @@ def clear_login_cookie():
     try:
         controller.delete("id_squatteur")  # type: ignore[attr-defined]
     except AttributeError:
-        controller.set("id_squatteur", "", expires=datetime.now() - timedelta(days=1))
+        controller.set(
+            "id_squatteur",
+            "",
+            expires=datetime.now() - timedelta(days=1),
+            # secure=SECURE_COOKIE,
+        )
+
+
+def persist_login_cookie(name: str):
+    """Store the current squatteur id with consistent options."""
+    controller.set(
+        "id_squatteur",
+        name,
+        expires=datetime.now() + COOKIE_DURATION,
+        # secure=SECURE_COOKIE,
+    )
 
 
 if (
@@ -348,14 +387,7 @@ if (
             #     st.runtime.exists() and st.runtime.scriptrunner.streamlit_cloud
             # )
 
-            id_squatteur = id_squatteur_from_cookies
-            controller.set(
-                "id_squatteur",
-                id_squatteur,
-                expires=datetime.now() + timedelta(days=5, hours=1),
-                secure=True,
-                # same_site="Strict" if secure_cookie else "Lax",
-            )
+            persist_login_cookie(id_squatteur_from_cookies)
             st.rerun()
 
     if participant_obj is not None:
@@ -500,11 +532,8 @@ else:
     for idx, name in enumerate(participants):
         col = selection_cols[idx % len(selection_cols)]
         if col.button(f"{name} 🔓", key=f"login_{name}", use_container_width=True):
-            controller.set(
-                "id_squatteur",
-                name,
-                expires=datetime.now() + timedelta(days=5, hours=1),
-            )
+            persist_login_cookie(name)
+
             st.rerun()
     login_container.markdown("</div>", unsafe_allow_html=True)
 
