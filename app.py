@@ -173,27 +173,6 @@ DAYS_LEFT = (end_of_year - today).days + 1
 COOKIE_DURATION = timedelta(days=5, hours=1)
 
 
-# def _resolve_secure_cookie_flag() -> bool:
-#     """Decide if cookies should be marked Secure (HTTPS-only)."""
-#     env_flag = os.getenv("STREAMLIT_COOKIE_SECURE")
-#     if env_flag is not None:
-#         return env_flag.lower() in {"1", "true", "yes"}
-
-#     try:
-#         # Allow overriding via secrets.toml
-#         secrets_flag = st.secrets.get("secure_cookie", None)
-#         if secrets_flag is not None:
-#             return bool(secrets_flag)
-#     except Exception:
-#         # st.secrets might not be initialised in some contexts
-#         pass
-
-#     return False
-
-
-# SECURE_COOKIE = _resolve_secure_cookie_flag()
-
-
 def chunked_sequence(items, size):
     """Yield successive chunks sized for responsive metric grids."""
     size = max(1, size)
@@ -291,9 +270,17 @@ pace_leader = max(
 
 
 # COOKIES CONTROL ##################################################################################################################
-controller = CookieController()
+controller = CookieController(key="squat_cookies")
+
+# Give cookies-controller time to load; fallback to session_state
+if "id_squatteur" not in st.session_state:
+    st.session_state["id_squatteur"] = None
+
 cookies = controller.getAll()
-id_squatteur_from_cookies = cookies.get("id_squatteur", None)
+if cookies and cookies.get("id_squatteur"):
+    st.session_state["id_squatteur"] = cookies.get("id_squatteur")
+
+id_squatteur_from_cookies = st.session_state.get("id_squatteur")
 #####################################################################################################################################
 
 participant_order = list(participants)
@@ -306,25 +293,14 @@ participant_obj = (
 
 def clear_login_cookie():
     """Reset the participant cookie so someone else can se connecter."""
-    try:
-        controller.delete("id_squatteur")  # type: ignore[attr-defined]
-    except AttributeError:
-        controller.set(
-            "id_squatteur",
-            "",
-            expires=datetime.now() - timedelta(days=1),
-            # secure=SECURE_COOKIE,
-        )
+    controller.remove("id_squatteur")
+    st.session_state["id_squatteur"] = None
 
 
 def persist_login_cookie(name: str):
     """Store the current squatteur id with consistent options."""
-    controller.set(
-        "id_squatteur",
-        name,
-        expires=datetime.now() + COOKIE_DURATION,
-        # secure=SECURE_COOKIE,
-    )
+    controller.set("id_squatteur", name, expires=datetime.now() + COOKIE_DURATION)
+    st.session_state["id_squatteur"] = name
 
 
 if (
@@ -696,66 +672,6 @@ if not leaderboard_df.empty:
         st.caption("Mise à jour automatique à chaque nouvelle session.")
 
 
-# st.write("---")
-# st.subheader("Focus par squatteur")
-
-# focus_columns = 1 if mobile_view else 3
-# for chunk_start in range(0, len(participant_order), focus_columns):
-#     cols = st.columns(focus_columns)
-#     for col, name in zip(
-#         cols, participant_order[chunk_start : chunk_start + focus_columns]
-#     ):
-#         participant = participants_obj.get(name)
-#         if participant is None or participant.df.empty:
-#             col.info(f"{name} n'a pas encore loggé de squats.")
-#             continue
-
-#         with col:
-#             st.markdown(f"### {name}")
-#             st.metric(
-#                 label="Aujourd'hui",
-#                 value=int(participant.sum_squats_done_today),
-#                 delta=int(participant.sum_squats_done_today - SQUAT_JOUR),
-#             )
-#             st.metric(
-#                 label="Total cumulé",
-#                 value=int(participant.sum_squats_done),
-#                 delta=f"Depuis {participant.nombre_jours_depuis_debut} jours",
-#             )
-# st.metric(
-#     label="Delta vs objectif",
-#     value=int(participant.delta_done_vs_objecitf_today),
-# )
-# st.metric(
-#     label="Moyenne / jour",
-#     value=round(float(participant.moyenne_squats_par_jour), 2),
-#     delta=round(float(participant.moyenne_squats_par_jour - SQUAT_JOUR), 2),
-# # )
-# st.metric(
-#     label="🔥 Streak",
-#     value=f"{participant.current_objective_streak} j",
-#     delta=f"Record {participant.best_objective_streak}",
-# )
-
-# # progress_ratio = min(
-# #     max(participant.sum_squats_done_today / SQUAT_JOUR, 0), 2
-# # )
-# # st.progress(
-# #     min(progress_ratio, 1.0),
-# #     text=(
-# #         "Objectif du jour" if progress_ratio < 1 else "🔥 Objectif dépassé"
-# #     ),
-# # )
-
-# st.caption(
-#     f"{participant.sessions_logged} sessions • {participant.weekly_total} squats cette semaine"
-# )
-
-# if id_squatteur_from_cookies == name:
-#     st.success(
-#         "Connecté. Utilise le gros formulaire au-dessus pour logger."
-#     )
-
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 st.caption(f"🍑 Squat App v0.1.6 · {today_date.strftime('%d/%m/%Y')}")
 
@@ -770,7 +686,7 @@ if id_squatteur_from_cookies is not None and participant_obj is not None:
 
     motivation_prompt = f""" Tu encourages {participant_obj.name} à faire des squats.
 
-Contexte challenge : objectif {SQUAT_JOUR} squats/jour jusqu'au {end_of_year.strftime('%Y-%m-%d')} ({DAYS_LEFT} jours restants). Garder un ton punchy, sarcastique mais bienveillant, rappeler qu'on compte les reps pas les excuses.
+Contexte challenge : objectif {SQUAT_JOUR} squats/jour jusqu'au {end_of_year.strftime('%Y-%m-%d')} ({DAYS_LEFT} jours restants). 
 
 Stats complètes (données figées au {today_snapshot} UTC+1) :
 - Total cumulé : {int(participant_obj.sum_squats_done)} squats sur {participant_obj.sessions_logged} sessions.
