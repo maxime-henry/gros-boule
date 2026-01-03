@@ -80,6 +80,44 @@ st.markdown(
         gap: 0.4rem;
         align-items: center;
     }
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .section-header .emoji {
+        font-size: 1.5rem;
+    }
+    .section-card {
+        background: rgba(255,255,255,0.7);
+        border-radius: 16px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(255,111,97,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .divider {
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(255,111,97,0.3), transparent);
+        margin: 1.5rem 0;
+    }
+    .badge-success {
+        background: #d4edda;
+        color: #155724;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    .badge-warning {
+        background: #fff3cd;
+        color: #856404;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
     @media (max-width: 768px) {
         .block-container {
             padding: 0.6rem 0.8rem 2.5rem !important;
@@ -315,88 +353,112 @@ if (
                 "id_squatteur",
                 id_squatteur,
                 expires=datetime.now() + timedelta(days=5, hours=1),
-                # secure=True,
+                secure=True,
                 # same_site="Strict" if secure_cookie else "Lax",
             )
             st.rerun()
 
     if participant_obj is not None:
-        st.subheader("Ton cockpit 🍑")
-        cockpit_metrics = [
-            {"label": "Total cumulé", "value": int(participant_obj.sum_squats_done)},
-            {
-                "label": "Delta vs objectif",
-                "value": int(participant_obj.delta_done_vs_objecitf_today),
-                "help": "Positif = avance, négatif = retard",
-            },
-            {
-                "label": "Squats aujourd'hui",
-                "value": int(participant_obj.sum_squats_done_today),
-                "delta": int(participant_obj.sum_squats_done_today - SQUAT_JOUR),
-            },
-            {
-                "label": "Moyenne / jour",
-                "value": round(float(participant_obj.moyenne_squats_par_jour), 2),
-                "delta": round(
-                    float(participant_obj.moyenne_squats_par_jour - SQUAT_JOUR), 2
-                ),
-            },
-        ]
+        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-header"><span class="emoji">🎯</span><h3 style="margin:0">Ton tableau de bord</h3></div>',
+            unsafe_allow_html=True,
+        )
+        st.caption("Tes stats personnelles en temps réel")
+        with st.container(border=True):
+            cockpit_metrics = [
+                {
+                    "label": "Total cumulé",
+                    "value": int(participant_obj.sum_squats_done),
+                },
+                {
+                    "label": "Delta vs objectif",
+                    "value": int(participant_obj.delta_done_vs_objecitf_today),
+                    "help": "Positif = avance, négatif = retard",
+                },
+                {
+                    "label": "Squats aujourd'hui",
+                    "value": int(participant_obj.sum_squats_done_today),
+                    "delta": int(participant_obj.sum_squats_done_today - SQUAT_JOUR),
+                },
+                {
+                    "label": "Moyenne / jour",
+                    "value": round(float(participant_obj.moyenne_squats_par_jour), 2),
+                    "delta": round(
+                        float(participant_obj.moyenne_squats_par_jour - SQUAT_JOUR), 2
+                    ),
+                },
+            ]
         render_metric_rows(cockpit_metrics, per_row=1 if mobile_view else 2)
 
-        streak_metrics = [
-            {
-                "label": "🔥 Streak en cours",
-                "value": f"{participant_obj.current_objective_streak} jours",
-                "delta": f"Record {participant_obj.best_objective_streak}",
-            },
-            {
-                "label": "📚 Sessions loggées",
-                "value": participant_obj.sessions_logged,
-                "delta": f"Depuis {participant_obj.premier_squat_date.strftime('%d/%m')}",
-            },
-            {
-                "label": "📈 Progression annuelle",
-                "value": f"{participant_obj.progress_pct_vs_objectif:.1f}%",
-                "delta": f"Objectif {participant_obj.objectif_sum_squat}",
-            },
-        ]
+        st.markdown(
+            '<div class="section-header"><span class="emoji">🔥</span><h4 style="margin:0">Régularité & Streaks</h4></div>',
+            unsafe_allow_html=True,
+        )
+        with st.container(border=True):
+            streak_metrics = [
+                {
+                    "label": "🔥 Streak en cours",
+                    "value": f"{participant_obj.current_objective_streak} jours",
+                    "delta": f"Record {participant_obj.best_objective_streak}",
+                },
+                {
+                    "label": "📚 Sessions loggées",
+                    "value": participant_obj.sessions_logged,
+                    "delta": f"Depuis {participant_obj.premier_squat_date.strftime('%d/%m')}",
+                },
+                {
+                    "label": "📈 Progression annuelle",
+                    "value": f"{participant_obj.progress_pct_vs_objectif:.1f}%",
+                    "delta": f"Objectif {participant_obj.objectif_sum_squat}",
+                },
+            ]
         render_metric_rows(streak_metrics, per_row=1 if mobile_view else 2)
 
-        trend_metrics = [
-            {
-                "label": "Semaine en cours",
-                "value": participant_obj.weekly_total,
-                "delta": participant_obj.weekly_delta,
-            },
-            {
-                "label": "Projection fin d'année",
-                "value": participant_obj.projected_year_total,
-                "delta": int(
-                    participant_obj.projected_year_total
-                    - participant_obj.objectif_sum_squat
-                ),
-                "help": "Projection basée sur ta moyenne quotidienne",
-            },
-            {
-                "label": "Hier",
-                "value": int(participant_obj.sum_squats_hier),
-                "delta": int(participant_obj.sum_squats_hier - SQUAT_JOUR),
-            },
-        ]
+        st.markdown(
+            '<div class="section-header"><span class="emoji">📊</span><h4 style="margin:0">Tendances</h4></div>',
+            unsafe_allow_html=True,
+        )
+        with st.container(border=True):
+            trend_metrics = [
+                {
+                    "label": "Semaine en cours",
+                    "value": participant_obj.weekly_total,
+                    "delta": participant_obj.weekly_delta,
+                },
+                {
+                    "label": "Projection fin d'année",
+                    "value": participant_obj.projected_year_total,
+                    "delta": int(
+                        participant_obj.projected_year_total
+                        - participant_obj.objectif_sum_squat
+                    ),
+                    "help": "Projection basée sur ta moyenne quotidienne",
+                },
+            ]
         render_metric_rows(trend_metrics, per_row=1 if mobile_view else 2)
 
-        st.progress(
-            min(participant_obj.progress_pct_vs_objectif / 100, 1.0),
-            text="Progression sur l'objectif annuel",
-        )
-        st.caption("Barre verte = ton pourcentage du défi annuel. Continue d'empiler.")
+        with st.container(border=True):
+            st.progress(
+                min(participant_obj.progress_pct_vs_objectif / 100, 1.0),
+                text="Progression sur l'objectif annuel",
+            )
+            st.caption(
+                "Barre verte = ton pourcentage du défi annuel. Continue d'empiler."
+            )
 
-        if mobile_view:
-            chart_col = st.container()
-            box_col = st.container()
-        else:
-            chart_col, box_col = st.columns([3, 2])
+        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="section-header"><span class="emoji">📈</span><h4 style="margin:0">Historique des sessions</h4></div>',
+            unsafe_allow_html=True,
+        )
+        with st.container(border=True):
+            if mobile_view:
+                chart_col = st.container()
+                box_col = st.container()
+            else:
+                chart_col, box_col = st.columns([3, 2])
+
         personal_history = participant_obj.df.copy()
         personal_history["date"] = pd.to_datetime(personal_history["date"])
         with chart_col:
@@ -447,84 +509,102 @@ else:
     login_container.markdown("</div>", unsafe_allow_html=True)
 
 
-st.markdown('<div class="hero-card">', unsafe_allow_html=True)
-if mobile_view:
-    hero_cols = [st.container(), st.container()]
-else:
-    hero_cols = st.columns([3, 2])
-with hero_cols[0]:
-    st.write(
-        "🔥 20 squats par jour jusqu'au 31 décembre. On compte les reps, pas les excuses."
-    )
-with hero_cols[1]:
-    st.metric(
-        label="Challenge complété",
-        value=f"{crew_completion_pct:.1f}%",
-        delta=f"{crew_total_squats} squats loggés",
-    )
-    st.progress(
-        min(crew_completion_pct / 100, 1.0),
-        text="Progression de l'équipe sur l'année",
-    )
+st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="section-header"><span class="emoji">🏆</span><h3 style="margin:0">Challenge Collectif 2026</h3></div>',
+    unsafe_allow_html=True,
+)
+with st.container(border=True):
+    if mobile_view:
+        hero_cols = [st.container(), st.container()]
+    else:
+        hero_cols = st.columns([3, 2])
+    with hero_cols[0]:
+        st.markdown(
+            "**🎯 L'objectif :** 20 squats par jour, chaque jour, jusqu'au 31 décembre."
+        )
+        st.caption("On compte les reps, pas les excuses.")
+    with hero_cols[1]:
+        st.metric(
+            label="Challenge complété",
+            value=f"{crew_completion_pct:.1f}%",
+            delta=f"{crew_total_squats} squats loggés",
+        )
+        st.progress(
+            min(crew_completion_pct / 100, 1.0),
+            text="Progression de l'équipe sur l'année",
+        )
 
-crew_metrics = [
-    {
-        "label": "Equipe en piste",
-        "value": len(participants),
-        "delta": f"{active_today} validés aujourd'hui",
-    },
-    {"label": "Jours restants", "value": DAYS_LEFT},
-    {
-        "label": "Delta collectif",
-        "value": int(crew_delta_today),
-        "help": "Positif = avance cumulative par rapport à l'objectif",
-    },
-    {"label": "Squats cumulés", "value": crew_total_squats},
-]
-render_metric_rows(crew_metrics, per_row=1 if mobile_view else 2)
-st.markdown("</div>", unsafe_allow_html=True)
+    crew_metrics = [
+        {
+            "label": "Team en piste",
+            "value": len(participants),
+            "delta": f"{active_today} validés aujourd'hui",
+        },
+        {"label": "Jours restants", "value": DAYS_LEFT},
+        {
+            "label": "Delta collectif",
+            "value": int(crew_delta_today),
+            "help": "Positif = avance cumulative par rapport à l'objectif",
+        },
+        {"label": "Squats cumulés", "value": crew_total_squats},
+    ]
+    render_metric_rows(crew_metrics, per_row=1 if mobile_view else 2)
 
-
-st.subheader("Crew pulse")
-pulse_metrics = [
-    {
-        "label": "♾️ Longest streak",
-        "value": best_streak_holder.name if best_streak_holder else "—",
-        "delta": (
-            f"{best_streak_holder.best_objective_streak} jours"
-            if best_streak_holder
-            else None
-        ),
-    },
-    {
-        "label": "⚡ Pace leader",
-        "value": pace_leader.name if pace_leader else "—",
-        "delta": (
-            f"{round(float(pace_leader.moyenne_squats_par_jour), 2)} / jour"
-            if pace_leader
-            else None
-        ),
-        "help": "Basé sur la moyenne depuis son premier squat",
-    },
-    {
-        "label": "🕒 Dernière session loggée",
-        "value": last_entry["name"] if last_entry is not None else "Aucun log",
-        "delta": (
-            f"{int(last_entry['squats'])} squats" if last_entry is not None else None
-        ),
-    },
-]
+st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="section-header"><span class="emoji">⚡</span><h3 style="margin:0">Highlights du jour</h3></div>',
+    unsafe_allow_html=True,
+)
+st.caption("Qui brille aujourd'hui dans l'équipe ?")
+with st.container(border=True):
+    pulse_metrics = [
+        {
+            "label": "♾️ Longest streak",
+            "value": best_streak_holder.name if best_streak_holder else "—",
+            "delta": (
+                f"{best_streak_holder.best_objective_streak} jours"
+                if best_streak_holder
+                else None
+            ),
+        },
+        {
+            "label": "⚡ Pace leader",
+            "value": pace_leader.name if pace_leader else "—",
+            "delta": (
+                f"{round(float(pace_leader.moyenne_squats_par_jour), 2)} / jour"
+                if pace_leader
+                else None
+            ),
+            "help": "Basé sur la moyenne depuis son premier squat",
+        },
+        {
+            "label": "🕒 Dernière session loggée",
+            "value": last_entry["name"] if last_entry is not None else "Aucun log",
+            "delta": (
+                f"{int(last_entry['squats'])} squats"
+                if last_entry is not None
+                else None
+            ),
+        },
+    ]
 render_metric_rows(pulse_metrics, per_row=1 if mobile_view else 3)
 
 if not crew_daily_totals.empty:
-    st.caption("Volume agrégé par jour (ligne pointillée = objectif collectif).")
-    trend_fig = px.area(
-        crew_daily_totals.tail(45),
-        x="date_day",
-        y="squats",
-        title="Volume quotidien du crew",
-        color_discrete_sequence=["#ff6f61"],
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-header"><span class="emoji">📊</span><h3 style="margin:0">Volume quotidien</h3></div>',
+        unsafe_allow_html=True,
     )
+    st.caption("Squats cumulés par jour · La ligne rouge = objectif collectif")
+    with st.container(border=True):
+        trend_fig = px.area(
+            crew_daily_totals.tail(45),
+            x="date_day",
+            y="squats",
+            title="Volume quotidien du crew",
+            color_discrete_sequence=["#ff6f61"],
+        )
     trend_fig.add_hline(
         y=len(participants) * SQUAT_JOUR,
         line_dash="dot",
@@ -538,17 +618,22 @@ if not crew_daily_totals.empty:
     )
     st.plotly_chart(trend_fig, use_container_width=True)
 
-
-st.subheader("Qui a fait ses devoirs aujourd'hui ?")
-devoirs = [
-    f"✅ {participant.name} ({int(participant.sum_squats_done_today)} squats)"
-    for participant in participants_obj.values()
-    if participant.sum_squats_done_today >= SQUAT_JOUR
-]
-if devoirs:
-    st.markdown("\n".join([f"- {entry}" for entry in devoirs]))
-else:
-    st.info("Personne n'a validé les 20 squats pour l'instant, qui s'y colle ?")
+st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="section-header"><span class="emoji">✅</span><h3 style="margin:0">Devoirs du jour</h3></div>',
+    unsafe_allow_html=True,
+)
+st.caption("Qui a validé ses 20 squats aujourd'hui ?")
+with st.container(border=True):
+    devoirs = [
+        f"✅ {participant.name} ({int(participant.sum_squats_done_today)} squats)"
+        for participant in participants_obj.values()
+        if participant.sum_squats_done_today >= SQUAT_JOUR
+    ]
+    if devoirs:
+        st.markdown("\n".join([f"- {entry}" for entry in devoirs]))
+    else:
+        st.info("Personne n'a validé les 20 squats pour l'instant, qui s'y colle ?")
 
 snapshot = []
 for participant in participants_obj.values():
@@ -567,15 +652,19 @@ for participant in participants_obj.values():
 leaderboard_df = pd.DataFrame(snapshot)
 if not leaderboard_df.empty:
     leaderboard_df = leaderboard_df.sort_values("Total", ascending=False)
-    st.subheader("Leaderboard du crew")
-    st.dataframe(
-        leaderboard_df,
-        use_container_width=True,
-        hide_index=True,
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="section-header"><span class="emoji">🏅</span><h3 style="margin:0">Classement</h3></div>',
+        unsafe_allow_html=True,
     )
-    st.caption(
-        "Classement instantané, refresh auto quand une nouvelle session est enregistrée."
-    )
+    st.caption("Qui mène la danse ?")
+    with st.container(border=True):
+        st.dataframe(
+            leaderboard_df,
+            use_container_width=True,
+            hide_index=True,
+        )
+        st.caption("Mise à jour automatique à chaque nouvelle session.")
 
 
 # st.write("---")
@@ -638,10 +727,8 @@ if not leaderboard_df.empty:
 #         "Connecté. Utilise le gros formulaire au-dessus pour logger."
 #     )
 
-st.write("---")
-
-# add a comments at the bottom with the version of the app
-st.caption(f"Version : 0.1.5 - time now = {today_date}")
+st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+st.caption(f"🍑 Squat App v0.1.6 · {today_date.strftime('%d/%m/%Y')}")
 
 
 if id_squatteur_from_cookies is not None and participant_obj is not None:
