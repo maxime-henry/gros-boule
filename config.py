@@ -290,7 +290,6 @@ def today_data(data=None, date=None):
 from mistralai import Mistral
 
 api_key = os.environ["MISTRAL_API_KEY"]
-model = "mistral-large-latest"
 
 client = Mistral(api_key=api_key)
 

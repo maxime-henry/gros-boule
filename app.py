@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 import random
 import streamlit as st
@@ -170,8 +170,6 @@ SQUAT_JOUR = 20
 
 DAYS_LEFT = (end_of_year - today).days + 1
 
-COOKIE_DURATION = timedelta(days=5, hours=1)
-
 
 def chunked_sequence(items, size):
     """Yield successive chunks sized for responsive metric grids."""
@@ -190,6 +188,13 @@ def render_metric_rows(metric_items, per_row):
                 delta=metric.get("delta"),
                 help=metric.get("help"),
             )
+
+
+# @st.cache_data(ttl=100, max_entries=1)
+def chat_with_mistral(prompt: str, name: str) -> str:
+    """Helper to chat with Mistral model."""
+    response = mistral_chat(prompt)
+    return response
 
 
 # Mobile-first by default; append ?view=desktop to the URL for the wide layout.
@@ -275,64 +280,81 @@ controller = CookieController(key="squat_cookies")
 # Give cookies-controller time to load; fallback to session_state
 if "id_squatteur" not in st.session_state:
     st.session_state["id_squatteur"] = None
+if "pending_loading" not in st.session_state:
+    st.session_state["pending_loading"] = None
+
+
+if st.session_state.get("pending_loading"):
+    if st.session_state["pending_loading"] == "LOGOUT":
+        controller.remove("id_squatteur")
+        st.session_state["id_squatteur"] = None
+    else:
+        controller.set("id_squatteur", st.session_state["pending_loading"])
+
+    st.session_state["pending_loading"] = None
+
 
 try:
     cookies = controller.getAll() or {}
 except Exception:
     cookies = {}
 
-cookie_owner = cookies.get("id_squatteur")
-if cookie_owner:
-    st.session_state["id_squatteur"] = cookie_owner
+if cookies.get("id_squatteur"):
+    st.session_state["id_squatteur"] = cookies.get("id_squatteur")
 
-id_squatteur_from_cookies = st.session_state.get("id_squatteur")
+active_user = st.session_state.get("id_squatteur")
 #####################################################################################################################################
 
 participant_order = list(participants)
-participant_obj = (
-    participants_obj.get(id_squatteur_from_cookies)
-    if id_squatteur_from_cookies
-    else None
-)
+participant_obj = participants_obj.get(active_user) if active_user else None
 
 
-def clear_login_cookie():
-    """Reset the participant cookie so someone else can se connecter."""
-    controller.remove("id_squatteur")
-    st.session_state["id_squatteur"] = None
+is_logged_in = active_user in participants_obj
+
+if not is_logged_in:
+    st.title("🍑 Squat App 🍑")
+    st.subheader("New year new me")
+    st.caption("La persévérance, secret de tous les triomphes. - Victor Hugo")
+
+    st.subheader("Choisis ton nom pour te connecter")
+    st.caption("Clique sur ton nom, on te prépare le formulaire perso juste après 👇")
+    login_container = st.container()
+    login_container.markdown('<div class="login-grid">', unsafe_allow_html=True)
+    selection_cols = login_container.columns(1 if mobile_view else 3)
+    for idx, name in enumerate(participants):
+        col = selection_cols[idx % len(selection_cols)]
+        if col.button(f"{name} 🔓", key=f"login_{name}", use_container_width=True):
+
+            st.session_state["pending_loading"] = name
+            st.rerun()
+    login_container.markdown("</div>", unsafe_allow_html=True)
 
 
-def persist_login_cookie(name: str):
-    """Store the current squatteur id with consistent options."""
-    controller.set("id_squatteur", name, expires=datetime.now() + COOKIE_DURATION)
-    st.session_state["id_squatteur"] = name
+if is_logged_in:
+    # Keep the active user first in displays.
+    participant_order = list(participants)
+    if active_user in participant_order:
+        participant_order.remove(active_user)
+        participant_order.insert(0, active_user)
 
-
-if (
-    id_squatteur_from_cookies is not None
-    and id_squatteur_from_cookies in participant_order
-):
-
-    participant_order.remove(id_squatteur_from_cookies)
-    participant_order.insert(0, id_squatteur_from_cookies)
-
-    st.title(f"Allez {id_squatteur_from_cookies}, t'es pas une merde!! ")
+    st.title(f"Allez {active_user}, t'es pas une merde!! ")
 
     if st.button(
         "Pas toi ? Clique ici pour changer de squatteur", key="change_user_btn"
     ):
-        clear_login_cookie()
+        # clear_login_cookie()
+        st.session_state["pending_loading"] = "LOGOUT"
+        active_user = None
+        is_logged_in = False
+        participant_obj = None
         st.rerun()
 
-    participant_obj = participants_obj.get(id_squatteur_from_cookies)
-
     placeholder = st.empty()
-    placeholder.info("Fait un squat en attendant au pire non ?")
 
     st.divider()
 
     st.write(
-        f"{id_squatteur_from_cookies}, maintenant tu peux directement enregistrer tes squats ici :"
+        f"{active_user}, maintenant tu peux directement enregistrer tes squats ici :"
     )
 
     with st.form("squat_form"):
@@ -343,18 +365,16 @@ if (
             value=20,
             step=1,
         )
-        submitted = st.form_submit_button(
-            f"Enregistrer pour {id_squatteur_from_cookies} 🍑"
-        )
+        submitted = st.form_submit_button(f"Enregistrer pour {active_user} 🍑")
 
     if submitted:
         with st.spinner("Saving..."):
             # Sauvegarder dans DynamoDB
-            new_item = save_new_squat(id_squatteur_from_cookies, squats_faits)
+            new_item = save_new_squat(active_user, squats_faits)
 
             refresh_squat_dataframe()
-            participant_obj = participants_obj[id_squatteur_from_cookies] = Participant(
-                id_squatteur_from_cookies,
+            participant_obj = participants_obj[active_user] = Participant(
+                active_user,
                 fetch_squat_dataframe(),
                 days_left=DAYS_LEFT,
                 squat_objectif_quotidien=SQUAT_JOUR,
@@ -364,11 +384,6 @@ if (
             random_motivate = random.randrange(0, size)
             st.success(motivate[random_motivate])
 
-            # secure_cookie = (
-            #     st.runtime.exists() and st.runtime.scriptrunner.streamlit_cloud
-            # )
-
-            persist_login_cookie(id_squatteur_from_cookies)
             st.rerun()
 
     if participant_obj is not None:
@@ -500,23 +515,9 @@ if (
             st.plotly_chart(box_fig, use_container_width=True)
 
 
-else:
-    st.title("🍑 Squat App 🍑")
-    st.subheader("New year new me")
-    st.caption("La persévérance, secret de tous les triomphes. - Victor Hugo")
-
-    st.subheader("Choisis ton nom pour te connecter")
-    st.caption("Clique sur ton nom, on te prépare le formulaire perso juste après 👇")
-    login_container = st.container()
-    login_container.markdown('<div class="login-grid">', unsafe_allow_html=True)
-    selection_cols = login_container.columns(1 if mobile_view else 3)
-    for idx, name in enumerate(participants):
-        col = selection_cols[idx % len(selection_cols)]
-        if col.button(f"{name} 🔓", key=f"login_{name}", use_container_width=True):
-            persist_login_cookie(name)
-
-            st.rerun()
-    login_container.markdown("</div>", unsafe_allow_html=True)
+elif not is_logged_in:
+    # Login UI already rendered above.
+    pass
 
 
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
@@ -681,7 +682,7 @@ st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 st.caption(f"🍑 Squat App v0.1.6 · {today_date.strftime('%d/%m/%Y')}")
 
 
-if id_squatteur_from_cookies is not None and participant_obj is not None:
+if active_user is not None and participant_obj is not None:
     today_snapshot = today.strftime("%Y-%m-%d")
     last_activity = (
         participant_obj.last_activity_date.strftime("%Y-%m-%d")
@@ -706,5 +707,6 @@ Stats complètes (données figées au {today_snapshot} UTC+1) :
 - Objectif restant estimé : {participant_obj.objectif_sum_squat - participant_obj.sum_squats_done} squats pour boucler l'année.
 """
 
-    message_motivation = mistral_chat(motivation_prompt)
-    placeholder.markdown(message_motivation)
+    # message_motivation = mistral_chat(motivation_prompt)
+
+    placeholder.markdown(chat_with_mistral(motivation_prompt, participant_obj.name))
