@@ -221,6 +221,38 @@ def refresh_squat_dataframe():
     fetch_squat_dataframe.clear()  # type: ignore[attr-defined]
 
 
+# COOKIES CONTROL ##################################################################################################################
+controller = CookieController(key="squat_cookies")
+
+# Give cookies-controller time to load; fallback to session_state
+if "id_squatteur" not in st.session_state:
+    st.session_state["id_squatteur"] = None
+if "pending_loading" not in st.session_state:
+    st.session_state["pending_loading"] = None
+
+
+if st.session_state.get("pending_loading"):
+    if st.session_state["pending_loading"] == "LOGOUT":
+        controller.remove("id_squatteur")
+        st.session_state["id_squatteur"] = None
+    else:
+        controller.set("id_squatteur", st.session_state["pending_loading"])
+
+    st.session_state["pending_loading"] = None
+
+
+try:
+    cookies = controller.getAll() or {}
+except Exception:
+    cookies = {}
+
+if cookies.get("id_squatteur"):
+    st.session_state["id_squatteur"] = cookies.get("id_squatteur")
+
+active_user = st.session_state.get("id_squatteur")
+#####################################################################################################################################
+
+
 squat_data = fetch_squat_dataframe()
 data_total = squat_data.copy()
 crew_daily_totals = pd.DataFrame(columns=["date_day", "squats"])
@@ -273,37 +305,6 @@ pace_leader = max(
     default=None,
 )
 
-
-# COOKIES CONTROL ##################################################################################################################
-controller = CookieController(key="squat_cookies")
-
-# Give cookies-controller time to load; fallback to session_state
-if "id_squatteur" not in st.session_state:
-    st.session_state["id_squatteur"] = None
-if "pending_loading" not in st.session_state:
-    st.session_state["pending_loading"] = None
-
-
-if st.session_state.get("pending_loading"):
-    if st.session_state["pending_loading"] == "LOGOUT":
-        controller.remove("id_squatteur")
-        st.session_state["id_squatteur"] = None
-    else:
-        controller.set("id_squatteur", st.session_state["pending_loading"])
-
-    st.session_state["pending_loading"] = None
-
-
-try:
-    cookies = controller.getAll() or {}
-except Exception:
-    cookies = {}
-
-if cookies.get("id_squatteur"):
-    st.session_state["id_squatteur"] = cookies.get("id_squatteur")
-
-active_user = st.session_state.get("id_squatteur")
-#####################################################################################################################################
 
 participant_order = list(participants)
 participant_obj = participants_obj.get(active_user) if active_user else None
@@ -672,7 +673,7 @@ if not leaderboard_df.empty:
     with st.container(border=True):
         st.dataframe(
             leaderboard_df,
-            width="stretch",
+            # width="stretch",
             hide_index=True,
         )
         st.caption("Mise à jour automatique à chaque nouvelle session.")
