@@ -417,7 +417,7 @@ if is_logged_in:
                     ),
                 },
             ]
-        render_metric_rows(cockpit_metrics, per_row=1 if mobile_view else 2)
+            render_metric_rows(cockpit_metrics, per_row=1 if mobile_view else 2)
 
         st.markdown(
             '<div class="section-header"><span class="emoji">🔥</span><h4 style="margin:0">Régularité & Streaks</h4></div>',
@@ -441,7 +441,7 @@ if is_logged_in:
                     "delta": f"Objectif {participant_obj.objectif_sum_squat}",
                 },
             ]
-        render_metric_rows(streak_metrics, per_row=1 if mobile_view else 2)
+            render_metric_rows(streak_metrics, per_row=1 if mobile_view else 2)
 
         st.markdown(
             '<div class="section-header"><span class="emoji">📊</span><h4 style="margin:0">Tendances</h4></div>',
@@ -464,7 +464,7 @@ if is_logged_in:
                     "help": "Projection basée sur ta moyenne quotidienne",
                 },
             ]
-        render_metric_rows(trend_metrics, per_row=1 if mobile_view else 2)
+            render_metric_rows(trend_metrics, per_row=1 if mobile_view else 2)
 
         with st.container(border=True):
             st.progress(
