@@ -276,9 +276,14 @@ controller = CookieController(key="squat_cookies")
 if "id_squatteur" not in st.session_state:
     st.session_state["id_squatteur"] = None
 
-cookies = controller.getAll()
-if cookies and cookies.get("id_squatteur"):
-    st.session_state["id_squatteur"] = cookies.get("id_squatteur")
+try:
+    cookies = controller.getAll() or {}
+except Exception:
+    cookies = {}
+
+cookie_owner = cookies.get("id_squatteur")
+if cookie_owner:
+    st.session_state["id_squatteur"] = cookie_owner
 
 id_squatteur_from_cookies = st.session_state.get("id_squatteur")
 #####################################################################################################################################
