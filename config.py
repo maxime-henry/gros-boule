@@ -2,22 +2,17 @@ import boto3
 from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta
-from collections import defaultdict
-from boto3.dynamodb.conditions import Attr
 import pandas as pd
-import asyncio
 
 load_dotenv()
 
 ACCESS_KEY = os.environ.get("ACCESS_KEY")
 SECRET_ACCESS_KEY = os.environ.get("SECRET_ACCESS_KEY")
 
-today = datetime.now()+timedelta(hours=1)
+today = datetime.now() + timedelta(hours=1)
 # today = datetime(2025,2,20)
 
 end_of_year = datetime(today.year, 12, 31)
-
-
 
 
 def save_new_squat(name, squats_count):
@@ -31,7 +26,7 @@ def save_new_squat(name, squats_count):
 
 
 class Participant:
-    def __init__(self, name, df, days_left, squat_objectif_quotidien = 20 ):
+    def __init__(self, name, df, days_left, squat_objectif_quotidien=20):
         """
         Initialise un participant avec ses statistiques.
         :param name: Nom du participant
@@ -43,24 +38,53 @@ class Participant:
 
         # Filtrer les données du participant
         self.df = df[df["name"] == name].copy()
-        self.df["date"] = pd.to_datetime(self.df["date"]).dt.date  # Garder seulement la date
+        self.df["date"] = pd.to_datetime(
+            self.df["date"]
+        ).dt.date  # Garder seulement la date
 
         # Calculs des statistiques
         self.sum_squats_done = self.df["squats"].sum()
-        # sum squats aujourdhui 
-        self.sum_squats_done_today = self.df[self.df["date"] == today.date()]["squats"].sum()
-        self.premier_squat_date = self.df["date"].min() if not self.df.empty else datetime.now().date()
-        self.squats_restants = days_left* squat_objectif_quotidien
-    
+        # sum squats aujourdhui
+        self.sum_squats_done_today = self.df[self.df["date"] == today.date()][
+            "squats"
+        ].sum()
+        self.premier_squat_date = (
+            self.df["date"].min() if not self.df.empty else datetime.now().date()
+        )
+        self.squats_restants = days_left * squat_objectif_quotidien
 
         self.objectif_sum_squat = self._objectif_sum_squat()
         self.nombre_jours_depuis_debut = self._nombre_jours_depuis_debut()
-        self.sum_squat_should_be_done_today = self.nombre_jours_depuis_debut * squat_objectif_quotidien
-        self.delta_done_vs_objecitf_today = self.sum_squats_done - self.sum_squat_should_be_done_today
-        self.moyenne_squats_par_jour = (self.sum_squats_done / self.nombre_jours_depuis_debut
-            if self.nombre_jours_depuis_debut > 0 else 0)
+        self.sum_squat_should_be_done_today = (
+            self.nombre_jours_depuis_debut * squat_objectif_quotidien
+        )
+        self.delta_done_vs_objecitf_today = (
+            self.sum_squats_done - self.sum_squat_should_be_done_today
+        )
+        self.moyenne_squats_par_jour = (
+            self.sum_squats_done / self.nombre_jours_depuis_debut
+            if self.nombre_jours_depuis_debut > 0
+            else 0
+        )
         self.sum_squats_hier = self._yesterday_squats()
-
+        self.sessions_logged = len(self.df)
+        self.daily_totals = self._build_daily_totals()
+        streaks = self._compute_streaks()
+        self.current_objective_streak = streaks["current"]
+        self.best_objective_streak = streaks["best"]
+        (
+            self.weekly_total,
+            self.previous_week_total,
+            self.weekly_delta,
+        ) = self._weekly_totals()
+        self.projected_year_total = self._projected_sum()
+        self.progress_pct_vs_objectif = (
+            (self.sum_squats_done / self.objectif_sum_squat) * 100
+            if self.objectif_sum_squat
+            else 0
+        )
+        self.last_activity_date = self.df["date"].max() if not self.df.empty else None
+        self.is_active_today = self.sum_squats_done_today > 0
 
     def _objectif_sum_squat(self):
         if not self.premier_squat_date:
@@ -69,34 +93,100 @@ class Participant:
         total_day_challenge = (end_of_year.date() - self.premier_squat_date).days
 
         return total_day_challenge * self.squat_objectif_quotidien
-    
+
     def _nombre_jours_depuis_debut(self):
-        """ Calcule le nombre de jours actifs. """
+        """Calcule le nombre de jours actifs."""
         current_date = datetime.now() + timedelta(hours=1)
         return (current_date.date() - self.premier_squat_date).days + 1
-    
-    # calculer somme des squats d'hier 
+
+    # calculer somme des squats d'hier
     def _yesterday_squats(self):
         yesterday = datetime.now() + timedelta(hours=1) - timedelta(days=1)
         yesterday = yesterday.date()
         return self.df[self.df["date"] == yesterday]["squats"].sum()
-    
 
+    def _build_daily_totals(self):
+        if self.df.empty:
+            base = pd.DataFrame({"date": [today.date()], "squats": [0]})
+        else:
+            base = self.df.groupby("date", as_index=False)["squats"].sum()
+
+        start = pd.Timestamp(self.premier_squat_date)
+        stop = pd.Timestamp(today.date())
+        date_range = pd.date_range(start, stop, freq="D")
+
+        completed = (
+            base.set_index("date")
+            .reindex(date_range, fill_value=0)
+            .rename_axis("date")
+            .reset_index()
+        )
+        completed["date"] = completed["date"].dt.date
+        return completed
+
+    def _compute_streaks(self):
+        current = 0
+        best = 0
+        last_date = None
+        last_goal_met = False
+
+        for _, row in self.daily_totals.iterrows():
+            goal_met = row["squats"] >= self.squat_objectif_quotidien
+            date_value = row["date"]
+
+            if goal_met:
+                if last_date and last_goal_met and (date_value - last_date).days == 1:
+                    current += 1
+                else:
+                    current = 1
+            else:
+                current = 0
+
+            best = max(best, current)
+            last_goal_met = goal_met
+            last_date = date_value
+
+        return {"current": current, "best": best}
+
+    def _weekly_totals(self):
+        if self.daily_totals.empty:
+            return 0, 0, 0
+
+        today_date = today.date()
+        this_week_start = today_date - timedelta(days=6)
+        prev_week_start = this_week_start - timedelta(days=7)
+        prev_week_end = this_week_start - timedelta(days=1)
+
+        mask_this_week = (self.daily_totals["date"] >= this_week_start) & (
+            self.daily_totals["date"] <= today_date
+        )
+        mask_prev_week = (self.daily_totals["date"] >= prev_week_start) & (
+            self.daily_totals["date"] <= prev_week_end
+        )
+
+        this_week_total = int(self.daily_totals.loc[mask_this_week, "squats"].sum())
+        prev_week_total = int(self.daily_totals.loc[mask_prev_week, "squats"].sum())
+
+        return this_week_total, prev_week_total, this_week_total - prev_week_total
+
+    def _projected_sum(self):
+        total_days = (end_of_year.date() - self.premier_squat_date).days + 1
+        if total_days <= 0:
+            return 0
+        return int(self.moyenne_squats_par_jour * total_days)
 
     def __repr__(self):
-        return (f"Participant(name={self.name}, sum_squats_done={self.sum_squats_done}, "
-                f"premier_squat_date={self.premier_squat_date}, squats_restants={self.squats_restants}, "
-                f"objectif_sum_squat={self.objectif_sum_squat}," 
-                f"nombre_jours_depuis_debut={self.nombre_jours_depuis_debut},"
-                f"sum_squat_should_be_done_today={self.sum_squat_should_be_done_today},"
-                f"delta_done_vs_objecitf_today={self.delta_done_vs_objecitf_today},"
-                f"moyenne_squats_par_jour={self.moyenne_squats_par_jour:.2f},"  
-                f"somme_squats_hier={self.sum_squats_hier},"
-                f"sum_squats_done_today={self.sum_squats_done_today},"
-                )
-
-
-
+        return (
+            f"Participant(name={self.name}, sum_squats_done={self.sum_squats_done}, "
+            f"premier_squat_date={self.premier_squat_date}, squats_restants={self.squats_restants}, "
+            f"objectif_sum_squat={self.objectif_sum_squat},"
+            f"nombre_jours_depuis_debut={self.nombre_jours_depuis_debut},"
+            f"sum_squat_should_be_done_today={self.sum_squat_should_be_done_today},"
+            f"delta_done_vs_objecitf_today={self.delta_done_vs_objecitf_today},"
+            f"moyenne_squats_par_jour={self.moyenne_squats_par_jour:.2f},"
+            f"somme_squats_hier={self.sum_squats_hier},"
+            f"sum_squats_done_today={self.sum_squats_done_today},"
+        )
 
 
 # Assuming you have AWS credentials set up or using other methods to authenticate with DynamoDB
@@ -105,24 +195,22 @@ table_squats = boto3.resource(
     region_name="eu-central-1",
     aws_access_key_id=ACCESS_KEY,
     aws_secret_access_key=SECRET_ACCESS_KEY,
-).Table(
-    "squats"
-)
+).Table("squats")
 
 # def load_data(name, data = None):
 
 #     # Get the current year
 #     if data is None:
-        
+
 #         current_year = datetime.now().year
 #         result = table_squats.scan(FilterExpression=Attr("name").eq(name))
 #         filtered_items = [
 #         item for item in result["Items"]
-        
+
 #         if datetime.strptime(item["date"], "%Y-%m-%dT%H:%M:%S.%f").year == current_year
 #     ]
 
-#     else : 
+#     else :
 #         filtered_items = data[data['name']==name]
 
 
@@ -135,7 +223,6 @@ table_squats = boto3.resource(
 #     total_day_challenge = (end_of_year.date() - earliest_date).days
 
 #     total_squat_challenge = total_day_challenge * 20
-
 
 
 #     squats_by_day = defaultdict(int)
@@ -152,33 +239,50 @@ table_squats = boto3.resource(
 #     return Personne(name, done, df,earliest_date,total_squat_challenge)
 
 
-
-
 def load_all():
-    result = table_squats.scan()
-    df = pd.DataFrame(result['Items'])
-    df['date'] = pd.to_datetime(df['date'])
+    items = []
+    scan_kwargs = {}
 
-    # Filter rows for the current year
-    current_year = datetime.now().year
-    df = df[df['date'].dt.year == current_year]
+    while True:
+        result = table_squats.scan(**scan_kwargs)
+        items.extend(result.get("Items", []))
+        last_evaluated_key = result.get("LastEvaluatedKey")
+        if not last_evaluated_key:
+            break
+        scan_kwargs["ExclusiveStartKey"] = last_evaluated_key
 
-    return df
+    if not items:
+        return pd.DataFrame(columns=["name", "squats", "date"])
+
+    df = pd.DataFrame(items)
+    if "date" not in df:
+        df["date"] = pd.Timestamp(today)
+
+    df["date"] = pd.to_datetime(df["date"], errors="coerce")
+    df = df.dropna(subset=["date"])
+    df["squats"] = (
+        pd.to_numeric(df.get("squats", 0), errors="coerce").fillna(0).astype(int)
+    )
+
+    current_year = today.year
+    df = df[df["date"].dt.year == current_year]
+
+    return df.sort_values("date").reset_index(drop=True)
 
 
-
-def today_data(data = None, date = None):
+def today_data(data=None, date=None):
     if data is None:
         data = load_all()
     data = data.copy()
-    data['date'] = data['date'].dt.date
+    data["date"] = data["date"].dt.date
 
-    target_date = date if date is not None else (datetime.now()+timedelta(hours=1)).date()
+    target_date = (
+        date if date is not None else (datetime.now() + timedelta(hours=1)).date()
+    )
 
-    extract = data[data["date"]==target_date].reset_index()
+    extract = data[data["date"] == target_date].reset_index()
     # return only name and squats
-    return extract[['name', 'squats']]
-    
+    return extract[["name", "squats"]]
 
 
 # print(data[data["date"].date()== today])
@@ -192,17 +296,16 @@ client = Mistral(api_key=api_key)
 
 
 def mistral_chat(message):
-    try : 
+    try:
         chat_response = client.agents.complete(
             agent_id="ag:71fb9a73:20250208:untitled-agent:774ff24a",
-            messages = [
+            messages=[
                 {
                     "role": "user",
                     "content": message,
                 },
-            ]
+            ],
         )
         return chat_response.choices[0].message.content
-    except :
+    except:
         return "Bon courage mon reuf"
-
