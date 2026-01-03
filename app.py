@@ -851,7 +851,7 @@ if not leaderboard_df.empty:
 
 
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
-st.caption(f"🍑 Squat App v0.1.6 · {today_date.strftime('%d/%m/%Y')}")
+st.caption(f"🍑 Squat App v0.1.6 · {today_date.strftime('%d/%m/%Y-%H:%M')}")
 
 
 if active_user is not None and participant_obj is not None:
