@@ -600,7 +600,7 @@ with st.container(border=True):
             ),
         },
     ]
-render_metric_rows(pulse_metrics, per_row=1 if mobile_view else 3)
+    render_metric_rows(pulse_metrics, per_row=1 if mobile_view else 3)
 
 if not crew_daily_totals.empty:
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
@@ -617,18 +617,18 @@ if not crew_daily_totals.empty:
             title="Volume quotidien du crew",
             color_discrete_sequence=["#ff6f61"],
         )
-    trend_fig.add_hline(
-        y=len(participants) * SQUAT_JOUR,
-        line_dash="dot",
-        line_color="red",
-        opacity=0.7,
-    )
-    trend_fig.update_layout(
-        xaxis_title="Date",
-        yaxis_title="Squats cumulés",
-        margin=dict(l=10, r=10, t=60, b=20),
-    )
-    st.plotly_chart(trend_fig, width="stretch")
+        trend_fig.add_hline(
+            y=len(participants) * SQUAT_JOUR,
+            line_dash="dot",
+            line_color="red",
+            opacity=0.7,
+        )
+        trend_fig.update_layout(
+            xaxis_title="Date",
+            yaxis_title="Squats cumulés",
+            margin=dict(l=10, r=10, t=60, b=20),
+        )
+        st.plotly_chart(trend_fig, width="stretch")
 
 st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
 st.markdown(
