@@ -489,6 +489,34 @@ if is_logged_in:
 
             st.rerun()
 
+    with st.form("plank_form"):
+        planks_faits = st.number_input(
+            "Enregistrer une session de gainage (en secondes) :",
+            min_value=10,
+            max_value=600,
+            value=60,
+            step=10,
+        )
+        submitted_plank = st.form_submit_button(f"Enregistrer pour {active_user} 🪵")
+    if submitted_plank:
+        with st.spinner("Saving..."):
+            # Sauvegarder dans DynamoDB
+            new_item = save_new_squat(active_user, planks_faits, exercise="PLANK")
+
+            refresh_squat_dataframe()
+            participant_obj = participants_obj[active_user] = Participant(
+                active_user,
+                fetch_squat_dataframe(),
+                days_left=DAYS_LEFT,
+                squat_objectif_quotidien=SQUAT_JOUR,
+            )
+
+            st.success(
+                f"Gainage de {planks_faits} secondes enregistré pour {active_user}!"
+            )
+
+            st.rerun()
+
     if participant_obj is not None:
         st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
         st.markdown(
@@ -552,6 +580,25 @@ if is_logged_in:
                 },
             ]
             render_metric_rows(cockpit_metrics, per_row=2 if mobile_view else 2)
+
+        # Plank stats section
+        st.markdown(
+            '<div class="section-header"><span class="emoji">🪵</span><h4 style="margin:0">Gainage</h4></div>',
+            unsafe_allow_html=True,
+        )
+        with st.container(border=True):
+            plank_metrics = [
+                {
+                    "label": "🪵 Total gainage",
+                    "value": f"{participant_obj.sum_plank_seconds} sec",
+                    "help": "Secondes cumulées depuis le début",
+                },
+                {
+                    "label": "⏱️ Aujourd'hui",
+                    "value": f"{participant_obj.sum_plank_seconds_today} sec",
+                },
+            ]
+            render_metric_rows(plank_metrics, per_row=2)
 
         st.markdown(
             '<div class="section-header"><span class="emoji">🔥</span><h4 style="margin:0">Régularité & Streaks</h4></div>',

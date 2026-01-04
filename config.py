@@ -20,12 +20,37 @@ def get_end_of_year():
     return datetime(get_today().year, 12, 31)
 
 
-def save_new_squat(name, squats_count):
+def save_new_squat(name, value, *, exercise: str = "SQUAT", unit: str | None = None):
+    """
+    Backward compatible save function.
+    - existing callers: save_new_squat(name, squats) still works (defaults to SQUAT)
+    - new usage: save_new_squat(name, seconds, exercise="PLANK", unit="seconds")
+    """
+    now = datetime.utcnow() + timedelta(hours=1)
+    iso = now.isoformat()
+    date_day = now.date().isoformat()
+
+    exercise = (exercise or "SQUAT").upper()
+    if unit is None:
+        unit = "seconds" if exercise == "PLANK" else "reps"
+
     new_item = {
         "name": name,
-        "date": (datetime.utcnow() + timedelta(hours=1)).isoformat(),
-        "squats": squats_count,
+        "date": iso,
+        "exercise": exercise,
+        "value": int(value),
+        "unit": unit,
+        "date_day": date_day,
+        "year": int(now.year),
     }
+
+    # Keep legacy "squats" attribute so existing charts/Participant logic keep working
+    if exercise == "SQUAT":
+        new_item["squats"] = int(value)
+    else:
+        # Keep squats present but 0 to simplify aggregation
+        new_item["squats"] = 0
+
     table_squats.put_item(Item=new_item)
     return new_item
 
@@ -91,6 +116,18 @@ class Participant:
         )
         self.last_activity_date = self.df["date"].max() if not self.df.empty else None
         self.is_active_today = self.sum_squats_done_today > 0
+
+        # Plank stats (using plank_seconds column from load_all)
+        self.sum_plank_seconds = (
+            int(self.df["plank_seconds"].sum())
+            if "plank_seconds" in self.df.columns
+            else 0
+        )
+        self.sum_plank_seconds_today = (
+            int(self.df[self.df["date"] == today.date()]["plank_seconds"].sum())
+            if "plank_seconds" in self.df.columns
+            else 0
+        )
 
     def _objectif_sum_squat(self):
         if not self.premier_squat_date:
@@ -259,7 +296,18 @@ def load_all():
         scan_kwargs["ExclusiveStartKey"] = last_evaluated_key
 
     if not items:
-        return pd.DataFrame(columns=["name", "squats", "date"])
+        return pd.DataFrame(
+            columns=[
+                "name",
+                "squats",
+                "date",
+                "exercise",
+                "value",
+                "unit",
+                "date_day",
+                "plank_seconds",
+            ]
+        )
 
     df = pd.DataFrame(items)
     if "date" not in df:
@@ -267,9 +315,49 @@ def load_all():
 
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df = df.dropna(subset=["date"])
+
+    # ---- Backward-compatible defaults for new attributes ----
+    # Ensure "squats" always exists for existing UI/stats
     df["squats"] = (
         pd.to_numeric(df.get("squats", 0), errors="coerce").fillna(0).astype(int)
     )
+
+    # Legacy rows have no "exercise" attribute
+    if "exercise" not in df.columns:
+        df["exercise"] = "SQUAT"
+    else:
+        df["exercise"] = df["exercise"].fillna("SQUAT").astype(str).str.upper()
+
+    # Legacy rows have "squats" but no "value"
+    if "value" not in df.columns:
+        df["value"] = df["squats"]
+    else:
+        df["value"] = (
+            pd.to_numeric(df["value"], errors="coerce").fillna(df["squats"]).astype(int)
+        )
+
+    # Unit attribute
+    if "unit" not in df.columns:
+        df["unit"] = df["exercise"].map(
+            lambda ex: "seconds" if ex == "PLANK" else "reps"
+        )
+    else:
+        df["unit"] = df["unit"].fillna(
+            df["exercise"].map(lambda ex: "seconds" if ex == "PLANK" else "reps")
+        )
+
+    # Convenience column for plank stats (won't affect existing pages)
+    df["plank_seconds"] = 0
+    mask_plank = df["exercise"] == "PLANK"
+    df.loc[mask_plank, "plank_seconds"] = (
+        pd.to_numeric(df.loc[mask_plank, "value"], errors="coerce")
+        .fillna(0)
+        .astype(int)
+    )
+
+    # Ensure date_day exists (useful for grouping without timezone drift)
+    if "date_day" not in df.columns:
+        df["date_day"] = df["date"].dt.date.astype(str)
 
     current_year = get_today().year
     df = df[df["date"].dt.year == current_year]
