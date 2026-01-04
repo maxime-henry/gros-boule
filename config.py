@@ -9,10 +9,15 @@ load_dotenv()
 ACCESS_KEY = os.environ.get("ACCESS_KEY")
 SECRET_ACCESS_KEY = os.environ.get("SECRET_ACCESS_KEY")
 
-today = datetime.now() + timedelta(hours=1)
-# today = datetime(2025,2,20)
 
-end_of_year = datetime(today.year, 12, 31)
+def get_today():
+    """Return current datetime in UTC+1. Call this instead of using a static 'today' variable."""
+    return datetime.now() + timedelta(hours=1)
+
+
+def get_end_of_year():
+    """Return end of current year based on get_today()."""
+    return datetime(get_today().year, 12, 31)
 
 
 def save_new_squat(name, squats_count):
@@ -45,6 +50,7 @@ class Participant:
         # Calculs des statistiques
         self.sum_squats_done = self.df["squats"].sum()
         # sum squats aujourdhui
+        today = get_today()
         self.sum_squats_done_today = self.df[self.df["date"] == today.date()][
             "squats"
         ].sum()
@@ -90,7 +96,7 @@ class Participant:
         if not self.premier_squat_date:
             return self.squats_restants  # Sécurité si premier squat inconnu
 
-        total_day_challenge = (end_of_year.date() - self.premier_squat_date).days
+        total_day_challenge = (get_end_of_year().date() - self.premier_squat_date).days
 
         return total_day_challenge * self.squat_objectif_quotidien
 
@@ -106,6 +112,7 @@ class Participant:
         return self.df[self.df["date"] == yesterday]["squats"].sum()
 
     def _build_daily_totals(self):
+        today = get_today()
         if self.df.empty:
             base = pd.DataFrame({"date": [today.date()], "squats": [0]})
         else:
@@ -152,7 +159,7 @@ class Participant:
         if self.daily_totals.empty:
             return 0, 0, 0
 
-        today_date = today.date()
+        today_date = get_today().date()
         this_week_start = today_date - timedelta(days=6)
         prev_week_start = this_week_start - timedelta(days=7)
         prev_week_end = this_week_start - timedelta(days=1)
@@ -170,7 +177,7 @@ class Participant:
         return this_week_total, prev_week_total, this_week_total - prev_week_total
 
     def _projected_sum(self):
-        total_days = (end_of_year.date() - self.premier_squat_date).days + 1
+        total_days = (get_end_of_year().date() - self.premier_squat_date).days + 1
         if total_days <= 0:
             return 0
         return int(self.moyenne_squats_par_jour * total_days)
@@ -256,7 +263,7 @@ def load_all():
 
     df = pd.DataFrame(items)
     if "date" not in df:
-        df["date"] = pd.Timestamp(today)
+        df["date"] = pd.Timestamp(get_today())
 
     df["date"] = pd.to_datetime(df["date"], errors="coerce")
     df = df.dropna(subset=["date"])
@@ -264,7 +271,7 @@ def load_all():
         pd.to_numeric(df.get("squats", 0), errors="coerce").fillna(0).astype(int)
     )
 
-    current_year = today.year
+    current_year = get_today().year
     df = df[df["date"].dt.year == current_year]
 
     return df.sort_values("date").reset_index(drop=True)

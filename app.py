@@ -13,8 +13,8 @@ from config import (
     mistral_chat,
     Participant,
     save_new_squat,
-    today,
-    end_of_year,
+    get_today,
+    get_end_of_year,
 )
 
 
@@ -225,6 +225,9 @@ participants = (
     # "Thouvenix",
 )
 
+# Compute today and end_of_year fresh on each run
+today = get_today()
+end_of_year = get_end_of_year()
 
 SQUAT_JOUR = 20
 
