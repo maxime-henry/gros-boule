@@ -368,14 +368,6 @@ if not squat_data.empty:
 start_of_year = datetime(today.year, 1, 1).date()
 days_elapsed = (today.date() - start_of_year).days + 1
 crew_total_squats = int(data_total["squats"].sum()) if not data_total.empty else 0
-crew_goal_to_date = len(participants) * SQUAT_JOUR * days_elapsed
-crew_delta_today = crew_total_squats - crew_goal_to_date
-crew_goal_full_year = (
-    len(participants) * SQUAT_JOUR * ((end_of_year.date() - start_of_year).days + 1)
-)
-crew_completion_pct = (
-    (crew_total_squats / crew_goal_full_year) * 100 if crew_goal_full_year else 0
-)
 last_entry = data_total.iloc[-1] if not data_total.empty else None
 
 
@@ -388,6 +380,16 @@ for name in participants:
     participants_obj[name] = Participant(
         name, squat_data, days_left=DAYS_LEFT, squat_objectif_quotidien=SQUAT_JOUR
     )
+
+# Sum individual goals (each participant's goal starts from their first squat, not Jan 1st)
+crew_goal_to_date = sum(
+    p.sum_squat_should_be_done_today for p in participants_obj.values()
+)
+crew_delta_today = crew_total_squats - crew_goal_to_date
+crew_goal_full_year = sum(p.objectif_sum_squat for p in participants_obj.values())
+crew_completion_pct = (
+    (crew_total_squats / crew_goal_full_year) * 100 if crew_goal_full_year else 0
+)
 
 active_today = sum(
     1
@@ -677,6 +679,7 @@ with st.container(border=True):
         hero_cols = [st.container(), st.container()]
     else:
         hero_cols = st.columns([2, 1])
+
     with hero_cols[0]:
         st.markdown(
             "**🎯 L'objectif :** 20 squats par jour, chaque jour, jusqu'au 31 décembre."
