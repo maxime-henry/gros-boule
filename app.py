@@ -421,7 +421,7 @@ if not is_logged_in:
     st.caption("Clique sur ton nom, on te prépare le formulaire perso juste après 👇")
     login_container = st.container()
     login_container.markdown('<div class="login-grid">', unsafe_allow_html=True)
-    selection_cols = login_container.columns(1 if mobile_view else 3)
+    selection_cols = login_container.columns(2 if mobile_view else 3)
     for idx, name in enumerate(participants):
         col = selection_cols[idx % len(selection_cols)]
         if col.button(f"{name} 🔓", key=f"login_{name}", width="stretch"):
@@ -500,10 +500,7 @@ if is_logged_in:
             daily_pct = (participant_obj.sum_squats_done_today / SQUAT_JOUR) * 100
             annual_pct = participant_obj.progress_pct_vs_objectif
 
-            if mobile_view:
-                ring_cols = [st.container(), st.container()]
-            else:
-                ring_cols = st.columns(2)
+            ring_cols = st.columns(2)
 
             with ring_cols[0]:
                 st.markdown(
@@ -552,7 +549,7 @@ if is_logged_in:
                     ),
                 },
             ]
-            render_metric_rows(cockpit_metrics, per_row=1 if mobile_view else 2)
+            render_metric_rows(cockpit_metrics, per_row=2 if mobile_view else 2)
 
         st.markdown(
             '<div class="section-header"><span class="emoji">🔥</span><h4 style="margin:0">Régularité & Streaks</h4></div>',
