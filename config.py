@@ -408,3 +408,32 @@ def mistral_chat(message):
         return chat_response.choices[0].message.content
     except:
         return "Bon courage mon reuf"
+
+
+# Centralized cached data fetch - shared across all pages
+_squat_dataframe_cache = {"data": None, "timestamp": None}
+_CACHE_TTL_SECONDS = 120
+
+
+def fetch_squat_dataframe_cached():
+    """Centralized cached fetch for all pages. TTL = 120s."""
+    import time
+
+    now = time.time()
+    if (
+        _squat_dataframe_cache["data"] is not None
+        and _squat_dataframe_cache["timestamp"] is not None
+        and (now - _squat_dataframe_cache["timestamp"]) < _CACHE_TTL_SECONDS
+    ):
+        return _squat_dataframe_cache["data"]
+
+    df = load_all()
+    _squat_dataframe_cache["data"] = df.sort_values("date")
+    _squat_dataframe_cache["timestamp"] = now
+    return _squat_dataframe_cache["data"]
+
+
+def clear_squat_dataframe_cache():
+    """Clear the cache after writes."""
+    _squat_dataframe_cache["data"] = None
+    _squat_dataframe_cache["timestamp"] = None

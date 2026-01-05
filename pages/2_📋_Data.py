@@ -1,5 +1,5 @@
 import streamlit as st
-from config import load_all
+from config import fetch_squat_dataframe_cached
 import pandas as pd
 import plotly.express as px
 
@@ -16,8 +16,8 @@ st.subheader("Curieux va")
 st.write("---")
 
 # I want this page to display the main stats and graphs
-
-df = load_all()
+# Uses centralized cached fetch (TTL 120s) for performance
+df = fetch_squat_dataframe_cached().copy()
 if df.empty:
     st.info("Toujours aucun squat, ça dort debout ?")
     st.stop()

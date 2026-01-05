@@ -1,5 +1,5 @@
 import streamlit as st
-from config import load_all
+from config import fetch_squat_dataframe_cached
 import pandas as pd
 import plotly.express as px
 
@@ -13,9 +13,9 @@ st.set_page_config(
 )
 
 
-@st.cache_data(ttl=120)
 def fetch_stats_dataframe() -> pd.DataFrame:
-    df = load_all()
+    """Use centralized cache for better cross-page performance."""
+    df = fetch_squat_dataframe_cached()
     if df.empty:
         return df
     df = df.copy()

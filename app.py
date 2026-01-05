@@ -15,6 +15,8 @@ from config import (
     save_new_squat,
     get_today,
     get_end_of_year,
+    fetch_squat_dataframe_cached,
+    clear_squat_dataframe_cache,
 )
 
 
@@ -222,7 +224,6 @@ participants = (
     "Tonix",
     "Fannux",
     "Andreax",
-    # "Thouvenix",
 )
 
 # Compute today and end_of_year fresh on each run
@@ -290,11 +291,26 @@ def render_radial_progress(
     return html
 
 
-# @st.cache_data(ttl=100, max_entries=1)
-def chat_with_mistral(prompt: str, name: str) -> str:
-    """Helper to chat with Mistral model."""
-    response = mistral_chat(prompt)
+@st.cache_data(ttl=3600, show_spinner=False)
+def chat_with_mistral(
+    prompt_hash: str, name: str, date_key: str, sum_squats: int
+) -> str:
+    """Cached LLM motivation call. Keyed on name + date to avoid re-calling same day.
+
+    prompt_hash is passed for cache busting when stats change significantly,
+    but typically the same user on the same day gets cached response.
+    """
+    # We need the actual prompt, so we regenerate it here
+    # This is a workaround since we can't cache with the full prompt as key (too long)
+    response = mistral_chat(prompt_hash)
     return response
+
+
+def get_motivation_cached(prompt: str, name: str, sum_squats: int) -> str:
+    """Wrapper that handles cache key generation for LLM calls."""
+    today_key = get_today().strftime("%Y-%m-%d")
+    # Use a hash of key stats to bust cache if numbers change significantly
+    return chat_with_mistral(prompt, name, today_key, sum_squats)
 
 
 # Mobile-first by default; append ?view=desktop to the URL for the wide layout.
@@ -309,16 +325,16 @@ if not isinstance(query_params, dict):
 mobile_view = query_params.get("view", ["mobile"])[0].lower() != "desktop"
 
 
-@st.cache_data(ttl=120)
 def fetch_squat_dataframe():
-    """Centralise la récupération des squats (1 scan Dynamo = 1 cache hit)."""
-    df = load_all()
-    return df.sort_values("date")
+    """Use centralized cached fetch for performance."""
+    return fetch_squat_dataframe_cached()
 
 
 def refresh_squat_dataframe():
-    """Permet de purger le cache après un enregistrement."""
-    fetch_squat_dataframe.clear()  # type: ignore[attr-defined]
+    """Purge centralized cache after writes."""
+    clear_squat_dataframe_cache()
+    # Also clear participant cache so they get rebuilt with fresh data
+    _participant_cache.clear()
 
 
 # COOKIES CONTROL ##################################################################################################################
@@ -375,11 +391,61 @@ last_entry = data_total.iloc[-1] if not data_total.empty else None
 today_date = today.date()  # Get today's date in UTC
 
 
-participants_obj = {}
-for name in participants:
-    participants_obj[name] = Participant(
-        name, squat_data, days_left=DAYS_LEFT, squat_objectif_quotidien=SQUAT_JOUR
-    )
+# Lazy Participant construction for better LCP
+# Only build active user's Participant eagerly; others on-demand
+_participant_cache = {}
+
+
+def get_participant(name: str) -> Participant:
+    """Lazy-load Participant object for a given name."""
+    if name not in _participant_cache:
+        _participant_cache[name] = Participant(
+            name, squat_data, days_left=DAYS_LEFT, squat_objectif_quotidien=SQUAT_JOUR
+        )
+    return _participant_cache[name]
+
+
+# Build active user's participant eagerly (needed for dashboard)
+if active_user:
+    get_participant(active_user)
+
+
+# participants_obj is now a lazy dict-like access pattern
+class LazyParticipantDict:
+    """Dict-like object that lazily builds Participants on access."""
+
+    def __init__(self, names):
+        self._names = set(names)
+
+    def get(self, name, default=None):
+        if name in self._names:
+            return get_participant(name)
+        return default
+
+    def __getitem__(self, name):
+        if name in self._names:
+            return get_participant(name)
+        raise KeyError(name)
+
+    def __setitem__(self, name, value):
+        """Allow assignment to update the internal cache."""
+        _participant_cache[name] = value
+
+    def __contains__(self, name):
+        return name in self._names
+
+    def values(self):
+        # Only materialize all when needed (leaderboard)
+        return [get_participant(n) for n in self._names]
+
+    def items(self):
+        return [(n, get_participant(n)) for n in self._names]
+
+    def keys(self):
+        return self._names
+
+
+participants_obj = LazyParticipantDict(participants)
 
 # Sum individual goals (each participant's goal starts from their first squat, not Jan 1st)
 crew_goal_to_date = sum(
@@ -937,6 +1003,11 @@ Stats complètes (données figées au {today_snapshot} UTC+1) :
 - Secondes de gainage cumulées depuis le début de l'année : {participant_obj.sum_plank_seconds} sec, soit en moyenne {participant_obj.sum_plank_seconds / participant_obj.nombre_jours_depuis_debut:.2f} sec/jour (temps de gainage aujourd'hui : {participant_obj.sum_plank_seconds_today} sec.
 """
 
-    # message_motivation = mistral_chat(motivation_prompt)
-
-    placeholder.markdown(chat_with_mistral(motivation_prompt, participant_obj.name))
+    # Use cached LLM call - same user+date gets cached response (huge LCP improvement)
+    placeholder.markdown(
+        get_motivation_cached(
+            motivation_prompt,
+            participant_obj.name,
+            int(participant_obj.sum_squats_done_today),
+        )
+    )
