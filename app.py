@@ -561,7 +561,7 @@ if is_logged_in:
             min_value=10,
             max_value=600,
             value=60,
-            step=10,
+            step=5,
         )
         submitted_plank = st.form_submit_button(f"Enregistrer pour {active_user} 🪵")
     if submitted_plank:
