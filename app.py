@@ -951,6 +951,7 @@ for participant in participants_obj.values():
             "Moyenne/jour": round(float(participant.moyenne_squats_par_jour), 2),
             "Streak (jours)": int(participant.current_objective_streak),
             "% objectif": round(float(participant.progress_pct_vs_objectif), 1),
+            "Total gainage (sec)": int(participant.sum_plank_seconds),
         }
     )
 
