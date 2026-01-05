@@ -652,25 +652,74 @@ if is_logged_in:
             '<div class="section-header"><span class="emoji">🪵</span><h4 style="margin:0">Gainage</h4></div>',
             unsafe_allow_html=True,
         )
+
+        def format_plank_time(seconds: int) -> str:
+            """Format plank time: show minutes if >= 120 seconds."""
+            if seconds >= 120:
+                mins = seconds // 60
+                secs = seconds % 60
+                return f"{mins}m{secs:02d}s" if secs else f"{mins} min"
+            return f"{seconds} sec"
+
+        def get_funny_equivalent(seconds: int) -> dict:
+            """Return a funny equivalent for plank time."""
+            # Fun equivalents based on duration
+            if seconds < 60:
+                return {
+                    "label": "🍳 Équivalent",
+                    "value": "Pas encore un œuf cuit",
+                    "help": "Faut tenir plus longtemps !",
+                }
+            elif seconds < 180:  # si inferieur a 3 minutes
+                return {
+                    "label": "🎵 Équivalent",
+                    "value": f"{seconds // 30} pubs Spotify",
+                    "help": "30 sec par pub non-skippable",
+                }
+            elif seconds < 600:  # si inferieur a 10 minutes
+                return {
+                    "label": "🍳 Équivalent",
+                    "value": f"{seconds // 120} oeufs à la coque",
+                    "help": "2 min pour cuire un oeuf à la coque",
+                }
+            elif seconds < 1800:  # si inferieur a 30 minutes Bande organisée 5:56
+                return {
+                    "label": "🎵 Équivalent",
+                    "value": f"{seconds // 356} écoutes de Bande Organisée",
+                    "help": "5 min 56 sec par écoute de ce banger",
+                }
+            else:
+                return {
+                    "label": "🎬 Équivalent",
+                    "value": f"{seconds // 1800} épisodes de Friends",
+                    "help": "30 min par épisode (sans pubs)",
+                }
+
         with st.container(border=True):
-            plank_metrics = [
-                {
-                    "label": "🪵 Total gainage",
-                    "value": f"{participant_obj.sum_plank_seconds} sec",
-                    "help": "Secondes cumulées depuis le début",
-                },
-                {
-                    "label": "⏱️ Aujourd'hui",
-                    "value": f"{participant_obj.sum_plank_seconds_today} sec",
-                    "help": "Secondes faites aujourd'hui",
-                },
-                {
-                    "label": "💪 Meilleure séance",
-                    "value": f"{participant_obj.best_plank_seconds} sec",
-                    "help": "Ta meilleure performance en une session",
-                },
-            ]
-            render_metric_rows(plank_metrics, per_row=2)
+            if participant_obj.sum_plank_seconds == 0:
+                st.info("Tu n'as pas encore enregistré de séances de gainage.")
+            if participant_obj.sum_plank_seconds > 0:
+                plank_metrics = [
+                    {
+                        "label": "🪵 Total gainage",
+                        "value": format_plank_time(participant_obj.sum_plank_seconds),
+                        "help": "Temps cumulé depuis le début",
+                    },
+                    {
+                        "label": "⏱️ Aujourd'hui",
+                        "value": format_plank_time(
+                            participant_obj.sum_plank_seconds_today
+                        ),
+                        "help": "Temps fait aujourd'hui",
+                    },
+                    {
+                        "label": "💪 Meilleure séance",
+                        "value": format_plank_time(participant_obj.best_plank_seconds),
+                        "help": "Ta meilleure performance en une session",
+                    },
+                    get_funny_equivalent(participant_obj.sum_plank_seconds),
+                ]
+                render_metric_rows(plank_metrics, per_row=2)
 
         st.markdown(
             '<div class="section-header"><span class="emoji">🔥</span><h4 style="margin:0">Régularité & Streaks</h4></div>',
