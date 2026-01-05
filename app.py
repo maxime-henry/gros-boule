@@ -772,6 +772,7 @@ if is_logged_in:
                 plot_bgcolor="rgba(0,0,0,0)",
                 paper_bgcolor="rgba(0,0,0,0)",
                 showlegend=False,
+                dragmode=False,
             )
             fig.update_xaxes(showgrid=False)
             fig.update_yaxes(showgrid=True, gridcolor="rgba(255,111,97,0.1)")
@@ -918,6 +919,7 @@ if not crew_daily_totals.empty:
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             showlegend=False,
+            dragmode=False,
         )
         trend_fig.update_xaxes(showgrid=False)
         trend_fig.update_yaxes(showgrid=True, gridcolor="rgba(255,111,97,0.1)")
