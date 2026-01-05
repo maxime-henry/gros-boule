@@ -596,6 +596,12 @@ if is_logged_in:
                 {
                     "label": "⏱️ Aujourd'hui",
                     "value": f"{participant_obj.sum_plank_seconds_today} sec",
+                    "help": "Secondes faites aujourd'hui",
+                },
+                {
+                    "label": "💪 Meilleure séance",
+                    "value": f"{participant_obj.best_plank_seconds} sec",
+                    "help": "Ta meilleure performance en une session",
                 },
             ]
             render_metric_rows(plank_metrics, per_row=2)
@@ -928,6 +934,7 @@ Stats complètes (données figées au {today_snapshot} UTC+1) :
 - Dernière activité : {last_activity}.
 - Objectif restant estimé : {participant_obj.objectif_sum_squat - participant_obj.sum_squats_done} squats pour boucler l'année.
 - Squats des autres membres aujourd'hui : {active_today} sur {len(participants)} ont déjà validé leurs {SQUAT_JOUR} squats.
+- Secondes de gainage cumulées depuis le début de l'année : {participant_obj.sum_plank_seconds} sec, soit en moyenne {participant_obj.sum_plank_seconds / participant_obj.nombre_jours_depuis_debut:.2f} sec/jour (temps de gainage aujourd'hui : {participant_obj.sum_plank_seconds_today} sec.
 """
 
     # message_motivation = mistral_chat(motivation_prompt)

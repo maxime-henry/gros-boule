@@ -128,6 +128,11 @@ class Participant:
             if "plank_seconds" in self.df.columns
             else 0
         )
+        self.best_plank_seconds = (
+            int(self.df["plank_seconds"].max())
+            if "plank_seconds" in self.df.columns and not self.df.empty
+            else 0
+        )
 
     def _objectif_sum_squat(self):
         if not self.premier_squat_date:
