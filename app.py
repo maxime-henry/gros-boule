@@ -774,7 +774,7 @@ if is_logged_in:
                 text="Progression sur l'objectif annuel",
             )
             st.caption(
-                "Barre verte = ton pourcentage du défi annuel. Continue d'empiler."
+                "Barre bleu = ton pourcentage du défi annuel. Continue d'empiler."
             )
 
         st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
@@ -1048,7 +1048,7 @@ Stats complètes (données figées au {today_snapshot} UTC+1) :
 - Progression annuelle : {participant_obj.progress_pct_vs_objectif:.1f}% | projection fin d'année = {participant_obj.projected_year_total} squats.
 - Moyenne quotidienne : {participant_obj.moyenne_squats_par_jour:.2f} squats.
 - Volume semaine courante : {participant_obj.weekly_total} squats (écart vs semaine précédente = {participant_obj.weekly_delta}).
-- Streak actuel : {participant_obj.current_objective_streak} jours | Record : {participant_obj.best_objective_streak} jours.
+- Streak actuel : {participant_obj.current_objective_streak} jours jusqu'a aujourd'hui | Record : {participant_obj.best_objective_streak} jours.
 - Dernière activité : {last_activity}.
 - Objectif restant estimé : {participant_obj.objectif_sum_squat - participant_obj.sum_squats_done} squats pour boucler l'année.
 - Squats des autres membres aujourd'hui : {active_today} sur {len(participants)} ont déjà validé leurs {SQUAT_JOUR} squats.

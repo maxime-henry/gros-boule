@@ -178,10 +178,14 @@ class Participant:
         best = 0
         last_date = None
         last_goal_met = False
+        today_date = get_today().date()
 
         for _, row in self.daily_totals.iterrows():
             goal_met = row["squats"] >= self.squat_objectif_quotidien
             date_value = row["date"]
+
+            # Skip today when computing current streak - don't break streak until day ends
+            is_today = date_value == today_date
 
             if goal_met:
                 if last_date and last_goal_met and (date_value - last_date).days == 1:
@@ -189,7 +193,9 @@ class Participant:
                 else:
                     current = 1
             else:
-                current = 0
+                # Only reset streak if it's not today (give the whole day to complete goal)
+                if not is_today:
+                    current = 0
 
             best = max(best, current)
             last_goal_met = goal_met
