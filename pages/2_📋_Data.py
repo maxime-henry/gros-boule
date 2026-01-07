@@ -58,7 +58,7 @@ sessions_tab, daily_tab, summary_tab = st.tabs(
 with sessions_tab:
     st.dataframe(
         df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -70,7 +70,7 @@ with daily_tab:
         .pivot(index="date_day", columns="name", values="squats")
         .fillna(0)
     )
-    st.dataframe(pivot, use_container_width=True)
+    st.dataframe(pivot, width="stretch")
 
 with summary_tab:
     leaderboard = (
@@ -80,4 +80,4 @@ with summary_tab:
     )
     leaderboard["Moyenne"] = leaderboard["Squats"] / leaderboard["Sessions"]
     leaderboard = leaderboard.sort_values(by="Squats", ascending=False)
-    st.dataframe(leaderboard, use_container_width=True)
+    st.dataframe(leaderboard, width="stretch")

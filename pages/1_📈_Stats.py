@@ -171,7 +171,7 @@ with overview_tab:
             yaxis_title="Squats",
             margin=dict(l=10, r=10, t=60, b=20),
         )
-        st.plotly_chart(volume_fig, use_container_width=True)
+        st.plotly_chart(volume_fig, width="stretch")
 
     if not filtered_daily.empty:
         evolution_fig = px.line(
@@ -187,7 +187,7 @@ with overview_tab:
             line_dash="dot",
         )
         evolution_fig.update_layout(xaxis_title="Date", yaxis_title="Squats")
-        st.plotly_chart(evolution_fig, use_container_width=True)
+        st.plotly_chart(evolution_fig, width="stretch")
 
         stacked_fig = px.area(
             filtered_daily,
@@ -198,7 +198,7 @@ with overview_tab:
             title="Squats cumulés par squatteur",
         )
         stacked_fig.update_layout(xaxis_title="Date", yaxis_title="Squats")
-        st.plotly_chart(stacked_fig, use_container_width=True)
+        st.plotly_chart(stacked_fig, width="stretch")
 
 with records_tab:
     record_cols = st.columns(4)
@@ -240,7 +240,7 @@ with records_tab:
         )
         top_day_fig.add_vline(x=goal_line, line_color="red", line_dash="dot")
         top_day_fig.update_layout(xaxis_title="Squats", yaxis_title="Date")
-        st.plotly_chart(top_day_fig, use_container_width=True)
+        st.plotly_chart(top_day_fig, width="stretch")
 
     if not totals_by_person.empty:
         totals_fig = px.bar(
@@ -251,7 +251,7 @@ with records_tab:
             orientation="h",
         )
         totals_fig.update_layout(xaxis_title="Squats", yaxis_title=None)
-        st.plotly_chart(totals_fig, use_container_width=True)
+        st.plotly_chart(totals_fig, width="stretch")
 
     if not avg_by_person.empty:
         avg_sorted = avg_by_person.sort_values("avg_squats", ascending=False)
@@ -263,7 +263,7 @@ with records_tab:
         )
         avg_fig.add_hline(y=SQUAT_JOUR, line_color="red", line_dash="dot")
         avg_fig.update_layout(xaxis_title=None, yaxis_title="Squats")
-        st.plotly_chart(avg_fig, use_container_width=True)
+        st.plotly_chart(avg_fig, width="stretch")
 
 with consistency_tab:
     hist_fig = px.histogram(
@@ -275,7 +275,7 @@ with consistency_tab:
     )
     hist_fig.add_vline(x=SQUAT_JOUR, line_color="red", line_dash="dot")
     hist_fig.update_layout(xaxis_title="Squats", yaxis_title="Sessions")
-    st.plotly_chart(hist_fig, use_container_width=True)
+    st.plotly_chart(hist_fig, width="stretch")
 
     if not filtered_daily.empty:
         filtered_no_zero = filtered_daily[filtered_daily["squats"] > 0]
@@ -305,7 +305,7 @@ with consistency_tab:
             )
             box_fig.add_hline(y=SQUAT_JOUR, line_color="red", line_dash="dot")
             box_fig.update_layout(xaxis_title="Squatteur", yaxis_title="Squats")
-            st.plotly_chart(box_fig, use_container_width=True)
+            st.plotly_chart(box_fig, width="stretch")
 
 with duos_tab:
     if filtered_daily.empty:
@@ -340,7 +340,7 @@ with duos_tab:
                 xaxis_title=None,
                 yaxis_title=None,
             )
-            st.plotly_chart(corr_fig, use_container_width=True)
+            st.plotly_chart(corr_fig, width="stretch")
             st.caption("Minimum 5 jours loggés chacun pour apparaître dans le heatmap.")
 
             pairs = []
@@ -376,7 +376,7 @@ with duos_tab:
                     )
                     pair_fig.add_hline(y=SQUAT_JOUR, line_color="red", line_dash="dot")
                     pair_fig.update_layout(xaxis_title="Date", yaxis_title="Squats")
-                    st.plotly_chart(pair_fig, use_container_width=True)
+                    st.plotly_chart(pair_fig, width="stretch")
 
                 render_pair_chart(
                     best_pair,
