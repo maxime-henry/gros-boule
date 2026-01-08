@@ -977,7 +977,7 @@ with st.container(border=True):
 
     plank_pulse_metrics = [
         {
-            "label": "💪 Record plank",
+            "label": "💪 Record planche",
             "value": (
                 best_plank_holder.name
                 if best_plank_holder and best_plank_holder.best_plank_seconds > 0
