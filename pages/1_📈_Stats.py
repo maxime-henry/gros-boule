@@ -26,9 +26,7 @@ def fetch_stats_dataframe() -> pd.DataFrame:
 
 
 st.title("Plus de statistiques")
-st.caption(
-    "On dissèque le grind : filtres personnalisés, records borderline et vibe analyste à la demande."
-)
+
 
 df = fetch_stats_dataframe()
 
@@ -39,7 +37,7 @@ if df.empty:
 
 names = sorted(df["name"].unique())
 selected_names = st.multiselect(
-    "Focus crew",
+    "Focus équipe",
     options=names,
     default=names,
     placeholder="Choisis un ou plusieurs squatteurs",
@@ -110,16 +108,28 @@ last_logs = (
     else pd.DataFrame()
 )
 
+# Calculate average log time per person (in minutes from midnight)
 morning_metric = ("—", "")
 evening_metric = ("—", "")
-if not first_logs.empty:
-    morning_name = first_logs["name"].mode().iat[0]
-    fastest = first_logs[first_logs["name"] == morning_name]["date"].min()
-    morning_metric = (morning_name, fastest.strftime("%H:%M"))
-if not last_logs.empty:
-    evening_name = last_logs["name"].mode().iat[0]
-    latest = last_logs[last_logs["name"] == evening_name]["date"].max()
-    evening_metric = (evening_name, latest.strftime("%H:%M"))
+if not df.empty:
+    df_times = df.copy()
+    df_times["time_minutes"] = (
+        df_times["date"].dt.hour * 60 + df_times["date"].dt.minute
+    )
+    avg_time_by_person = df_times.groupby("name")["time_minutes"].mean()
+
+    if not avg_time_by_person.empty:
+        # Earliest average = morning person
+        morning_name = avg_time_by_person.idxmin()
+        morning_avg_minutes = avg_time_by_person.min()
+        morning_h, morning_m = divmod(int(morning_avg_minutes), 60)
+        morning_metric = (morning_name, f"{morning_h:02d}:{morning_m:02d} moy")
+
+        # Latest average = evening person
+        evening_name = avg_time_by_person.idxmax()
+        evening_avg_minutes = avg_time_by_person.max()
+        evening_h, evening_m = divmod(int(evening_avg_minutes), 60)
+        evening_metric = (evening_name, f"{evening_h:02d}:{evening_m:02d} moy")
 
 max_session_row = df.loc[df["squats"].idxmax()]
 max_day_row = (
@@ -150,7 +160,7 @@ with overview_tab:
             crew_daily,
             x="date_day",
             y="total_squats",
-            title="Volume quotidien du crew",
+            title="Volume quotidien de l'équipe",
             color_discrete_sequence=["#ff6f61"],
         )
         volume_fig.add_scatter(

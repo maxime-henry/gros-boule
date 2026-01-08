@@ -472,6 +472,22 @@ pace_leader = max(
     key=lambda p: p.moyenne_squats_par_jour,
     default=None,
 )
+# Plank leaders
+best_plank_holder = max(
+    participants_obj.values(),
+    key=lambda p: p.best_plank_seconds,
+    default=None,
+)
+best_plank_streak_holder = max(
+    participants_obj.values(),
+    key=lambda p: p.best_plank_streak,
+    default=None,
+)
+total_plank_leader = max(
+    participants_obj.values(),
+    key=lambda p: p.sum_plank_seconds,
+    default=None,
+)
 
 
 participant_order = list(participants)
@@ -721,6 +737,24 @@ if is_logged_in:
                 ]
                 render_metric_rows(plank_metrics, per_row=2)
 
+                # Plank streaks and averages
+                plank_streak_metrics = [
+                    {
+                        "label": "🔥 Streak gainage",
+                        "value": f"{participant_obj.current_plank_streak} jours",
+                        "delta": f"Record {participant_obj.best_plank_streak}",
+                        "help": "Jours consécutifs avec ≥30 sec de gainage",
+                    },
+                    {
+                        "label": "📊 Moyenne / session",
+                        "value": format_plank_time(
+                            int(participant_obj.moyenne_plank_par_session)
+                        ),
+                        "delta": f"{participant_obj.plank_sessions_count} sessions",
+                    },
+                ]
+                render_metric_rows(plank_streak_metrics, per_row=2)
+
         st.markdown(
             '<div class="section-header"><span class="emoji">🔥</span><h4 style="margin:0">Régularité & Streaks</h4></div>',
             unsafe_allow_html=True,
@@ -918,13 +952,73 @@ with st.container(border=True):
             "label": "🕒 Dernière session loggée",
             "value": last_entry["name"] if last_entry is not None else "Aucun log",
             "delta": (
-                f"{int(last_entry['squats'])} squats"
+                f"{int(last_entry['value'])} {'sec gainage' if last_entry['exercise'] == 'PLANK' else 'squats'}"
                 if last_entry is not None
                 else None
             ),
         },
     ]
     render_metric_rows(pulse_metrics, per_row=1 if mobile_view else 3)
+
+# Plank highlights
+st.markdown(
+    '<div class="section-header"><span class="emoji">🪵</span><h4 style="margin:0">Highlights gainage</h4></div>',
+    unsafe_allow_html=True,
+)
+st.caption("Qui tient le plus longtemps ?")
+with st.container(border=True):
+
+    def format_plank_highlight(seconds: int) -> str:
+        if seconds >= 60:
+            mins = seconds // 60
+            secs = seconds % 60
+            return f"{mins}m{secs:02d}s" if secs else f"{mins} min"
+        return f"{seconds} sec"
+
+    plank_pulse_metrics = [
+        {
+            "label": "💪 Record plank",
+            "value": (
+                best_plank_holder.name
+                if best_plank_holder and best_plank_holder.best_plank_seconds > 0
+                else "—"
+            ),
+            "delta": (
+                format_plank_highlight(best_plank_holder.best_plank_seconds)
+                if best_plank_holder and best_plank_holder.best_plank_seconds > 0
+                else None
+            ),
+        },
+        {
+            "label": "🔥 Streak gainage",
+            "value": (
+                best_plank_streak_holder.name
+                if best_plank_streak_holder
+                and best_plank_streak_holder.best_plank_streak > 0
+                else "—"
+            ),
+            "delta": (
+                f"{best_plank_streak_holder.best_plank_streak} jours"
+                if best_plank_streak_holder
+                and best_plank_streak_holder.best_plank_streak > 0
+                else None
+            ),
+        },
+        {
+            "label": "⏱️ Total gainage",
+            "value": (
+                total_plank_leader.name
+                if total_plank_leader and total_plank_leader.sum_plank_seconds > 0
+                else "—"
+            ),
+            "delta": (
+                format_plank_highlight(total_plank_leader.sum_plank_seconds)
+                if total_plank_leader and total_plank_leader.sum_plank_seconds > 0
+                else None
+            ),
+        },
+    ]
+    render_metric_rows(plank_pulse_metrics, per_row=1 if mobile_view else 3)
 
 if not crew_daily_totals.empty:
     st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
@@ -1000,9 +1094,11 @@ for participant in participants_obj.values():
             "Total": int(participant.sum_squats_done),
             "Delta vs obj": int(participant.delta_done_vs_objecitf_today),
             "Moyenne/jour": round(float(participant.moyenne_squats_par_jour), 2),
-            "Streak (jours)": int(participant.current_objective_streak),
+            "Streak squats": int(participant.current_objective_streak),
             "% objectif": round(float(participant.progress_pct_vs_objectif), 1),
-            "Total gainage (sec)": int(participant.sum_plank_seconds),
+            "Gainage (sec)": int(participant.sum_plank_seconds),
+            "Streak gainage": int(participant.current_plank_streak),
+            "Best plank": int(participant.best_plank_seconds),
         }
     )
 
@@ -1029,7 +1125,7 @@ st.caption(f"🍑 Squat App v0.1.6 · {today.strftime('%d/%m/%Y-%H:%M')}")
 
 
 if active_user is not None and participant_obj is not None:
-    today_snapshot = today.strftime("%Y-%m-%d")
+    today_snapshot = today.strftime("%Y-%m-%d-%H:%M")
     last_activity = (
         participant_obj.last_activity_date.strftime("%Y-%m-%d")
         if participant_obj.last_activity_date

@@ -134,6 +134,32 @@ class Participant:
             else 0
         )
 
+        # Plank streaks and advanced stats
+        self.plank_daily_totals = self._build_plank_daily_totals()
+        plank_streaks = self._compute_plank_streaks()
+        self.current_plank_streak = plank_streaks["current"]
+        self.best_plank_streak = plank_streaks["best"]
+        self.plank_sessions_count = (
+            int((self.df["plank_seconds"] > 0).sum())
+            if "plank_seconds" in self.df.columns
+            else 0
+        )
+        self.plank_days_active = (
+            len(self.df[self.df["plank_seconds"] > 0]["date"].unique())
+            if "plank_seconds" in self.df.columns
+            else 0
+        )
+        self.moyenne_plank_par_session = (
+            self.sum_plank_seconds / self.plank_sessions_count
+            if self.plank_sessions_count > 0
+            else 0
+        )
+        self.moyenne_plank_par_jour_actif = (
+            self.sum_plank_seconds / self.plank_days_active
+            if self.plank_days_active > 0
+            else 0
+        )
+
     def _objectif_sum_squat(self):
         if not self.premier_squat_date:
             return self.squats_restants  # Sécurité si premier squat inconnu
@@ -172,6 +198,61 @@ class Participant:
         )
         completed["date"] = completed["date"].dt.date
         return completed
+
+    def _build_plank_daily_totals(self):
+        """Build daily plank totals similar to squats."""
+        today = get_today()
+        if self.df.empty or "plank_seconds" not in self.df.columns:
+            return pd.DataFrame({"date": [today.date()], "plank_seconds": [0]})
+
+        base = self.df.groupby("date", as_index=False)["plank_seconds"].sum()
+
+        # Find first plank date
+        plank_dates = self.df[self.df["plank_seconds"] > 0]["date"]
+        if plank_dates.empty:
+            return pd.DataFrame({"date": [today.date()], "plank_seconds": [0]})
+
+        first_plank_date = plank_dates.min()
+        start = pd.Timestamp(first_plank_date)
+        stop = pd.Timestamp(today.date())
+        date_range = pd.date_range(start, stop, freq="D")
+
+        completed = (
+            base.set_index("date")
+            .reindex(date_range, fill_value=0)
+            .rename_axis("date")
+            .reset_index()
+        )
+        completed["date"] = completed["date"].dt.date
+        return completed
+
+    def _compute_plank_streaks(self, min_seconds: int = 30):
+        """Compute plank streaks. A day counts if >= min_seconds of planking done."""
+        current = 0
+        best = 0
+        last_date = None
+        last_goal_met = False
+        today_date = get_today().date()
+
+        for _, row in self.plank_daily_totals.iterrows():
+            goal_met = row["plank_seconds"] >= min_seconds
+            date_value = row["date"]
+            is_today = date_value == today_date
+
+            if goal_met:
+                if last_date and last_goal_met and (date_value - last_date).days == 1:
+                    current += 1
+                else:
+                    current = 1
+            else:
+                if not is_today:
+                    current = 0
+
+            best = max(best, current)
+            last_goal_met = goal_met
+            last_date = date_value
+
+        return {"current": current, "best": best}
 
     def _compute_streaks(self):
         current = 0
