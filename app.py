@@ -1032,7 +1032,7 @@ if not crew_daily_totals.empty:
             crew_daily_totals.tail(45),
             x="date_day",
             y="squats",
-            title="Volume quotidien du crew",
+            title="Volume quotidien de la team",
         )
         # Apply gradient fill effect
         trend_fig.update_traces(
