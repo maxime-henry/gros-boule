@@ -144,11 +144,18 @@ totals_by_person = (
     .reset_index()
     .sort_values("squats", ascending=False)
 )
-avg_by_person = (
-    filtered_daily.groupby("name")["squats"].mean().reset_index(name="avg_squats")
-    if not filtered_daily.empty
-    else pd.DataFrame(columns=["name", "avg_squats"])
-)
+
+# Calculate average as total squats / days since first squat (not just active days)
+if not df.empty:
+    from config import get_today
+
+    today_date = get_today().date()
+    first_squat_by_person = df.groupby("name")["date_day"].min()
+    days_since_start = first_squat_by_person.apply(lambda d: (today_date - d).days + 1)
+    total_by_person = df.groupby("name")["squats"].sum()
+    avg_by_person = (total_by_person / days_since_start).reset_index(name="avg_squats")
+else:
+    avg_by_person = pd.DataFrame(columns=["name", "avg_squats"])
 
 overview_tab, records_tab, consistency_tab, duos_tab = st.tabs(
     ["📊 Volume", "🏅 Records", "🎯 Régularité", "🫂 Correlations"]
