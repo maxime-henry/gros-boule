@@ -701,7 +701,7 @@ if is_logged_in:
             elif seconds < 1800:  # si inferieur a 30 minutes Bande organisée 5:56
                 return {
                     "label": "🎵 Équivalent",
-                    "value": f"{seconds // 356} écoutes de Bande Organisée",
+                    "value": f"{seconds // 356} x Bande Organisée",
                     "help": "5 min 56 sec par écoute de ce banger",
                 }
             else:
