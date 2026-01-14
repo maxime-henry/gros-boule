@@ -1120,6 +1120,24 @@ if active_user is not None and participant_obj is not None:
             "motivations": "Fait le dry january et veut garder la forme pour préparer des courses a pied",
             "animal": "A deux chats nommés Romu et Gribouille",
         },
+        "Audrix": {
+            "real_name": "Audrey",
+            "date of birth": "1997-06-21",
+            "job": "Inspectrice",
+            "company": "DGCCRF",
+            "city": "Lyon",
+            "motivations": "Veut se remettre au sport après une période d'inactivité",
+            "animal": "A deux chats nommés Romu et Gribouille",
+        },
+        "Le K": {
+            "real_name": "Katia",
+            "date of birth": "1992-07-28",
+            "job": "Chommeuse",
+            "company": "France Travail",
+            "city": "Lyon",
+            "motivations": "Veut se remettre en forme, amoureuse de Maxime",
+            "animal": "A un chat mâle nommé Abricot et un lapin bélier en surpoid nommé Tchoupi",
+        },
     }
 
     motivation_prompt = f""" Tu encourages {participant_obj.name} à faire des squats. {long_term_user_knowledge.get(participant_obj.name, {})}
