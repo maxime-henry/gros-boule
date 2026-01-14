@@ -1106,10 +1106,19 @@ if active_user is not None and participant_obj is not None:
             "real_name": "Maxime",
             "date of birth": "1997-04-03",
             "job": "Data Engineer",
+            "company": "Bayer",
             "city": "Lyon",
             "motivations": "Veut se remettre en forme pour préparer un hyrox",
             "animal": "A un chat mâle nommé Abricot",
         },
+        "Matix": {
+            "real_name": "Mathilde",
+            "date of birth": "1997-11-18",
+            "job": "Responsable qualité",
+            "company": "Panzani",
+            "city": "Lyon",
+            "motivations": "Fait le dry january et veut garder la forme pour préparer des courses a pied",
+            "animal": "A deux chats nommés Romu et Gribouille",
     }
 
     motivation_prompt = f""" Tu encourages {participant_obj.name} à faire des squats. {long_term_user_knowledge.get(participant_obj.name, {})}
