@@ -1135,7 +1135,8 @@ if active_user is not None and participant_obj is not None:
             "job": "Chommeuse",
             "company": "France Travail",
             "city": "Lyon",
-            "motivations": "Veut se remettre en forme, amoureuse de Maxime",
+            "motivations": "Veut se remettre en forme",
+            "motivations": "Amoureuse de Maxime",
             "animal": "A un chat mâle nommé Abricot et un lapin bélier en surpoid nommé Tchoupi",
         },
     }
