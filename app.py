@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import math
 import os
 import random
 import streamlit as st
@@ -1110,6 +1111,7 @@ if active_user is not None and participant_obj is not None:
             "city": "Lyon",
             "motivations": "Veut se remettre en forme pour préparer un hyrox",
             "animal": "A un chat mâle nommé Abricot",
+            "relation": "Amoureux de Katia",
         },
         "Matix": {
             "real_name": "Mathilde",
@@ -1119,6 +1121,7 @@ if active_user is not None and participant_obj is not None:
             "city": "Lyon",
             "motivations": "Fait le dry january et veut garder la forme pour préparer des courses a pied",
             "animal": "A deux chats nommés Romu et Gribouille",
+            "relation": "En couple avec Audrix",
         },
         "Audrix": {
             "real_name": "Audrey",
@@ -1128,6 +1131,7 @@ if active_user is not None and participant_obj is not None:
             "city": "Lyon",
             "motivations": "Veut se remettre au sport après une période d'inactivité",
             "animal": "A deux chats nommés Romu et Gribouille",
+            "relation": "En couple avec Mathilde",
         },
         "Le K": {
             "real_name": "Katia",
@@ -1141,7 +1145,23 @@ if active_user is not None and participant_obj is not None:
         },
     }
 
-    motivation_prompt = f""" Tu encourages {participant_obj.name} à faire des squats. {long_term_user_knowledge.get(participant_obj.name, {})}
+    def get_random_half_facts(participant_name: str):
+        facts_dict = long_term_user_knowledge.get(participant_name, {})
+        items = list(facts_dict.items())
+
+        if not items:
+            return {}
+
+        # choose how to round:
+        # half_count = len(items) // 2            # floor
+        # half_count = math.ceil(len(items) / 2)  # ceil
+        # half_count = max(1, len(items) // 2)  # at least 1 fact
+        percentage = math.ceil(len(items) * 0.75)
+
+        sampled_items = random.sample(items, percentage)
+        return dict(sampled_items)
+
+    motivation_prompt = f""" Tu encourages {participant_obj.name} à faire des squats. {get_random_half_facts(participant_obj.name)}
 
 Contexte challenge : objectif {SQUAT_JOUR} squats/jour jusqu'au {end_of_year.strftime('%Y-%m-%d')} ({DAYS_LEFT} jours restants). 
 
