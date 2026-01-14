@@ -1124,6 +1124,7 @@ if active_user is not None and participant_obj is not None:
             "motivations": "Fait le dry january et veut garder la forme pour préparer des courses a pied",
             "animal": "A deux chats nommés Romu et Gribouille",
             "relation": "En couple avec Audrix",
+            "sport": "Pratique la course à pied",
         },
         "Audrix": {
             "real_name": "Audrey",
@@ -1132,9 +1133,10 @@ if active_user is not None and participant_obj is not None:
             "job": "Inspectrice",
             "company": "DGCCRF",
             "city": "Lyon",
-            "motivations": "Veut se remettre au sport après une période d'inactivité",
+            "motivations": "Veut se renformer les cuisses pour éviter de se blesser les genoux",
             "animal": "A deux chats nommés Romu et Gribouille",
             "relation": "En couple avec Mathilde",
+            "sport": "Pratique la course à pied et la course d'orientation",
         },
         "Le K": {
             "real_name": "Katia",
@@ -1143,9 +1145,9 @@ if active_user is not None and participant_obj is not None:
             "job": "Chommeuse",
             "company": "France Travail",
             "city": "Lyon",
-            "motivations": "Veut se remettre en forme",
+            "motivations": "Veut se remettre en forme pour préparer un hyrox",
             "motivations": "Amoureuse de Maxime",
-            "animal": "A un chat mâle nommé Abricot et un lapin bélier en surpoid nommé Tchoupi",
+            "animal": "A un chat mâle nommé Abricot et un lapin bélier femelle en surpoids nommée Tchoupi",
         },
         "Elix": {
             "real_name": "Elisa",
