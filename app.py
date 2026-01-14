@@ -1119,6 +1119,7 @@ if active_user is not None and participant_obj is not None:
             "city": "Lyon",
             "motivations": "Fait le dry january et veut garder la forme pour préparer des courses a pied",
             "animal": "A deux chats nommés Romu et Gribouille",
+        },
     }
 
     motivation_prompt = f""" Tu encourages {participant_obj.name} à faire des squats. {long_term_user_knowledge.get(participant_obj.name, {})}
