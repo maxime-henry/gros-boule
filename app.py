@@ -1105,6 +1105,7 @@ if active_user is not None and participant_obj is not None:
     long_term_user_knowledge = {
         "Max": {
             "real_name": "Maxime",
+            "sexe": "Masculin",
             "date of birth": "1997-04-03",
             "job": "Data Engineer",
             "company": "Bayer",
@@ -1115,6 +1116,7 @@ if active_user is not None and participant_obj is not None:
         },
         "Matix": {
             "real_name": "Mathilde",
+            "sexe": "Féminin",
             "date of birth": "1997-11-18",
             "job": "Responsable qualité",
             "company": "Panzani",
@@ -1125,6 +1127,7 @@ if active_user is not None and participant_obj is not None:
         },
         "Audrix": {
             "real_name": "Audrey",
+            "sexe": "Féminin",
             "date of birth": "1997-06-21",
             "job": "Inspectrice",
             "company": "DGCCRF",
@@ -1135,6 +1138,7 @@ if active_user is not None and participant_obj is not None:
         },
         "Le K": {
             "real_name": "Katia",
+            "sexe": "Féminin",
             "date of birth": "1992-07-28",
             "job": "Chommeuse",
             "company": "France Travail",
@@ -1142,6 +1146,36 @@ if active_user is not None and participant_obj is not None:
             "motivations": "Veut se remettre en forme",
             "motivations": "Amoureuse de Maxime",
             "animal": "A un chat mâle nommé Abricot et un lapin bélier en surpoid nommé Tchoupi",
+        },
+        "Elix": {
+            "real_name": "Elisa",
+            "sexe": "Féminin",
+            # "date of birth": "1995-10-10",
+            "job": "Responsable qualité et développement",
+            "company": "Groupement des éleveurs girondins",
+            "city": "Bordeaux",
+            # "motivations": "Veut se remettre en forme après une période d'inactivité",
+            "animal": "A un chat mâle nommé Plouf",
+            "relation": "En couple avec Antoine",
+        },
+        "Tonix": {
+            "real_name": "Antoine",
+            "sexe": "Masculin",
+            # "date of birth": "1994-05-15",
+            # "job": "Ingénieur DevOps",
+            # "company": "Criteo",
+            "city": "Bordeaux",
+            "motivations": "Passif de rugbyman",
+            "animal": "A un chat mâle nommé Plouf",
+            "relation": "En couple avec Elisa",
+        },
+        "Viox": {
+            "real_name": "Violette",
+            "sexe": "Féminin",
+            # "date of birth": "1998-12-05",
+            "job": "Conseillère agrivoltaïsme",
+            "company": "Chambre d'agriculture de la Gironde",
+            "city": "Bordeaux",
         },
     }
 
@@ -1152,11 +1186,7 @@ if active_user is not None and participant_obj is not None:
         if not items:
             return {}
 
-        # choose how to round:
-        # half_count = len(items) // 2            # floor
-        # half_count = math.ceil(len(items) / 2)  # ceil
-        # half_count = max(1, len(items) // 2)  # at least 1 fact
-        percentage = math.ceil(len(items) * 0.75)
+        percentage = math.ceil(len(items) * 0.70)
 
         sampled_items = random.sample(items, percentage)
         return dict(sampled_items)
