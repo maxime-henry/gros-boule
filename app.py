@@ -20,9 +20,7 @@ from config import (
 )
 
 
-st.set_page_config(
-    page_title="🍑 Squat app 🍑", page_icon="🍑", initial_sidebar_state="collapsed"
-)
+st.set_page_config(page_title="🍑 Squat app 🍑", page_icon="🍑", initial_sidebar_state="collapsed")
 
 st.markdown(
     """
@@ -292,9 +290,7 @@ def render_radial_progress(
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
-def chat_with_mistral(
-    prompt_hash: str, name: str, date_key: str, sum_squats: int
-) -> str:
+def chat_with_mistral(prompt_hash: str, name: str, date_key: str, sum_squats: int) -> str:
     """Cached LLM motivation call. Keyed on name + date to avoid re-calling same day.
 
     prompt_hash is passed for cache busting when stats change significantly,
@@ -448,14 +444,10 @@ class LazyParticipantDict:
 participants_obj = LazyParticipantDict(participants)
 
 # Sum individual goals (each participant's goal starts from their first squat, not Jan 1st)
-crew_goal_to_date = sum(
-    p.sum_squat_should_be_done_today for p in participants_obj.values()
-)
+crew_goal_to_date = sum(p.sum_squat_should_be_done_today for p in participants_obj.values())
 crew_delta_today = crew_total_squats - crew_goal_to_date
 crew_goal_full_year = sum(p.objectif_sum_squat for p in participants_obj.values())
-crew_completion_pct = (
-    (crew_total_squats / crew_goal_full_year) * 100 if crew_goal_full_year else 0
-)
+crew_completion_pct = (crew_total_squats / crew_goal_full_year) * 100 if crew_goal_full_year else 0
 
 active_today = sum(
     1
@@ -524,9 +516,7 @@ if is_logged_in:
 
     st.title(f"Allez {active_user}, t'es pas une merde!! ")
 
-    if st.button(
-        "Pas toi ? Clique ici pour changer de squatteur", key="change_user_btn"
-    ):
+    if st.button("Pas toi ? Clique ici pour changer de squatteur", key="change_user_btn"):
         # clear_login_cookie()
         st.session_state["pending_loading"] = "LOGOUT"
         active_user = None
@@ -538,9 +528,7 @@ if is_logged_in:
 
     st.divider()
 
-    st.write(
-        f"{active_user}, maintenant tu peux directement enregistrer tes squats ici :"
-    )
+    st.write(f"{active_user}, maintenant tu peux directement enregistrer tes squats ici :")
 
     with st.form("squat_form"):
         squats_faits = st.number_input(
@@ -593,9 +581,7 @@ if is_logged_in:
                 squat_objectif_quotidien=SQUAT_JOUR,
             )
 
-            st.success(
-                f"Gainage de {planks_faits} secondes enregistré pour {active_user}!"
-            )
+            st.success(f"Gainage de {planks_faits} secondes enregistré pour {active_user}!")
 
             st.rerun()
 
@@ -656,9 +642,7 @@ if is_logged_in:
                 {
                     "label": "Moyenne / jour",
                     "value": round(float(participant_obj.moyenne_squats_par_jour), 2),
-                    "delta": round(
-                        float(participant_obj.moyenne_squats_par_jour - SQUAT_JOUR), 2
-                    ),
+                    "delta": round(float(participant_obj.moyenne_squats_par_jour - SQUAT_JOUR), 2),
                 },
             ]
             render_metric_rows(cockpit_metrics, per_row=2 if mobile_view else 2)
@@ -723,9 +707,7 @@ if is_logged_in:
                     },
                     {
                         "label": "⏱️ Aujourd'hui",
-                        "value": format_plank_time(
-                            participant_obj.sum_plank_seconds_today
-                        ),
+                        "value": format_plank_time(participant_obj.sum_plank_seconds_today),
                         "help": "Temps fait aujourd'hui",
                     },
                     {
@@ -747,9 +729,7 @@ if is_logged_in:
                     },
                     {
                         "label": "📊 Moyenne / session",
-                        "value": format_plank_time(
-                            int(participant_obj.moyenne_plank_par_session)
-                        ),
+                        "value": format_plank_time(int(participant_obj.moyenne_plank_par_session)),
                         "delta": f"{participant_obj.plank_sessions_count} sessions",
                     },
                 ]
@@ -794,8 +774,7 @@ if is_logged_in:
                     "label": "Projection fin d'année",
                     "value": participant_obj.projected_year_total,
                     "delta": int(
-                        participant_obj.projected_year_total
-                        - participant_obj.objectif_sum_squat
+                        participant_obj.projected_year_total - participant_obj.objectif_sum_squat
                     ),
                     "help": "Projection basée sur ta moyenne quotidienne",
                 },
@@ -807,9 +786,7 @@ if is_logged_in:
                 min(participant_obj.progress_pct_vs_objectif / 100, 1.0),
                 text="Progression sur l'objectif annuel",
             )
-            st.caption(
-                "Barre bleu = ton pourcentage du défi annuel. Continue d'empiler."
-            )
+            st.caption("Barre bleu = ton pourcentage du défi annuel. Continue d'empiler.")
 
         st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
         st.markdown(
@@ -826,9 +803,7 @@ if is_logged_in:
         personal_history = participant_obj.df.copy()
         personal_history["date"] = pd.to_datetime(personal_history["date"])
         with chart_col:
-            fig = px.bar(
-                personal_history, x="date", y="squats", title="Sessions récentes"
-            )
+            fig = px.bar(personal_history, x="date", y="squats", title="Sessions récentes")
             # Apply gradient-like coloring based on values
             fig.update_traces(
                 marker=dict(
@@ -884,9 +859,7 @@ with st.container(border=True):
         hero_cols = st.columns([2, 1])
 
     with hero_cols[0]:
-        st.markdown(
-            "**🎯 L'objectif :** 20 squats par jour, chaque jour, jusqu'au 31 décembre."
-        )
+        st.markdown("**🎯 L'objectif :** 20 squats par jour, chaque jour, jusqu'au 31 décembre.")
         st.caption("On compte les reps, pas les excuses.")
         st.metric(
             label="Squats cumulés",
@@ -933,9 +906,7 @@ with st.container(border=True):
             "label": "♾️ Longest streak",
             "value": best_streak_holder.name if best_streak_holder else "—",
             "delta": (
-                f"{best_streak_holder.best_objective_streak} jours"
-                if best_streak_holder
-                else None
+                f"{best_streak_holder.best_objective_streak} jours" if best_streak_holder else None
             ),
         },
         {
@@ -993,14 +964,12 @@ with st.container(border=True):
             "label": "🔥 Streak gainage",
             "value": (
                 best_plank_streak_holder.name
-                if best_plank_streak_holder
-                and best_plank_streak_holder.best_plank_streak > 0
+                if best_plank_streak_holder and best_plank_streak_holder.best_plank_streak > 0
                 else "—"
             ),
             "delta": (
                 f"{best_plank_streak_holder.best_plank_streak} jours"
-                if best_plank_streak_holder
-                and best_plank_streak_holder.best_plank_streak > 0
+                if best_plank_streak_holder and best_plank_streak_holder.best_plank_streak > 0
                 else None
             ),
         },
@@ -1132,7 +1101,18 @@ if active_user is not None and participant_obj is not None:
         else "Jamais"
     )
 
-    motivation_prompt = f""" Tu encourages {participant_obj.name} à faire des squats.
+    long_term_user_knowledge = {
+        "Max": {
+            "real_name": "Maxime",
+            "date of birth": "1997-04-03",
+            "job": "Data Engineer",
+            "city": "Lyon",
+            "motivations": "Veut se remettre en forme pour préparer un hyrox",
+            "animal": "A un chat mâle nommé Abricot",
+        },
+    }
+
+    motivation_prompt = f""" Tu encourages {participant_obj.name} à faire des squats. {long_term_user_knowledge.get(participant_obj.name, {})}
 
 Contexte challenge : objectif {SQUAT_JOUR} squats/jour jusqu'au {end_of_year.strftime('%Y-%m-%d')} ({DAYS_LEFT} jours restants). 
 
