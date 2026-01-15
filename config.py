@@ -3,6 +3,10 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta
 import pandas as pd
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 load_dotenv()
 
@@ -493,7 +497,8 @@ def mistral_chat(message):
             ],
         )
         return chat_response.choices[0].message.content
-    except:
+    except Exception as e:
+        logger.error(f"Mistral API error: {e}")
         return "Bon courage mon reuf"
 
 
