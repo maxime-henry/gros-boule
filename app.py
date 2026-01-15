@@ -489,6 +489,10 @@ participant_obj = participants_obj.get(active_user) if active_user else None
 
 is_logged_in = active_user in participants_obj
 
+# Used later to display the LLM motivation block.
+# Defined unconditionally to avoid static-analysis "possibly unbound" warnings.
+
+
 if not is_logged_in:
     st.title("🍑 Squat App 🍑")
     st.subheader("New year new me")
@@ -526,7 +530,6 @@ if is_logged_in:
         st.rerun()
 
     placeholder = st.empty()
-
     st.divider()
 
     st.write(f"{active_user}, maintenant tu peux directement enregistrer tes squats ici :")
@@ -1135,7 +1138,7 @@ if active_user is not None and participant_obj is not None:
             "city": "Lyon",
             "motivations": "Veut se renformer les cuisses pour éviter de se blesser les genoux",
             "animal": "A deux chats nommés Romu et Gribouille",
-            "relation": "En couple avec Mathilde de sexe féminin",
+            "relation": "En couple avec Matix de sexe féminin",
             "sport": "Pratique la course à pied et la course d'orientation",
         },
         "Le K": {
@@ -1158,7 +1161,9 @@ if active_user is not None and participant_obj is not None:
             "city": "Bordeaux",
             # "motivations": "Veut se remettre en forme après une période d'inactivité",
             "animal": "A un chat mâle nommé Plouf",
-            "relation": "En couple avec Antoine",
+            "relation": "En couple avec Tonix",
+            "particularity": "Signe scorpion",
+            "phrase_fétiche": "Wallah sur gros quick,",
         },
         "Tonix": {
             "real_name": "Antoine",
@@ -1206,6 +1211,7 @@ if active_user is not None and participant_obj is not None:
             "job": "Chargée d'études'",
             "company": "Chambre d'agriculture de la Gironde",
             "city": "Bordeaux",
+            "particularity": "Reviens de vacances à Madère",
         },
         "Marinox": {
             "real_name": "Marine",
@@ -1255,12 +1261,99 @@ if active_user is not None and participant_obj is not None:
 
         return dict(sampled_items)
 
+    def build_team_context_for_prompt(active_name: str) -> str:
+        """Small team context block for the LLM prompt.
+
+        Keep it short: leaderboard today, user's rank, gap to next/leader, and team delta.
+        Uses already-computed Participant objects (no extra DB calls).
+        """
+
+        team_today = sorted(
+            leaderboard_df[["Squatteur", "Aujourd'hui"]].itertuples(index=False),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+
+        team_yearly = sorted(
+            leaderboard_df[["Squatteur", "Total"]].itertuples(index=False),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+
+        crew_today_total = sum(leaderboard_df["Aujourd'hui"])
+        crew_today_target = len(participants) * SQUAT_JOUR
+        crew_today_delta = crew_today_total - crew_today_target
+
+        # Top 6 of the day (keep it small)
+        top6_today = team_today[:6]
+        top6_text = (
+            ", ".join([f"{name} {count}" for name, count in top6_today]) if top6_today else "—"
+        )
+
+        top6_yearly = team_yearly[:6]
+        team_yearly_text = (
+            ", ".join([f"{name} {count}" for name, count in top6_yearly]) if top6_yearly else "—"
+        )
+
+        # User rank + small rivalry context
+        user_count = int(participants_obj[active_name].sum_squats_done_today)
+        user_rank = next(
+            (idx + 1 for idx, (name, _) in enumerate(team_today) if name == active_name),
+            None,
+        )
+
+        leader_count = team_today[0][1] if team_today else 0
+        gap_to_leader = leader_count - user_count
+
+        # Nearest above (next better score in list) if any
+        above = None
+        if user_rank is not None and user_rank > 1:
+            above = team_today[user_rank - 2]
+
+        gap_to_next = None
+        if above is not None:
+            gap_to_next = above[1] - user_count
+
+        already_done = [name for name, count in team_today if count >= SQUAT_JOUR]
+        sleepers = [name for name, count in team_today if count == 0]
+
+        # Keep lists tiny to avoid prompt bloat
+        done_text = ", ".join(already_done[:5]) if already_done else "—"
+        sleepers_text = ", ".join(sleepers[:5]) if sleepers else "—"
+
+        lines = [
+            "Contexte team (aujourd'hui) 👀 :",
+            f"- Top 6 du jour : {top6_text}.",
+            f"- Top 6 depuis le début de l'année : {team_yearly_text}.",
+            f"- Team total : {crew_today_total}/{crew_today_target} (delta {crew_today_delta:+d}).",
+        ]
+
+        if user_rank is not None and user_count > 0:
+            lines.append(f"- Ton rang du jour : #{user_rank} avec {user_count}.")
+
+        if above is not None and gap_to_next is not None:
+            lines.append(f"- Prochain à rattraper : {above[0]} (écart {gap_to_next} squats).")
+        elif gap_to_leader > 0:
+            lines.append(f"- Leader du jour : {team_today[0][0]} (écart {gap_to_leader} squats).")
+        else:
+            lines.append("- Leader du jour : toi. Oui toi. 😤")
+
+        lines.append(f"- Déjà validés (≥{SQUAT_JOUR}) : {done_text}.")
+        lines.append(f"- Dormeurs (0 aujourd'hui) : {sleepers_text}.")
+
+        return "\n".join(lines)
+
+    team_context = build_team_context_for_prompt(participant_obj.name)
+
+    # st.text(team_context)
     motivation_prompt = f""" Tu encourages {participant_obj.name} à faire des squats. {get_random_half_facts(participant_obj.name)}
 
 Contexte challenge : objectif {SQUAT_JOUR} squats/jour jusqu'au {end_of_year.strftime('%Y-%m-%d')} ({DAYS_LEFT} jours restants). 
 
+{team_context}
+
 Stats complètes (données figées au {today_snapshot} UTC+1) :
-- Total cumulé : {int(participant_obj.sum_squats_done)} squats sur {participant_obj.sessions_logged} sessions.
+- Total cumulé : {int(participant_obj.sum_squats_done)} squats.
 - Aujourd'hui : {int(participant_obj.sum_squats_done_today)} squats (delta vs objectif = {int(participant_obj.sum_squats_done_today - SQUAT_JOUR)}).
 - Hier : {int(participant_obj.sum_squats_hier)} squats.
 - Delta annuel vs objectif : {int(participant_obj.delta_done_vs_objecitf_today)} squats.
