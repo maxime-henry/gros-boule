@@ -1147,7 +1147,7 @@ st.caption(f"🍑 Squat App v0.1.6 · {today.strftime('%d/%m/%Y-%H:%M')}")
 
 
 if active_user is not None and participant_obj is not None:
-    today_snapshot = today.strftime("%Y-%m-%d-%H:%M")
+    today_snapshot = today.strftime("%Y-%m-%d")  # Date only for cache stability
     last_activity = (
         participant_obj.last_activity_date.strftime("%Y-%m-%d")
         if participant_obj.last_activity_date
@@ -1300,6 +1300,7 @@ if active_user is not None and participant_obj is not None:
     }
 
     def get_random_half_facts(participant_name: str):
+        """Return a deterministic subset of facts based on day-of-year for cache stability."""
         facts_dict = long_term_user_knowledge.get(participant_name, {})
         items = list(facts_dict.items())
 
@@ -1308,7 +1309,11 @@ if active_user is not None and participant_obj is not None:
 
         percentage = math.ceil(len(items) * 0.55)
 
-        sampled_items = random.sample(items, percentage)
+        # Use day-of-year + name hash for deterministic but rotating selection
+        seed = today.timetuple().tm_yday + hash(participant_name) % 1000
+        rng = random.Random(seed)
+        sampled_items = rng.sample(items, percentage)
+
         if not "real_name" in dict(sampled_items):
             sampled_items.append(("real_name", participant_name))
         if not "sexe" in dict(sampled_items):
