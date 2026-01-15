@@ -1123,7 +1123,7 @@ if active_user is not None and participant_obj is not None:
             "city": "Lyon",
             "motivations": "Fait le dry january et veut garder la forme pour préparer des courses a pied",
             "animal": "A deux chats nommés Romu et Gribouille",
-            "relation": "En couple avec Audrix",
+            "relation": "En couple avec Audrix de sexe féminin",
             "sport": "Pratique la course à pied",
         },
         "Audrix": {
@@ -1135,7 +1135,7 @@ if active_user is not None and participant_obj is not None:
             "city": "Lyon",
             "motivations": "Veut se renformer les cuisses pour éviter de se blesser les genoux",
             "animal": "A deux chats nommés Romu et Gribouille",
-            "relation": "En couple avec Mathilde",
+            "relation": "En couple avec Mathilde de sexe féminin",
             "sport": "Pratique la course à pied et la course d'orientation",
         },
         "Le K": {
@@ -1186,7 +1186,8 @@ if active_user is not None and participant_obj is not None:
             "job": "Responsable juridique",
             "company": "Goodflag",
             "city": "Bordeaux",
-            "sport": "Pratique l'escalade",
+            "sport": "Pratique l'escalade et le running",
+            "animal": "A un chat mâle nommé Java",
         },
         "Andreax": {
             "real_name": "Andréa",
@@ -1195,6 +1196,8 @@ if active_user is not None and participant_obj is not None:
             "job": "Sage Femme",
             "company": "Espace santé étudiant Pessac",
             "city": "Pessac",
+            "animal": "A un chat mâle nommé Zounkô (microbe en béninois), il manque des poils à son chat",
+            "particularity": "Beaucoup de tatouages",
         },
         "Carlix": {
             "real_name": "Carla",
@@ -1212,6 +1215,8 @@ if active_user is not None and participant_obj is not None:
             "company": "Mérithalle",
             "city": "Bordeaux",
             "sport": "Pratique la course à pied",
+            "motivations": "Prépare un marathon",
+            "motivations": "Fait le dry january",
         },
         "Fannux": {
             "real_name": "Fanny",
@@ -1243,6 +1248,11 @@ if active_user is not None and participant_obj is not None:
         percentage = math.ceil(len(items) * 0.70)
 
         sampled_items = random.sample(items, percentage)
+        if not "real_name" in dict(sampled_items):
+            sampled_items.append(("real_name", participant_name))
+        if not "sexe" in dict(sampled_items):
+            sampled_items.append(("sexe", facts_dict.get("sexe", "Inconnu")))
+
         return dict(sampled_items)
 
     motivation_prompt = f""" Tu encourages {participant_obj.name} à faire des squats. {get_random_half_facts(participant_obj.name)}
