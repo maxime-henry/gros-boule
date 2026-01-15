@@ -527,7 +527,25 @@ if is_logged_in:
         participant_order.remove(active_user)
         participant_order.insert(0, active_user)
 
-    st.title(f"Allez {active_user}, t'es pas une merde!! ")
+    dict_variant_title = [
+        f"Bah te revoila {active_user}",
+        f"Bravo {active_user}",
+        f"Content de te revoir {active_user} !",
+        f"Allez {active_user}, on y retourne !",
+        f"Let's go {active_user} !",
+        f"Re-bienvenue {active_user} !",
+        f"Ah bah enfin {active_user} !",
+        f"Tu reviens pour plus de squats {active_user} ?",
+        # f"Alors? {active_user}, prêt.e à en découdre ?",
+        f"Ça squat l'appli {active_user} ?",
+        f"T'es la star que tu penses être {active_user}",
+    ]
+
+    title_text = random.choice(dict_variant_title)
+
+    st.title(title_text)
+
+    # st.title(f"Allez {active_user}, t'es pas une merde!! ")
 
     if st.button(
         "Pas toi ? Clique ici pour changer de squatteur", key="change_user_btn"

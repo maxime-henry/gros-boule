@@ -499,7 +499,7 @@ def mistral_chat(message):
         return chat_response.choices[0].message.content
     except Exception as e:
         logger.error(f"Mistral API error: {e}")
-        # print(e)
+        print(e)
         return "Bon courage mon reuf"
 
 
