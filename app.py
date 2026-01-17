@@ -1425,7 +1425,7 @@ if active_user is not None and participant_obj is not None:
 
 Contexte challenge : objectif {SQUAT_JOUR} squats/jour jusqu'au {end_of_year.strftime('%Y-%m-%d')} ({DAYS_LEFT} jours restants). 
 
-{team_context}
+{team_context}, {long_term_user_knowledge}
 
 Stats complètes (données figées au {today_snapshot} UTC+1) :
 - Total cumulé : {int(participant_obj.sum_squats_done)} squats.
