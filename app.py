@@ -238,7 +238,7 @@ def get_no_ai_message(name: str) -> str:
         "IA absente. Discipline requise.",
         "Pas de jugement algorithmique aujourd’hui, juste toi et tes squats. Respire, descends, remonte. Repeat.",
     ]
-    return f"**{name}** — {random.choice(options)}"
+    return f"**{name}**, {random.choice(options)}"
 
 
 # Compute today and end_of_year fresh on each run
